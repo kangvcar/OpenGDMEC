@@ -1,4 +1,3 @@
-import { workflowRoot } from "@/integration/workflow-dom";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { settingsPopoverPosition } from "./settings-popover-position";
@@ -64,7 +63,7 @@ export function CanvasTextSettingsPopover({ config, onConfigChange, count, onCou
 
 function TextSettingsPortal({ buttonRect, panelRef, placement, theme, config, count, onConfigChange, onCountChange }: {
     buttonRect: DOMRect;
-    panelRef: RefObject<HTMLDivElement>;
+    panelRef: RefObject<HTMLDivElement | null>;
     placement: CanvasTextSettingsPopoverProps["placement"];
     theme: (typeof canvasThemes)[keyof typeof canvasThemes];
     config: AiConfig;
@@ -96,6 +95,6 @@ function TextSettingsPortal({ buttonRect, panelRef, placement, theme, config, co
                 </div>
             ) : null}
         </div>,
-        workflowRoot(),
+        document.body,
     );
 }

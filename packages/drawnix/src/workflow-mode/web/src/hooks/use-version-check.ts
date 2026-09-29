@@ -2,15 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { App } from "antd";
 import { useTranslation } from "react-i18next";
 import { APP_VERSION } from "@/constant/env";
-import { releasesFromChangelog, type ReleaseInfo } from "@/lib/release";
+import { parseChangelog, type ReleaseInfo } from "@/lib/release";
 
-declare const __APP_CHANGELOG__: Parameters<typeof releasesFromChangelog>[0];
-
-const latestVersionUrl = "/version.json";
-const latestChangelogUrl = "/changelog.json";
+const latestVersionUrl = "https://raw.githubusercontent.com/basketikun/infinite-canvas/main/VERSION";
+const latestChangelogUrl = "https://raw.githubusercontent.com/basketikun/infinite-canvas/main/CHANGELOG.md";
 
 function readLocalReleases(): ReleaseInfo[] {
-    return typeof __APP_CHANGELOG__ === "undefined" ? [] : releasesFromChangelog(__APP_CHANGELOG__);
+    return __APP_RELEASES__ || [];
 }
 
 function toVersionParts(version: string) {
@@ -40,8 +38,8 @@ export function useVersionCheck() {
         try {
             const response = await fetch(latestVersionUrl);
             if (!response.ok) return false;
-            const version: { version?: string } = await response.json();
-            setLatestVersion(version.version || currentVersion);
+            const version = await response.text();
+            setLatestVersion(version.trim() || currentVersion);
             return true;
         } catch {
             return false;
@@ -55,12 +53,9 @@ export function useVersionCheck() {
                 const [versionResponse, changelogResponse] = await Promise.all([fetch(latestVersionUrl), fetch(latestChangelogUrl)]);
                 if (!versionResponse.ok) throw new Error(t("version.readFailed"));
                 if (!changelogResponse.ok) throw new Error(t("version.changelogFailed"));
-                const [version, changelog] = await Promise.all([versionResponse.json(), changelogResponse.json()]) as [
-                    { version?: string },
-                    { versions?: Array<{ version: string; date: string; changes: Record<string, string[]> }> },
-                ];
-                setLatestVersion(version.version || currentVersion);
-                setReleases(releasesFromChangelog(changelog));
+                const [version, changelog] = await Promise.all([versionResponse.text(), changelogResponse.text()]);
+                setLatestVersion(version.trim() || currentVersion);
+                if (changelog.trim()) setReleases(parseChangelog(changelog));
                 if (showMessage) message.success(t("version.updated"));
                 return true;
             } catch {

@@ -330,7 +330,6 @@ export default {
         prompts: "Prompt Library",
         assets: "My Assets",
         config: "Settings",
-        "batch-generation": "Batch generation",
     },
     topNav: {
         openMenu: "Open navigation menu",

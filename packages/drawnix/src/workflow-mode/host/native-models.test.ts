@@ -226,7 +226,7 @@ describe('native workflow models', () => {
       channels: [custom],
       models: ['custom::mine'],
       imageModel: 'custom::mine',
-      videoModel: 'removed::video',
+      videoModel: '',
       textModel: '',
       audioModel: '',
     };
@@ -234,7 +234,6 @@ describe('native workflow models', () => {
     expect(result.channels[0]).toEqual(custom);
     expect(result.imageModel).toBe('custom::mine');
     expect(result.videoModel).toBe('opentu-native-legacy::seedance');
-    expect(mergeNativeModels({ ...config, videoModel: '' }, incoming).videoModel).toBe('');
     expect(mergeNativeModels(result, incoming)).toEqual(result);
   });
 

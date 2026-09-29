@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from '../submission-persistence';
 import { unifiedCacheService } from '../unified-cache-service';
 import { ensureBase64ForAI } from '../media-executor/fallback-utils';
 import { downloadVideoContentToLocalUrl } from '../video-binding-utils';
@@ -299,7 +298,7 @@ async function readErrorResponse(response: Response): Promise<string> {
   }
 }
 
-export async function submitHappyHorseVideo(
+async function submitHappyHorseVideo(
   context: AdapterContext,
   request: VideoGenerationRequest
 ): Promise<HappyHorseTaskResponse> {
@@ -450,7 +449,7 @@ export const happyHorseVideoAdapter: VideoModelAdapter = {
 
     const submitResult = await submitHappyHorseVideo(context, request);
     const taskId = extractTaskId(submitResult);
-    await notifyTaskSubmitted(taskId, onSubmitted);
+    onSubmitted?.(taskId);
 
     if (submitResult.status === 'failed' || submitResult.status === 'error') {
       throw new Error(extractErrorMessage(submitResult.error));

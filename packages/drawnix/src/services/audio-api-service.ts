@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from './submission-persistence';
 /**
  * Audio API Service
  *
@@ -13,7 +12,6 @@ import {
   type ProviderBaseUrlStrategy,
   type ProviderAuthStrategy,
   type ResolvedProviderContext,
-  type ProviderModelBinding,
 } from './provider-routing';
 import {
   resolveInvocationRoute,
@@ -101,16 +99,7 @@ export interface AudioLyricsPayload {
   errorMessage?: string;
 }
 
-export interface AudioRequestContext {
-  providerContext: ResolvedProviderContext;
-  binding: ProviderModelBinding | null;
-  signal?: AbortSignal;
-  fetcher?: typeof fetch;
-}
-
 interface AudioPollingOptions {
-  requestContext?: AudioRequestContext;
-  assertAvailable?: () => Promise<void>;
   interval?: number;
   maxAttempts?: number;
   onProgress?: (progress: number, status?: string) => void;
@@ -947,10 +936,9 @@ function normalizeManualAudioTaskResponse(
 
 class AudioAPIService {
   async submitAudioGeneration(
-    params: AudioGenerationParams,
-    requestContext?: AudioRequestContext
+    params: AudioGenerationParams
   ): Promise<AudioTaskResponse> {
-    const { providerContext, binding } = requestContext || resolveAudioPlanContext(
+    const { providerContext, binding } = resolveAudioPlanContext(
       params.modelRef || params.model
     );
     const baseUrlStrategy = inferAudioBaseUrlStrategy(providerContext, binding);
@@ -997,8 +985,6 @@ class AudioAPIService {
     let response: Response;
     try {
       response = await providerTransport.send(providerContext, {
-        signal: requestContext?.signal,
-        fetcher: requestContext?.fetcher,
         path: manualHttpTemplate
           ? (renderTemplate(submitPath, variables) as string)
           : submitPath,
@@ -1071,14 +1057,13 @@ class AudioAPIService {
 
   async queryAudioTask(
     taskId: string,
-    routeModel?: string | ModelRef | null,
-    requestContext?: AudioRequestContext
+    routeModel?: string | ModelRef | null
   ): Promise<AudioTaskResponse> {
     if (!taskId.trim()) {
       throw new Error('Suno 任务 ID 为空，无法查询任务状态');
     }
 
-    const { providerContext, binding } = requestContext || resolveAudioPlanContext(routeModel);
+    const { providerContext, binding } = resolveAudioPlanContext(routeModel);
     const baseUrlStrategy = inferAudioBaseUrlStrategy(providerContext, binding);
     const manualHttpTemplate = getManualHttpTemplate(binding?.metadata);
 
@@ -1097,8 +1082,6 @@ class AudioAPIService {
     });
 
     const response = await providerTransport.send(providerContext, {
-        signal: requestContext?.signal,
-        fetcher: requestContext?.fetcher,
       path: manualHttpTemplate
         ? (renderTemplate(path, variables) as string)
         : path,
@@ -1139,7 +1122,7 @@ class AudioAPIService {
       onSubmitted,
     } = options;
 
-    const submitResponse = await this.submitAudioGeneration(params, options.requestContext);
+    const submitResponse = await this.submitAudioGeneration(params);
 
     if (!submitResponse.taskId.trim()) {
       throw new Error(
@@ -1150,7 +1133,7 @@ class AudioAPIService {
     }
 
     if (onSubmitted) {
-      await notifyTaskSubmitted(submitResponse.taskId, onSubmitted);
+      onSubmitted(submitResponse.taskId);
     }
 
     if (onProgress) {
@@ -1178,7 +1161,6 @@ class AudioAPIService {
       maxAttempts,
       onProgress,
       routeModel: params.modelRef || params.model,
-      requestContext: options.requestContext,
     });
   }
 
@@ -1187,9 +1169,8 @@ class AudioAPIService {
     options: AudioPollingOptions = {}
   ): Promise<AudioTaskResponse> {
     const clipMemory = createClipIdentifierMemory();
-    await options.assertAvailable?.();
     const immediate = normalizeAudioTaskResponse(
-      (await this.queryAudioTask(taskId, options.routeModel, options.requestContext)).raw,
+      (await this.queryAudioTask(taskId, options.routeModel)).raw,
       taskId,
       clipMemory
     );
@@ -1205,7 +1186,7 @@ class AudioAPIService {
     }
 
     if (isTerminalFailure(immediate.status)) {
-      throw Object.assign(new Error(immediate.failReason || 'Suno 生成失败'), { workflowProviderFailure: true });
+      throw new Error(immediate.failReason || 'Suno 生成失败');
     }
 
     return this.pollUntilComplete(taskId, options, clipMemory);
@@ -1223,13 +1204,11 @@ class AudioAPIService {
     const maxConsecutiveErrors = 10;
 
     while (attempts < maxAttempts) {
-      options.requestContext?.signal?.throwIfAborted();
-      await this.sleep(interval, options.requestContext?.signal);
+      await this.sleep(interval);
       attempts += 1;
 
-      await options.assertAvailable?.();
       try {
-        const payload = await this.queryAudioTask(taskId, options.routeModel, options.requestContext);
+        const payload = await this.queryAudioTask(taskId, options.routeModel);
         const result = normalizeAudioTaskResponse(
           payload.raw,
           taskId,
@@ -1248,11 +1227,9 @@ class AudioAPIService {
         }
 
         if (isTerminalFailure(result.status)) {
-          throw Object.assign(new Error(result.failReason || 'Suno 生成失败'), { workflowProviderFailure: true });
+          throw new Error(result.failReason || 'Suno 生成失败');
         }
       } catch (error) {
-        options.requestContext?.signal?.throwIfAborted();
-        if ((error as { workflowProviderFailure?: boolean })?.workflowProviderFailure) throw error;
         consecutiveErrors += 1;
         if (consecutiveErrors >= maxConsecutiveErrors) {
           throw error;
@@ -1262,20 +1239,15 @@ class AudioAPIService {
           interval * Math.pow(1.5, consecutiveErrors),
           60000
         );
-        await this.sleep(backoffInterval - interval, options.requestContext?.signal);
+        await this.sleep(backoffInterval - interval);
       }
     }
 
     throw new Error('Suno 生成超时，请稍后重试');
   }
 
-  private sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (signal?.aborted) { reject(signal.reason ?? new DOMException('Aborted', 'AbortError')); return; }
-      const abort = () => { clearTimeout(timer); signal?.removeEventListener('abort', abort); reject(signal?.reason ?? new DOMException('Aborted', 'AbortError')); };
-      const timer = setTimeout(() => { signal?.removeEventListener('abort', abort); resolve(); }, ms);
-      signal?.addEventListener('abort', abort, { once: true });
-    });
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

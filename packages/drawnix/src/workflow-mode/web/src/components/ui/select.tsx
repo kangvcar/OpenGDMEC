@@ -1,4 +1,3 @@
-import { workflowRoot } from "@/integration/workflow-dom";
 import * as React from "react"
 import { Select as SelectPrimitive } from "radix-ui"
 
@@ -68,7 +67,7 @@ function SelectContent({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (
-    <SelectPrimitive.Portal container={workflowRoot()}>
+    <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}

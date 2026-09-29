@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from '../submission-persistence';
 import type {
   AdapterContext,
   VideoGenerationRequest,
@@ -487,7 +486,21 @@ function isTransientPollError(error: unknown): boolean {
   );
 }
 
-export async function submitSeedance2Request(context: AdapterContext, request: VideoGenerationRequest) {
+export const seedance2VideoAdapter: VideoModelAdapter = {
+  id: 'seedance-2-video-adapter',
+  label: 'Seedance 2.0 Video',
+  kind: 'video',
+  docsUrl: 'https://tuzi-api.apifox.cn/418534831e0',
+  matchProtocols: ['openai.async.video'],
+  matchRequestSchemas: ['doubao.seedance-2.video.content-json'],
+  matchPredicate(modelConfig) {
+    return isSeedance2Model(modelConfig.id);
+  },
+
+  async generateVideo(
+    context: AdapterContext,
+    request: VideoGenerationRequest
+  ): Promise<VideoGenerationResult> {
     const model = request.model || '';
     if (!isSeedance2Model(model)) {
       throw new Error(`不支持的 Seedance 2.0 模型：${model}`);
@@ -514,6 +527,13 @@ export async function submitSeedance2Request(context: AdapterContext, request: V
           modelLabel
         )
       : undefined;
+    const onProgress = request.params?.onProgress as
+      | ((progress: number, status?: string) => void)
+      | undefined;
+    const onSubmitted = request.params?.onSubmitted as
+      | ((taskId: string) => void)
+      | undefined;
+
     const submitBody = {
       model,
       content: await buildContent(request, capabilities, modelLabel),
@@ -550,33 +570,7 @@ export async function submitSeedance2Request(context: AdapterContext, request: V
       throw new Error('Seedance 2.0 API 未返回任务 ID');
     }
 
-    return { taskId, submitted, model, provider, duration };
-}
-
-export const seedance2VideoAdapter: VideoModelAdapter = {
-  id: 'seedance-2-video-adapter',
-  label: 'Seedance 2.0 Video',
-  kind: 'video',
-  docsUrl: 'https://tuzi-api.apifox.cn/418534831e0',
-  matchProtocols: ['openai.async.video'],
-  matchRequestSchemas: ['doubao.seedance-2.video.content-json'],
-  matchPredicate(modelConfig) {
-    return isSeedance2Model(modelConfig.id);
-  },
-
-  async generateVideo(
-    context: AdapterContext,
-    request: VideoGenerationRequest
-  ): Promise<VideoGenerationResult> {
-    const onProgress = request.params?.onProgress as
-      | ((progress: number, status?: string) => void)
-      | undefined;
-    const onSubmitted = request.params?.onSubmitted as
-      | ((taskId: string) => void)
-      | undefined;
-
-    const { taskId, submitted, model, provider, duration } = await submitSeedance2Request(context, request);
-    await notifyTaskSubmitted(taskId, onSubmitted);
+    onSubmitted?.(taskId);
     onProgress?.(5, submitted.status || 'queued');
 
     let consecutiveErrors = 0;
@@ -599,12 +593,13 @@ export const seedance2VideoAdapter: VideoModelAdapter = {
         const normalizedStatus = (status.status || '').toLowerCase();
         onProgress?.(status.progress ?? 0, normalizedStatus);
 
-        if (['failed', 'failure', 'error', 'cancelled', 'canceled'].includes(normalizedStatus)) {
+        if (normalizedStatus === 'failed' || normalizedStatus === 'error') {
           businessFailure = true;
           throw new Error(extractErrorMessage(status.error));
         }
         if (
-          ['completed', 'complete', 'succeeded', 'succeed', 'success', 'done'].includes(normalizedStatus)
+          normalizedStatus === 'completed' ||
+          normalizedStatus === 'succeeded'
         ) {
           const inlineUrl = extractResultUrl(status);
           const url =

@@ -435,16 +435,14 @@ export function currentPlanMessage(messages: AgentChatItem[]) {
     for (let index = messages.length - 1; index >= 0; index--) {
         const message = messages[index];
         if (isPlanMessage(message)) return message;
-        if (message.role === "user") return undefined;
+        if (message.role === "user") return;
     }
-    return undefined;
 }
 
 export function latestPlanMessage(messages: AgentChatItem[]) {
     for (let index = messages.length - 1; index >= 0; index--) {
         if (isPlanMessage(messages[index])) return messages[index];
     }
-    return undefined;
 }
 
 export function isPlanMessage(message: AgentChatItem) {
@@ -532,11 +530,7 @@ export function scopeChatItem(item: AgentChatItem, threadId: string, turnId: str
 }
 
 export function bindPendingTurnMessages(messages: AgentChatItem[], threadId: string, turnId: string) {
-    let index = messages.length - 1;
-    for (; index >= 0; index--) {
-        const item = messages[index];
-        if (item.role === "user" && item.threadId === threadId && !item.turnId) break;
-    }
+    const index = messages.findLastIndex((item) => item.role === "user" && item.threadId === threadId && !item.turnId);
     if (index < 0) return messages;
     return messages.map((item, itemIndex) => itemIndex === index ? scopeChatItem(item, threadId, turnId) : item);
 }

@@ -20,7 +20,6 @@ import type {
 import { Task, TaskStatus, type TaskResult } from '../../types/task.types';
 import type { CacheWarning } from '../../types/cache-warning.types';
 import { taskStorageWriter } from './task-storage-writer';
-import { SubmissionPersistenceError } from '../submission-persistence';
 import { taskStorageReader } from '../task-storage-reader';
 import {
   resolveInvocationRoute,
@@ -634,7 +633,7 @@ export class FallbackMediaExecutor implements IMediaExecutor {
       await taskStorageWriter.failTask(
         taskId,
         {
-          code: error.code || 'IMAGE_GENERATION_ERROR',
+          code: 'IMAGE_GENERATION_ERROR',
           message: errorMessage,
         },
         requestId,
@@ -801,8 +800,6 @@ export class FallbackMediaExecutor implements IMediaExecutor {
       const duration = Date.now() - logStartTime;
       const errorMessage = error.message || 'Async image generation failed';
 
-      if (error instanceof SubmissionPersistenceError) throw error;
-
       if (options?.isCurrentAttempt?.() === false) {
         failLLMApiLog(logId, { duration, errorMessage });
         throw error;
@@ -825,7 +822,7 @@ export class FallbackMediaExecutor implements IMediaExecutor {
       await taskStorageWriter.failTask(
         taskId,
         {
-          code: error.code || 'ASYNC_IMAGE_GENERATION_ERROR',
+          code: 'ASYNC_IMAGE_GENERATION_ERROR',
           message: errorMessage,
         },
         submissionRequestId,

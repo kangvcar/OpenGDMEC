@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from '../submission-persistence';
 import type {
   AdapterContext,
   VideoGenerationRequest,
@@ -272,7 +271,20 @@ const querySeedanceVideo = async (
   return JSON.parse(await readProviderResponseText(response));
 };
 
-export async function submitSeedanceRequest(context: AdapterContext, request: VideoGenerationRequest) {
+export const seedanceVideoAdapter: VideoModelAdapter = {
+  id: 'seedance-video-adapter',
+  label: 'Seedance Video',
+  kind: 'video',
+  docsUrl: 'https://tuzi-api.apifox.cn',
+  matchProtocols: ['seedance.task'],
+  matchRequestSchemas: ['seedance.video.form-auto'],
+  supportedModels: SEEDANCE_MODELS,
+  matchPredicate(modelConfig) {
+    return isLegacySeedanceModel(modelConfig.id);
+  },
+  defaultModel: 'seedance-1.5-pro',
+
+  async generateVideo(context, request: VideoGenerationRequest) {
     const logicalModel = request.model || 'seedance-1.5-pro';
     const physicalModel = parsePhysicalSeedanceModel(logicalModel);
     if (
@@ -305,6 +317,15 @@ export async function submitSeedanceRequest(context: AdapterContext, request: Vi
       isSeedanceLiteModel(logicalModel);
     const inputReferences = isLite ? request.referenceImages : undefined;
 
+    const onProgress = request.params?.onProgress as
+      | ((progress: number, status?: string) => void)
+      | undefined;
+    const onSubmitted = request.params?.onSubmitted as
+      | ((videoId: string) => void)
+      | undefined;
+
+    onProgress?.(5, 'submitting');
+
     const submitResult = await submitSeedanceVideo(context, {
       model: actualModel,
       prompt: request.prompt,
@@ -320,33 +341,7 @@ export async function submitSeedanceRequest(context: AdapterContext, request: Vi
       throw new Error('Seedance API 未返回任务 ID');
     }
 
-    return { taskId, submitResult };
-}
-
-export const seedanceVideoAdapter: VideoModelAdapter = {
-  id: 'seedance-video-adapter',
-  label: 'Seedance Video',
-  kind: 'video',
-  docsUrl: 'https://tuzi-api.apifox.cn',
-  matchProtocols: ['seedance.task'],
-  matchRequestSchemas: ['seedance.video.form-auto'],
-  supportedModels: SEEDANCE_MODELS,
-  matchPredicate(modelConfig) {
-    return isLegacySeedanceModel(modelConfig.id);
-  },
-  defaultModel: 'seedance-1.5-pro',
-
-  async generateVideo(context, request: VideoGenerationRequest) {
-    const onProgress = request.params?.onProgress as
-      | ((progress: number, status?: string) => void)
-      | undefined;
-    const onSubmitted = request.params?.onSubmitted as
-      | ((videoId: string) => void)
-      | undefined;
-
-    onProgress?.(5, 'submitting');
-    const { taskId, submitResult } = await submitSeedanceRequest(context, request);
-    await notifyTaskSubmitted(taskId, onSubmitted);
+    onSubmitted?.(taskId);
 
     // 提交时已失败
     if (submitResult.status === 'failed') {

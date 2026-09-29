@@ -6,7 +6,6 @@ import type {
 } from '../types/task.types';
 import { TaskExecutionPhase, TaskStatus, TaskType } from '../types/task.types';
 import { CryptoUtils } from '../utils/crypto-utils';
-import { isDocumentBatchTaskScopeCurrent } from './media-executor/task-storage-writer';
 import { createModelRef } from '../utils/settings-manager';
 import {
   providerTransport,
@@ -77,7 +76,6 @@ interface ImageGenerationRecoveryFailure {
 }
 
 interface ImageGenerationRecoveryCallbacks {
-  assertAvailable?: () => Promise<void>;
   onSucceeded(
     result: ImageGenerationRecoverySuccess,
     signal: AbortSignal
@@ -162,7 +160,6 @@ interface RecoveryEntry {
   releaseTerminalWait?: () => void;
   controller?: AbortController;
   terminalDelivery?: () => Promise<void>;
-  scopeGuard?: () => boolean;
 }
 
 interface ProcessingOutcome {
@@ -572,9 +569,6 @@ export class ImageGenerationRecoveryService {
     task: ImageGenerationRecoveryTask,
     callbacks: ImageGenerationRecoveryCallbacks
   ): ImageGenerationRecoveryStartResult {
-    if (!isDocumentBatchTaskScopeCurrent(task)) {
-      return { status: 'rejected', reason: 'invalid-task' };
-    }
     const descriptor = this.createTaskDescriptor(task);
     if (!descriptor) {
       return { status: 'rejected', reason: 'invalid-task' };
@@ -611,9 +605,6 @@ export class ImageGenerationRecoveryService {
       state: 'queued',
       failureStreak: 0,
       terminalDeliveryAttempts: 0,
-      scopeGuard: task.params.documentBatch || task.params.workflow
-        ? () => isDocumentBatchTaskScopeCurrent(task)
-        : undefined,
     };
     this.entries.set(descriptor.taskId, entry);
     this.queue.push(entry);
@@ -748,10 +739,6 @@ export class ImageGenerationRecoveryService {
 
   private isCurrent(entry: RecoveryEntry): boolean {
     const taskId = entry.task?.taskId;
-    if (entry.scopeGuard && !entry.scopeGuard()) {
-      this.stopEntry(entry);
-      return false;
-    }
     return Boolean(taskId && this.entries.get(taskId) === entry);
   }
 
@@ -824,7 +811,6 @@ export class ImageGenerationRecoveryService {
     entry: RecoveryEntry,
     task: RecoveryTaskDescriptor
   ): Promise<PollOutcome> {
-    if (entry.callbacks?.assertAvailable) await entry.callbacks.assertAvailable();
     const plan = this.resolveTrustedInvocationPlan(task);
     if (!plan) {
       return {
@@ -1326,10 +1312,6 @@ export const imageGenerationRecoveryService =
   new ImageGenerationRecoveryService();
 
 export function isImageRequestRecoveryCandidate(task: Task): boolean {
-  // Batch attempts are conservative after refresh: their submission ticket is
-  // scoped to the batch scheduler, so generic recovery must not issue a query
-  // using whatever account happens to be active.
-  if (task.params.documentBatch) return false;
   const route = task.invocationRoute;
   const binding = createRecoveryBindingFingerprint(route?.binding);
   return (

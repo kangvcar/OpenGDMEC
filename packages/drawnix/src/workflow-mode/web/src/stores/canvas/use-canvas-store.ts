@@ -44,18 +44,6 @@ const CANVAS_STORE_KEY = "infinite-canvas:canvas_store";
 type PersistedCanvasState = Pick<CanvasStore, "projects" | "deletedProjects">;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let queuedPersistState: PersistedCanvasState | null = null;
-let persistQueue: Promise<unknown> = Promise.resolve();
-function writeCanvasSnapshot(name: string, value: unknown) {
-    persistQueue = persistQueue.catch(() => undefined).then(() => localForageStorage.setItem(name, JSON.stringify(value)));
-    return persistQueue;
-}
-/** Await the current snapshot before issuing a paid generation request. */
-export async function flushCanvasStorage() {
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = null;
-    const { projects, deletedProjects } = useCanvasStore.getState();
-    await writeCanvasSnapshot(CANVAS_STORE_KEY, { state: { projects, deletedProjects }, version: 0 });
-}
 
 const canvasStorage: PersistStorage<CanvasStore> = {
     getItem: async (name) => {
@@ -72,7 +60,7 @@ const canvasStorage: PersistStorage<CanvasStore> = {
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
             saveTimer = null;
-            void writeCanvasSnapshot(name, value).catch(() => undefined);
+            void localForageStorage.setItem(name, JSON.stringify(value));
         }, 400);
     },
     removeItem: (name) => localForageStorage.removeItem(name),

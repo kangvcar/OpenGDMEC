@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from './submission-persistence';
 /**
  * Async Image API Service
  *
@@ -56,13 +55,7 @@ export interface AsyncImageQueryResponse {
   error?: string | { code: string; message: string };
 }
 
-interface LocalImageContext {
-  providerContext: ResolvedProviderContext;
-  fetcher?: typeof fetch;
-}
 interface PollingOptions {
-  requestContext?: LocalImageContext;
-  assertAvailable?: () => Promise<void>;
   interval?: number;
   maxAttempts?: number;
   signal?: AbortSignal;
@@ -154,10 +147,9 @@ class AsyncImageAPIService {
   private async submit(
     params: AsyncImageGenerationParams,
     signal?: AbortSignal,
-    requestId?: string,
-    requestContext?: LocalImageContext
+    requestId?: string
   ): Promise<AsyncImageSubmitResponse> {
-    const providerContext = requestContext?.providerContext || resolveProviderContext(
+    const providerContext = resolveProviderContext(
       params.modelRef || params.model
     );
 
@@ -186,7 +178,6 @@ class AsyncImageAPIService {
     }
 
     const response = await providerTransport.send(providerContext, {
-      fetcher: requestContext?.fetcher,
       path: '/videos',
       method: 'POST',
       requestId,
@@ -208,20 +199,18 @@ class AsyncImageAPIService {
     return response.json();
   }
 
-  async query(
+  private async query(
     id: string,
     routeModel?: string | ModelRef | null,
-    signal?: AbortSignal,
-    requestContext?: LocalImageContext
+    signal?: AbortSignal
   ): Promise<AsyncImageQueryResponse> {
-    const providerContext = requestContext?.providerContext || resolveProviderContext(routeModel);
+    const providerContext = resolveProviderContext(routeModel);
 
     if (!providerContext.apiKey) {
       throw new Error('API Key 未配置');
     }
 
     const response = await providerTransport.send(providerContext, {
-      fetcher: requestContext?.fetcher,
       path: `/videos/${id}`,
       method: 'GET',
       signal,
@@ -258,10 +247,10 @@ class AsyncImageAPIService {
       maxAttempts ?? getDefaultImagePollingMaxAttempts(interval);
 
     await onSubmissionAttempt?.();
-    const submitResp = await this.submit(params, signal, requestId, options.requestContext);
+    const submitResp = await this.submit(params, signal, requestId);
 
     if (onSubmitted) {
-      await notifyTaskSubmitted(submitResp.id, onSubmitted);
+      await onSubmitted(submitResp.id);
     }
 
     if (onProgress) {
@@ -282,7 +271,6 @@ class AsyncImageAPIService {
       signal,
       onProgress,
       routeModel: params.modelRef || params.model,
-      requestContext: options.requestContext,
     });
   }
 
@@ -292,8 +280,7 @@ class AsyncImageAPIService {
   ): Promise<AsyncImageQueryResponse> {
     const { onProgress } = options;
 
-    await options.assertAvailable?.();
-    const immediate = await this.query(id, options.routeModel, options.signal, options.requestContext);
+    const immediate = await this.query(id, options.routeModel, options.signal);
     const immediateProgress =
       immediate.progress ??
       (immediate.status === 'failed'
@@ -346,10 +333,9 @@ class AsyncImageAPIService {
 
       await this.sleep(interval, signal);
       attempts += 1;
-      await options.assertAvailable?.();
 
       try {
-        const status = await this.query(id, routeModel, signal, options.requestContext);
+        const status = await this.query(id, routeModel, signal);
         const progress =
           status.progress ??
           (status.status === 'failed'

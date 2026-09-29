@@ -1,10 +1,8 @@
-import { createInstance } from "i18next";
+import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 import enUS from "@/i18n/locales/en-US";
 import zhCN from "@/i18n/locales/zh-CN";
-
-const i18n = createInstance();
 
 export type AppLocale = "zh-CN" | "en-US";
 

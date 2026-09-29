@@ -1,4 +1,3 @@
-import { workflowRoot } from "@/integration/workflow-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, MouseEvent, PointerEvent } from "react";
 import { createPortal } from "react-dom";
@@ -36,8 +35,6 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
     const theme = canvasThemes[useThemeStore((state) => state.theme)];
     const editorRef = useRef<HTMLDivElement>(null);
     const composingRef = useRef(false);
-    const compositionValueRef = useRef(value);
-    const [isComposing, setIsComposing] = useState(false);
     // Track the last value emitted to the parent. An identical focused value is this component's own echo,
     // so skip rebuilding to preserve the caret and IME. Rebuild external changes even while focused.
     const lastEmittedRef = useRef(value);
@@ -59,10 +56,10 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
     }, [mention, activeReferences]);
 
     // Rebuild the DOM from value when unfocused, or when a focused value is an external change rather than an emitted echo.
-    const renderValue = (force = false) => {
+    useEffect(() => {
         const editor = editorRef.current;
-        if (!editor || composingRef.current) return;
-        if (!force && document.activeElement === editor && value === lastEmittedRef.current) return;
+        if (!editor) return;
+        if (document.activeElement === editor && value === lastEmittedRef.current) return;
         editor.textContent = "";
         tokens.forEach((token) => {
             if (token.type === "text") {
@@ -74,8 +71,7 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
             else editor.append(document.createTextNode(token.label));
         });
         lastEmittedRef.current = value;
-    };
-    useEffect(() => { renderValue(); }, [tokens, referenceByLabel, theme, value]);
+    }, [tokens, referenceByLabel, theme, value]);
 
     const emit = (next: string) => {
         lastEmittedRef.current = next;
@@ -90,7 +86,6 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
     };
 
     const syncMention = () => {
-        if (composingRef.current) return;
         const text = textBeforeCaret();
         const match = /@([^\s@]*)$/.exec(text);
         if (!match || !activeReferences.length) {
@@ -129,7 +124,7 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
         emit(serializeEditor(editor));
     };
 
-    const showPlaceholder = !isComposing && !value.trim();
+    const showPlaceholder = !value.trim();
 
     return (
         <div className="relative w-full">
@@ -151,19 +146,14 @@ export function CanvasPromptChipInput({ value, references, onChange, onSubmit, c
                 }}
                 onCompositionStart={() => {
                     composingRef.current = true;
-                    compositionValueRef.current = value;
-                    setIsComposing(true);
-                    closeMention();
                 }}
                 onCompositionEnd={() => {
                     composingRef.current = false;
-                    setIsComposing(false);
-                    if (value !== compositionValueRef.current) renderValue(true);
-                    else syncFromEditor();
+                    syncFromEditor();
                 }}
                 onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
                     event.stopPropagation();
-                    if (composingRef.current || isImeComposing(event)) return;
+                    if (isImeComposing(event)) return;
                     if (mention && candidates.length) {
                         if (event.key === "ArrowDown") {
                             event.preventDefault();
@@ -267,7 +257,7 @@ function MentionMenu({ rect, references, activeIndex, theme, onSelect }: { rect:
                 </button>
             ))}
         </div>,
-        workflowRoot(),
+        document.body,
     );
 }
 

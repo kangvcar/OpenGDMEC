@@ -23,7 +23,6 @@ export interface NativeReferenceInput {
   formats?: Array<'url' | 'data' | 'asset'>;
   minCount?: number;
   maxCount?: number;
-  maxCountWithoutVideos?: number;
   mode?: 'reference' | 'frames' | 'components';
   labels?: string[];
 }
@@ -42,7 +41,7 @@ export function isNativeReferenceInputs(
       ['images', 'videos', 'audios'].includes(key) &&
       input &&
       typeof input === 'object' &&
-      ['minCount', 'maxCount', 'maxCountWithoutVideos'].every(
+      ['minCount', 'maxCount'].every(
         (field) =>
           input[field] === undefined ||
           (Number.isInteger(input[field]) && input[field] >= 0)
@@ -170,21 +169,12 @@ export function validateNativeReferences(
   for (const key of ['images', 'videos', 'audios'] as const) {
     const count = references[key]?.length || 0;
     const input = inputs[key];
-    const limit =
-      key === 'images' && !references.videos?.length
-        ? input?.maxCountWithoutVideos ?? input?.maxCount
-        : input?.maxCount;
     if (
       (!input && count) ||
-      (limit !== undefined && count > limit) ||
+      (input?.maxCount !== undefined && count > input.maxCount) ||
       (input?.minCount !== undefined && count < input.minCount)
     ) {
-      const label = input?.labels?.[0] || key;
-      const detail =
-        limit !== undefined && count > limit
-          ? `，最多支持 ${limit} 个`
-          : '';
-      throw new Error(`模型参考素材 ${label} 数量无效 (${count}${detail})`);
+      throw new Error(`模型参考素材 ${key} 数量无效 (${count})`);
     }
     for (const reference of references[key] || []) {
       const format = /^https?:/i.test(reference)

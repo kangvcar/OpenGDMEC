@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from '../submission-persistence';
 import type {
   AdapterContext,
   VideoGenerationRequest,
@@ -431,7 +430,24 @@ const deriveAspectRatio = (size?: string): string | undefined => {
   return `${width / divisor}:${height / divisor}`;
 };
 
-export async function submitKlingRequest(context: AdapterContext, request: VideoGenerationRequest) {
+export const klingAdapter: VideoModelAdapter = {
+  id: 'kling-video-adapter',
+  label: 'Kling Video',
+  kind: 'video',
+  docsUrl: 'https://tuzi-api.apifox.cn',
+  matchProtocols: ['kling.video'],
+  matchRequestSchemas: ['kling.video.auto-action-json'],
+  supportedModels: [
+    'kling_video',
+    'kling-v3',
+    'kling-v2-6',
+    'kling-v2-1',
+    'kling-v1-6',
+    'kling-v1-5',
+    'kling-v1',
+  ],
+  defaultModel: 'kling_video',
+  async generateVideo(context, request: VideoGenerationRequest) {
     const action2: 'text2video' | 'image2video' =
       (request.params?.klingAction2 as
         | 'text2video'
@@ -441,6 +457,12 @@ export async function submitKlingRequest(context: AdapterContext, request: Video
         ? 'image2video'
         : 'text2video');
 
+    const onProgress = request.params?.onProgress as
+      | ((progress: number, status?: string) => void)
+      | undefined;
+    const onSubmitted = request.params?.onSubmitted as
+      | ((videoId: string) => void)
+      | undefined;
     const modelName = resolveKlingModelName(context, request, action2);
     const aspectRatio =
       (request.params?.aspect_ratio as string | undefined) ||
@@ -492,6 +514,8 @@ export async function submitKlingRequest(context: AdapterContext, request: Video
           )
         : undefined;
 
+    onProgress?.(5, 'submitting');
+
     const submitResponse = await submitKlingVideo(context, action2, {
       ...(adapterParams || {}),
       model_name: modelName,
@@ -505,39 +529,8 @@ export async function submitKlingRequest(context: AdapterContext, request: Video
       kling_elements: normalizedKlingElements,
     });
 
-    if (submitResponse.code !== undefined && Number(submitResponse.code) !== 0) throw new Error(submitResponse.message || 'Kling 视频提交失败');
-    const taskId = submitResponse.data?.task_id;
-    if (!taskId) throw new Error("Kling API 未返回任务 ID");
-    return { taskId, action2 };
-}
-
-export const klingAdapter: VideoModelAdapter = {
-  id: 'kling-video-adapter',
-  label: 'Kling Video',
-  kind: 'video',
-  docsUrl: 'https://tuzi-api.apifox.cn',
-  matchProtocols: ['kling.video'],
-  matchRequestSchemas: ['kling.video.auto-action-json'],
-  supportedModels: [
-    'kling_video',
-    'kling-v3',
-    'kling-v2-6',
-    'kling-v2-1',
-    'kling-v1-6',
-    'kling-v1-5',
-    'kling-v1',
-  ],
-  defaultModel: 'kling_video',
-  async generateVideo(context, request: VideoGenerationRequest) {
-    const onProgress = request.params?.onProgress as
-      | ((progress: number, status?: string) => void)
-      | undefined;
-    const onSubmitted = request.params?.onSubmitted as
-      | ((videoId: string) => void)
-      | undefined;
-    onProgress?.(5, 'submitting');
-    const { taskId, action2 } = await submitKlingRequest(context, request);
-    await notifyTaskSubmitted(taskId, onSubmitted);
+    const taskId = submitResponse.data.task_id;
+    onSubmitted?.(taskId);
     onProgress?.(10, 'processing');
     let attempts = 0;
 

@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from './submission-persistence';
 /**
  * Video API Service
  *
@@ -100,7 +99,6 @@ export interface VideoQueryResponse {
 
 // Polling options
 interface PollingOptions {
-  assertAvailable?: () => Promise<void>;
   interval?: number; // Polling interval in ms (default: 5000)
   maxAttempts?: number; // Max polling attempts (default: 1080 = 90min at 5s interval)
   onProgress?: (progress: number, status: string) => void;
@@ -473,7 +471,7 @@ class VideoAPIService {
 
     // Notify that video has been submitted (for saving remoteId)
     if (onSubmitted) {
-      await notifyTaskSubmitted(submitResponse.id, onSubmitted);
+      onSubmitted(submitResponse.id);
     }
 
     // Report initial progress
@@ -520,7 +518,6 @@ class VideoAPIService {
 
     // For resumed tasks, check status immediately first (video may already be completed)
     // console.log('[VideoAPI] Checking status immediately for resumed task...');
-    await options.assertAvailable?.();
     const immediateStatus = await this.queryVideoStatus(
       videoId,
       options.routeModel,
@@ -561,7 +558,7 @@ class VideoAPIService {
             JSON.stringify(immediateStatus.error);
         }
       }
-      throw Object.assign(new Error(errorMessage), { workflowProviderFailure: true });
+      throw new Error(errorMessage);
     }
 
     // Continue polling if still in progress
@@ -590,7 +587,6 @@ class VideoAPIService {
       // Flag to track if this is a business failure (should not retry)
       let isBusinessFailure = false;
 
-      await options.assertAvailable?.();
       try {
         const status = await this.queryVideoStatus(
           videoId,
@@ -636,7 +632,7 @@ class VideoAPIService {
           }
           // Mark as business failure so it won't be retried
           isBusinessFailure = true;
-          throw Object.assign(new Error(errorMessage), { workflowProviderFailure: true });
+          throw new Error(errorMessage);
         }
       } catch (err: any) {
         // 业务失败（API 返回 status: failed）不应重试，直接抛出

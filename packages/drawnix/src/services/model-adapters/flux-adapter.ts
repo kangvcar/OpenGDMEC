@@ -1,4 +1,3 @@
-import { notifyTaskSubmitted } from '../submission-persistence';
 import type {
   AdapterContext,
   ImageGenerationRequest,
@@ -225,7 +224,7 @@ export const fluxImageAdapter: ImageModelAdapter = {
       throw new Error('Flux API 未返回任务 ID');
     }
 
-    await notifyTaskSubmitted(remoteId, onSubmitted);
+    onSubmitted?.(remoteId);
     onProgress?.(10, 'processing');
 
     // 轮询结果

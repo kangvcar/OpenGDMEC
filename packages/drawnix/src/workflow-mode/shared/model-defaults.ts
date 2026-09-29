@@ -5,6 +5,8 @@ import {
   type NativeReferenceInputs,
 } from './native-parameters';
 
+export const MODEL_DEFAULTS_REQUEST = 'opentu:model-defaults:request:v1';
+export const MODEL_DEFAULTS_RESPONSE = 'opentu:model-defaults:response:v1';
 export type Capability = 'image' | 'video' | 'text' | 'audio';
 export interface WorkflowChannel {
   opentuProfileId?: string | null;

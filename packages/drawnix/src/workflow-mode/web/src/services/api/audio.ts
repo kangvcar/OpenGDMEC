@@ -1,8 +1,6 @@
-import { requestLocalModelAudio } from "./local-model";
-import { runLocalWorkflowTask } from "../workflow-local-task";
 import axios from "axios";
 import { nativeChannel, requestNative } from "./opentu";
-import { getNativeParameterValues, nativeModel } from "@/integration/native-parameters";
+import { getNativeParameterValues } from "@/integration/native-parameters";
 
 import i18n from "@/i18n";
 import { audioMimeType, normalizeAudioFormatValue, normalizeAudioSpeedValue, normalizeAudioVoiceValue } from "@/lib/audio-generation";
@@ -10,7 +8,7 @@ import { uploadMediaFile, type UploadedFile } from "@/services/file-storage";
 import { buildApiUrl, resolveModelRequestConfig, resolveModelScript, withLocalProxy, type AiConfig } from "@/stores/use-config-store";
 import { runModelPlugin } from "./model-plugin";
 
-type RequestOptions = { signal?: AbortSignal; taskId?: string; requestId?: string };
+type RequestOptions = { signal?: AbortSignal };
 const apiText = (key: string, options?: Record<string, unknown>) => i18n.t(`apiErrors.${key}`, options);
 
 function aiApiUrl(config: AiConfig, path: string) {
@@ -31,11 +29,9 @@ export async function requestAudioGeneration(config: AiConfig, prompt: string, o
     if (nativeChannel(config, config.model || config.audioModel, "audio")) {
         const result = await requestNative(config, config.model || config.audioModel, {
             capability: "audio", prompt, images: [], params: getNativeParameterValues(config, config.model || config.audioModel, "audio"),
-        }, options?.signal, options?.taskId);
+        }, options?.signal);
         return result.resultKind === "lyrics" ? { kind: "lyrics", text: result.text! } : { kind: "audio", clips: result.urls! };
     }
-    if (options?.taskId) return runLocalWorkflowTask(options.taskId, "audio", config, config.model || config.audioModel, { prompt, nativeParams: config.nativeParams, format: config.audioFormat, voice: config.audioVoice, speed: config.audioSpeed }, () => requestAudioGeneration(config, prompt, { ...options, taskId: undefined, requestId: options.taskId }), value => value.kind === "lyrics" ? { resultKind: "lyrics", text: value.text } : { resultKind: "audio", urls: value.clips.map(clip => typeof clip === "string" ? clip : URL.createObjectURL(clip)) });
-    if (nativeModel(config, "audio")) return requestLocalModelAudio(config, prompt, options);
     const requestConfig = resolveModelRequestConfig(config, config.model || config.audioModel, "audio");
     const model = requestConfig.model.trim();
     const format = normalizeAudioFormatValue(config.audioFormat);
