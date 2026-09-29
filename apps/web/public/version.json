@@ -1,8 +1,10 @@
 {
-  "version": "1.1.16",
-  "buildTime": "2026-09-26T16:17:26.594Z",
+  "version": "1.1.17",
+  "buildTime": "2026-09-29T15:37:19.627Z",
   "gitCommit": "unknown",
   "changelog": [
-    "修复下载完成后提示持续转圈 (#276)"
+    "Revert \"feat: integrate workflow runtime and harden generation recovery\"",
+    "fix（music）：Suno 任务轮询时音频结果丢失 (#282)",
+    "优化画布交互并修复 Seedance 视频播放 (#278)"
   ]
 }

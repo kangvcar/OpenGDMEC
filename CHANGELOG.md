@@ -1,3 +1,26 @@
+## 1.1.17 (2026-09-29)
+
+### 🚀 Features
+
+- 优化画布交互并修复 Seedance 视频播放 (#278) ([621a57c1](https://github.com/ljquan/opentu/commit/621a57c1))
+- integrate workflow runtime and harden generation recovery ([a8ff2655](https://github.com/ljquan/opentu/commit/a8ff2655))
+- integrate embedded OpenTu workflow mode ([e938e9cb](https://github.com/ljquan/opentu/commit/e938e9cb))
+
+### 🩹 Fixes
+
+- clear failed generation cards (#280) ([e3076462](https://github.com/ljquan/opentu/commit/e3076462))
+
+### 🔧 Chores
+
+- fix（music）：Suno 任务轮询时音频结果丢失 (#282) ([7586f7c5](https://github.com/ljquan/opentu/commit/7586f7c5))
+- Revert "feat: integrate workflow runtime and harden generation recovery" ([63615103](https://github.com/ljquan/opentu/commit/63615103))
+
+### ❤️  Thank You
+
+- Liang <13642533686@163.com>
+- Jerry-George-Liang <205779645+Jerry-George-Liang@users.noreply.github.com>
+- liang0726 <13642533686@163.com>
+
 ## 1.1.16 (2026-09-26)
 
 ### 🚀 Features

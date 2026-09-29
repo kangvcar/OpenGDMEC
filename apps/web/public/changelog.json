@@ -1,6 +1,26 @@
 {
   "versions": [
     {
+      "version": "1.1.17",
+      "date": "2026-09-29",
+      "changes": {
+        "features": [
+          "优化画布交互并修复 Seedance 视频播放 (#278)",
+          "integrate workflow runtime and harden generation recovery",
+          "integrate embedded OpenTu workflow mode"
+        ],
+        "fixes": [
+          "clear failed generation cards (#280)"
+        ],
+        "improvements": [
+          "fix（music）：Suno 任务轮询时音频结果丢失 (#282)",
+          "Revert \"feat: integrate workflow runtime and harden generation recovery\""
+        ]
+      },
+      "type": "patch",
+      "highlights": "优化画布交互并修复 Seedance 视频播放 (#278)"
+    },
+    {
       "version": "1.1.16",
       "date": "2026-09-26",
       "changes": {
@@ -967,25 +987,6 @@
       },
       "type": "patch",
       "highlights": "优化价格展示增加Bussiness"
-    },
-    {
-      "version": "0.6.96",
-      "date": "2026-05-01",
-      "changes": {
-        "features": [
-          "优化视频工作流批量生成",
-          "add image 3d transform panel"
-        ],
-        "fixes": [
-          "pass image transform context to AI"
-        ],
-        "improvements": [
-          "补充视频主体引用经验",
-          "更新应用版本号至0.6.95并刷新构建时间"
-        ]
-      },
-      "type": "patch",
-      "highlights": "优化视频工作流批量生成"
     }
   ]
 }
