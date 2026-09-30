@@ -1,3 +1,13 @@
+## 1.1.21 (2026-09-30)
+
+### 🩹 Fixes
+
+- preserve manual providers with legacy Tuzi API (#288) ([68eaeb4f](https://github.com/ljquan/opentu/commit/68eaeb4f))
+
+### ❤️  Thank You
+
+- 李泓震 <3029956183@qq.com>
+
 ## 1.1.20 (2026-09-30)
 
 ### 🚀 Features

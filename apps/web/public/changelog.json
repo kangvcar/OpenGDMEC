@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.21",
+      "date": "2026-09-30",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "preserve manual providers with legacy Tuzi API (#288)"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "preserve manual providers with legacy Tuzi API (#288)"
+    },
+    {
       "version": "1.1.20",
       "date": "2026-09-30",
       "changes": {
@@ -974,21 +987,6 @@
       },
       "type": "minor",
       "highlights": "优化长提示词输入框展开体验"
-    },
-    {
-      "version": "0.7.0",
-      "date": "2026-05-03",
-      "changes": {
-        "features": [],
-        "fixes": [
-          "allow hand panning while drawing"
-        ],
-        "improvements": [
-          "更新应用版本号至0.6.99并同步构建时间"
-        ]
-      },
-      "type": "minor",
-      "highlights": "allow hand panning while drawing"
     }
   ]
 }
