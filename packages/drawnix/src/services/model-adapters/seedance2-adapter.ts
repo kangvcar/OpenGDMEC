@@ -1,3 +1,4 @@
+import { notifyTaskSubmitted } from '../submission-persistence';
 import type {
   AdapterContext,
   VideoGenerationRequest,
@@ -11,10 +12,10 @@ import {
   areSeedanceAudioDataUrlsWithinLimit,
   downloadVideoContentToLocalUrl,
   extractInlineVideoUrl,
-  isSeedanceAudioReference,
-  isPublicHttpMediaUrl,
   shouldDownloadVideoContent,
   VideoContentHttpError,
+  isSeedanceAudioReference,
+  isPublicHttpMediaUrl,
 } from '../video-binding-utils';
 import { unifiedCacheService } from '../unified-cache-service';
 import {
@@ -532,21 +533,7 @@ async function downloadCompletedVideo(
   }
 }
 
-export const seedance2VideoAdapter: VideoModelAdapter = {
-  id: 'seedance-2-video-adapter',
-  label: 'Seedance 2.0 Video',
-  kind: 'video',
-  docsUrl: 'https://tuzi-api.apifox.cn/418534831e0',
-  matchProtocols: ['openai.async.video'],
-  matchRequestSchemas: ['doubao.seedance-2.video.content-json'],
-  matchPredicate(modelConfig) {
-    return isSeedance2Model(modelConfig.id);
-  },
-
-  async generateVideo(
-    context: AdapterContext,
-    request: VideoGenerationRequest
-  ): Promise<VideoGenerationResult> {
+export async function submitSeedance2Request(context: AdapterContext, request: VideoGenerationRequest) {
     const model = request.model || '';
     if (!isSeedance2Model(model)) {
       throw new Error(`不支持的 Seedance 2.0 模型：${model}`);
@@ -573,13 +560,6 @@ export const seedance2VideoAdapter: VideoModelAdapter = {
           modelLabel
         )
       : undefined;
-    const onProgress = request.params?.onProgress as
-      | ((progress: number, status?: string) => void)
-      | undefined;
-    const onSubmitted = request.params?.onSubmitted as
-      | ((taskId: string) => void)
-      | undefined;
-
     const submitBody = {
       model,
       content: await buildContent(request, capabilities, modelLabel),
@@ -616,7 +596,33 @@ export const seedance2VideoAdapter: VideoModelAdapter = {
       throw new Error('Seedance 2.0 API 未返回任务 ID');
     }
 
-    onSubmitted?.(taskId);
+    return { taskId, submitted, model, provider, duration };
+}
+
+export const seedance2VideoAdapter: VideoModelAdapter = {
+  id: 'seedance-2-video-adapter',
+  label: 'Seedance 2.0 Video',
+  kind: 'video',
+  docsUrl: 'https://tuzi-api.apifox.cn/418534831e0',
+  matchProtocols: ['openai.async.video'],
+  matchRequestSchemas: ['doubao.seedance-2.video.content-json'],
+  matchPredicate(modelConfig) {
+    return isSeedance2Model(modelConfig.id);
+  },
+
+  async generateVideo(
+    context: AdapterContext,
+    request: VideoGenerationRequest
+  ): Promise<VideoGenerationResult> {
+    const onProgress = request.params?.onProgress as
+      | ((progress: number, status?: string) => void)
+      | undefined;
+    const onSubmitted = request.params?.onSubmitted as
+      | ((taskId: string) => void)
+      | undefined;
+
+    const { taskId, submitted, model, provider, duration } = await submitSeedance2Request(context, request);
+    await notifyTaskSubmitted(taskId, onSubmitted);
     onProgress?.(5, submitted.status || 'queued');
 
     let consecutiveErrors = 0;
@@ -639,16 +645,13 @@ export const seedance2VideoAdapter: VideoModelAdapter = {
         const normalizedStatus = (status.status || '').toLowerCase();
         onProgress?.(status.progress ?? 0, normalizedStatus);
 
-        if (normalizedStatus === 'failed' || normalizedStatus === 'error') {
+        if (['failed', 'failure', 'error', 'cancelled', 'canceled'].includes(normalizedStatus)) {
           businessFailure = true;
           throw new Error(extractErrorMessage(status.error));
         }
         if (
-          normalizedStatus === 'completed' ||
-          normalizedStatus === 'succeeded'
+          ['completed', 'complete', 'succeeded', 'succeed', 'success', 'done'].includes(normalizedStatus)
         ) {
-          // Delivery has its own retry budget; do not restart polling after it
-          // is exhausted (a successful poll resets consecutiveErrors).
           businessFailure = true;
           const inlineUrl = extractResultUrl(status);
           const url =
