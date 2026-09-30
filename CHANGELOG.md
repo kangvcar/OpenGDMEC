@@ -1,3 +1,15 @@
+## 1.1.18 (2026-09-30)
+
+### 🚀 Features
+
+- integrate workflow runtime and harden generation recovery (#283) ([8c914df6](https://github.com/ljquan/opentu/commit/8c914df6))
+- persist linked provider groups across reloads (#281) ([67073d6b](https://github.com/ljquan/opentu/commit/67073d6b))
+
+### ❤️  Thank You
+
+- Liang <13642533686@163.com>
+- 李泓震 <3029956183@qq.com>
+
 ## 1.1.17 (2026-09-29)
 
 ### 🚀 Features
