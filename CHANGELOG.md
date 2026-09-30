@@ -1,3 +1,13 @@
+## 1.1.19 (2026-09-30)
+
+### 🩹 Fixes
+
+- preserve configured provider visibility (#284) ([a11fa02f](https://github.com/ljquan/opentu/commit/a11fa02f))
+
+### ❤️  Thank You
+
+- 李泓震 <3029956183@qq.com>
+
 ## 1.1.18 (2026-09-30)
 
 ### 🚀 Features
