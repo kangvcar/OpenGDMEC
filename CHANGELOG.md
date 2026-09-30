@@ -1,3 +1,17 @@
+## 1.1.20 (2026-09-30)
+
+### 🚀 Features
+
+- 完善 Seedance 2.5 参数适配 (#285) ([b85f0eaf](https://github.com/ljquan/opentu/commit/b85f0eaf))
+
+### 🩹 Fixes
+
+- hide toolbar entry and keep direct route (#286) ([0ebc7607](https://github.com/ljquan/opentu/commit/0ebc7607))
+
+### ❤️  Thank You
+
+- Liang <13642533686@163.com>
+
 ## 1.1.19 (2026-09-30)
 
 ### 🩹 Fixes

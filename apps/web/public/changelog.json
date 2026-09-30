@@ -1,6 +1,21 @@
 {
   "versions": [
     {
+      "version": "1.1.20",
+      "date": "2026-09-30",
+      "changes": {
+        "features": [
+          "完善 Seedance 2.5 参数适配 (#285)"
+        ],
+        "fixes": [
+          "hide toolbar entry and keep direct route (#286)"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "完善 Seedance 2.5 参数适配 (#285)"
+    },
+    {
       "version": "1.1.19",
       "date": "2026-09-30",
       "changes": {
@@ -974,25 +989,6 @@
       },
       "type": "minor",
       "highlights": "allow hand panning while drawing"
-    },
-    {
-      "version": "0.6.99",
-      "date": "2026-05-03",
-      "changes": {
-        "features": [
-          "为视频生成 prompt 添加参考图用途说明",
-          "支持异步图片生成和生成素材重置",
-          "添加目标总时长配置并优化UI与错误处理"
-        ],
-        "fixes": [
-          "移除生成视频时重复的提示词构建逻辑",
-          "强化爆款视频首尾帧角色一致性",
-          "绑定异步任务供应商路由"
-        ],
-        "improvements": []
-      },
-      "type": "patch",
-      "highlights": "为视频生成 prompt 添加参考图用途说明"
     }
   ]
 }
