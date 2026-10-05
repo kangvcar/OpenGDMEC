@@ -76,7 +76,6 @@ import { TextPropertyPanel } from './text-property-panel';
 import { PopupImage3DTransformButton } from './image-3d-transform-button';
 import {
   AIImageIcon,
-  AIVideoIcon,
   VideoFrameIcon,
   DuplicateIcon,
   TrashIcon,
@@ -367,7 +366,6 @@ export const PopupToolbar = () => {
     strokeWidth?: number; // 当前线宽值
     marks?: Record<string, any>;
     hasAIImage?: boolean; // 是否显示AI图像生成按钮
-    hasAIVideo?: boolean; // 是否显示AI视频生成按钮
     hasVideoFrame?: boolean; // 是否显示视频帧选择按钮
     hasSplitImage?: boolean; // 是否显示拆图按钮
     hasLayerDecomposition?: boolean; // 是否显示 AI 语义分层按钮
@@ -437,19 +435,6 @@ export const PopupToolbar = () => {
       selectedElements.every(
         (element) => isCardElement(element) || isPlainTextElement(element)
       );
-
-    // 检查是否选中了包含图片的元素（单个或多个），但排除视频元素和 Card 元素
-    const hasAIVideo =
-      selectedElements.length > 0 &&
-      !hasVideoSelected &&
-      !hasToolSelected &&
-      !hasCardSelected &&
-      selectedElements.some(
-        (element) =>
-          PlaitDrawElement.isDrawElement(element) &&
-          PlaitDrawElement.isImage(element)
-      ) &&
-      !PlaitBoard.hasBeenTextEditing(board);
 
     // 检查是否只选中了一个视频元素
     const hasVideoFrame =
@@ -680,7 +665,6 @@ export const PopupToolbar = () => {
       hasText,
       isTextOnly,
       hasAIImage,
-      hasAIVideo,
       hasVideoFrame,
       hasSplitImage,
       hasLayerDecomposition,
@@ -1697,23 +1681,6 @@ export const PopupToolbar = () => {
                 }
                 data-track="toolbar_click_ai_image"
                 onPointerUp={openAIImageGenerationDialog}
-              />
-            )}
-            {state.hasAIVideo && (
-              <ToolButton
-                className="ai-video"
-                key={6}
-                type="icon"
-                icon={<AIVideoIcon />}
-                visible={true}
-                tooltip={language === 'zh' ? 'AI视频生成' : 'AI Video Generation'}
-                aria-label={
-                  language === 'zh' ? 'AI视频生成' : 'AI Video Generation'
-                }
-                data-track="toolbar_click_ai_video"
-                onPointerUp={() => {
-                  openDialog(DialogType.aiVideoGeneration);
-                }}
               />
             )}
             {state.hasVideoFrame && (

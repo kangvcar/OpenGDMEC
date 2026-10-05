@@ -21,7 +21,6 @@ import {
   ImageUploadIcon,
   MediaLibraryIcon,
   AIImageIcon,
-  AIVideoIcon,
   ThemeIcon,
   MermaidLogoIcon,
   MarkdownLogoIcon,
@@ -92,7 +91,6 @@ const BUTTON_META_MAP: Record<string, ButtonMeta> = {
   'image': { icon: <ImageUploadIcon size={24} />, titleKey: 'toolbar.image' },
   'media-library': { icon: <MediaLibraryIcon size={24} />, titleKey: 'toolbar.mediaLibrary' },
   'ai-image': { icon: <AIImageIcon />, titleKey: 'toolbar.aiImage' },
-  'ai-video': { icon: <AIVideoIcon />, titleKey: 'toolbar.aiVideo' },
   'theme': { icon: <ThemeIcon />, titleKey: 'toolbar.theme', hasPopup: true, popupKey: 'theme' },
   'mermaid-to-drawnix': { icon: <MermaidLogoIcon />, titleKey: 'extraTools.mermaidToDrawnix' },
   'markdown-to-drawnix': { icon: <MarkdownLogoIcon />, titleKey: 'extraTools.markdownToDrawnix' },
@@ -417,9 +415,6 @@ const MoreToolsPanel: React.FC<MoreToolsPanelProps> = ({
         break;
       case 'ai-image':
         openDialog(DialogType.aiImageGeneration);
-        break;
-      case 'ai-video':
-        openDialog(DialogType.aiVideoGeneration);
         break;
       case 'mermaid-to-drawnix':
         openDialog(DialogType.mermaidToDrawnix);

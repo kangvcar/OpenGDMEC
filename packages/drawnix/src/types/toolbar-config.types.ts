@@ -35,7 +35,10 @@ export const TOOLBAR_CONFIG_VERSION = 7;
 
 /**
  * 默认显示的按钮
- * 顺序: 手形、选择、画笔、形状、文本、图片上传、素材库、AI图片、AI视频
+ * 顺序: 手形、选择、画笔、形状、文本、图片上传、素材库、AI图片
+ *
+ * 注：教师发行版不暴露 AI 视频入口。'ai-video' 已从 ALL_BUTTON_IDS 移除，
+ * 存量用户配置会在 migrateConfig 中按 ALL_BUTTON_IDS 过滤时自动剔除。
  */
 export const DEFAULT_VISIBLE_BUTTONS = [
   'hand',
@@ -46,7 +49,6 @@ export const DEFAULT_VISIBLE_BUTTONS = [
   'image',
   'media-library',
   'ai-image',
-  'ai-video',
 ];
 
 /**
@@ -63,7 +65,6 @@ export const ALL_BUTTON_IDS = [
   'image',
   'media-library',
   'ai-image',
-  'ai-video',
   // 默认收起的按钮（放在更多工具里）
   'lasso',
   'mind',

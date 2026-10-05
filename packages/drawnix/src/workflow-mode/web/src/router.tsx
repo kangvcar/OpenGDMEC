@@ -12,7 +12,6 @@ import DocsPage from "@/pages/docs";
 import ImagePage from "@/pages/image";
 import NotFound from "@/pages/not-found";
 import PromptsPage from "@/pages/prompts";
-import VideoPage from "@/pages/video";
 import BatchGenerationPage from "@/pages/batch-generation";
 
 const routes = [
@@ -26,7 +25,6 @@ const routes = [
         children: [
             { path: "/", element: <CanvasPage /> },
             { path: "/image", element: <ImagePage /> },
-            { path: "/video", element: <VideoPage /> },
             { path: "/assets", element: <AssetsPage /> },
             { path: "/prompts", element: <PromptsPage /> },
             { path: "/canvas", element: <CanvasPage /> },

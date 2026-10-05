@@ -22,7 +22,6 @@ import {
   FeltTipPenIcon,
   MediaLibraryIcon,
   AIImageIcon,
-  AIVideoIcon,
   ThemeIcon,
   MermaidLogoIcon,
   MarkdownLogoIcon,
@@ -112,7 +111,6 @@ type AppToolButtonProps = {
     | 'image'
     | 'media-library'
     | 'ai-image'
-    | 'ai-video'
     | 'extra-tools'
     | 'mermaid-to-drawnix'
     | 'markdown-to-drawnix';
@@ -168,12 +166,6 @@ export const BUTTONS: AppToolButtonProps[] = [
     titleKey: 'toolbar.aiImage',
     key: 'ai-image',
     visibilityKey: 'ai-image',
-  },
-  {
-    icon: <AIVideoIcon />,
-    titleKey: 'toolbar.aiVideo',
-    key: 'ai-video',
-    visibilityKey: 'ai-video',
   },
   {
     icon: <MindIcon />,
@@ -552,8 +544,6 @@ export const CreationToolbar: React.FC<ToolbarSectionProps> = ({
       handleOpenMediaLibrary();
     } else if (button.key === 'ai-image') {
       openDialog(DialogType.aiImageGeneration);
-    } else if (button.key === 'ai-video') {
-      openDialog(DialogType.aiVideoGeneration);
     } else if (button.key === 'mermaid-to-drawnix') {
       openDialog(DialogType.mermaidToDrawnix);
     } else if (button.key === 'markdown-to-drawnix') {

@@ -5,7 +5,6 @@
 
 import { Button } from 'tdesign-react';
 import {
-  Video as VideoIcon,
   HardDrive,
   Globe,
   User,
@@ -49,16 +48,6 @@ export function MediaLibrarySidebar({
           >
             <ImageUploadIcon size={16} />
             <span>图片</span>
-          </Button>
-          <Button
-            variant={filters.activeType === AssetType.VIDEO ? 'base' : 'outline'}
-            onClick={() => onFilterChange({ activeType: AssetType.VIDEO })}
-            block
-            theme="default"
-            data-track="sidebar_filter_type_video"
-          >
-            <VideoIcon size={16} />
-            <span>视频</span>
           </Button>
         </div>
       </div>

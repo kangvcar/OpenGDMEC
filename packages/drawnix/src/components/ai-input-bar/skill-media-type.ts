@@ -1,4 +1,5 @@
 import { getMediaTypeForTool, type MediaModelType } from '../../services/agent/media-model-routing';
+import { isExposedGenerationType } from '../../constants/distribution';
 
 export type SkillOutputType = 'image' | 'text' | 'video' | 'audio' | 'ppt';
 export type SkillMediaType = MediaModelType;
@@ -24,7 +25,24 @@ export function normalizeSkillOutputType(
   return undefined;
 }
 
-export function inferSkillMediaTypes(skill?: SkillMediaLike | null): SkillMediaType[] {
+/**
+ * 收敛到发行档位暴露的媒体类型。
+ * 视频/音频 Skill 的模型选择器不对外暴露（见 constants/distribution.ts），
+ * 因此这里识别出的 video/audio 一律过滤掉，PPT 讲解视频这类复合 Skill 只保留 image。
+ */
+function filterExposedMediaTypes(types: SkillMediaType[]): SkillMediaType[] {
+  return types.filter((type) => isExposedGenerationType(type));
+}
+
+export function inferSkillMediaTypes(
+  skill?: SkillMediaLike | null
+): SkillMediaType[] {
+  return filterExposedMediaTypes(inferSkillMediaTypesUnfiltered(skill));
+}
+
+function inferSkillMediaTypesUnfiltered(
+  skill?: SkillMediaLike | null
+): SkillMediaType[] {
   if (!skill) {
     return [];
   }

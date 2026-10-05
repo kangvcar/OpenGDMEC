@@ -1,10 +1,8 @@
 import React from 'react';
 import {
   DiscAlbum,
-  Film,
   Images,
   Music4,
-  Clapperboard,
   History,
 } from 'lucide-react';
 import {
@@ -45,34 +43,8 @@ export const BUILT_IN_TOOL_MANIFESTS: ToolDefinition[] = [
     defaultWidth: 720,
     defaultHeight: 760,
   },
-  {
-    id: 'video-analyzer',
-    name: '爆款视频生成',
-    description: 'AI 分析视频内容，提取镜头、脚本、风格等结构化数据',
-    icon: <Clapperboard size={18} strokeWidth={1.75} />,
-    category: ToolCategory.AI_TOOLS,
-    component: 'video-analyzer',
-    supportsMultipleWindows: true,
-    defaultWindowBehavior: {
-      autoPinOnOpen: true,
-    },
-    defaultWidth: 680,
-    defaultHeight: 700,
-  },
-  {
-    id: 'mv-creator',
-    name: '爆款MV生成',
-    description: '输入创意，AI 生成音乐和分镜视频，一站式 MV 创作',
-    icon: <Film size={18} strokeWidth={1.75} />,
-    category: ToolCategory.AI_TOOLS,
-    component: 'mv-creator',
-    supportsMultipleWindows: true,
-    defaultWindowBehavior: {
-      autoPinOnOpen: true,
-    },
-    defaultWidth: 680,
-    defaultHeight: 700,
-  },
+  // 教师发行版不暴露视频生成工具（原来的 video-analyzer「爆款视频生成」
+  // 与 mv-creator「爆款MV生成」已从工具目录移除，组件实现保留）
   {
     id: 'batch-image',
     name: '批量出图工具',

@@ -741,10 +741,7 @@ describe('runtime-model-discovery', () => {
         throw new TypeError('Failed to fetch');
       }
 
-      if (
-        url === 'https://api.tu-zi.com/v1/models' ||
-        url === 'http://localhost:3000/__opentu_tuzi_proxy__/api/v1/models'
-      ) {
+      if (url === 'https://api.tu-zi.com/v1/models') {
         return {
           ok: true,
           text: async () =>
@@ -824,7 +821,7 @@ describe('runtime-model-discovery', () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      'http://localhost:3000/__opentu_tuzi_proxy__/api/v1/models',
+      'https://api.tu-zi.com/v1/models',
       expect.any(Object)
     );
     expect(models[0]).toMatchObject({
@@ -844,12 +841,17 @@ describe('runtime-model-discovery', () => {
     }
   });
 
+  // 常规（手动粘贴 Key）provider 直连 api.tu-zi.com —— 该域名返回 CORS 头，
+  // 静态托管下不需要同源代理；仅账户托管 provider 仍走同源会话代理。
   it.each([
-    ['provider-tuzi', '/__opentu_tuzi_proxy__/api'],
-    ['tuzi-managed-default', '/__opentu_tuzi_session__'],
+    ['provider-tuzi', 'https://api.tu-zi.com/v1/models'],
+    [
+      'tuzi-managed-default',
+      'http://127.0.0.1:7200/__opentu_tuzi_session__/v1/models',
+    ],
   ])(
     'keeps %s model credentials on their own API route',
-    async (profileId, proxyPath) => {
+    async (profileId, expectedUrl) => {
       vi.stubGlobal('window', {
         location: {
           origin: 'http://127.0.0.1:7200',
@@ -857,7 +859,7 @@ describe('runtime-model-discovery', () => {
         },
       });
       const fetchMock = vi.fn(async (url: string) => {
-        expect(url).toBe(`http://127.0.0.1:7200${proxyPath}/v1/models`);
+        expect(url).toBe(expectedUrl);
         return {
           ok: false,
           status: 401,

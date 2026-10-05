@@ -14,6 +14,7 @@ import {
   convertAspectRatioToSize,
 } from '../constants/image-aspect-ratios';
 import { LS_KEYS } from '../constants/storage-keys';
+import { isExposedGenerationType } from '../constants/distribution';
 import {
   getDefaultModelParams,
   getVideoModelConfig,
@@ -444,16 +445,6 @@ function getDefaultModelForGenerationType(type: GenerationType): string {
   return getDefaultImageModel();
 }
 
-function isValidGenerationType(value: unknown): value is GenerationType {
-  return (
-    value === 'image' ||
-    value === 'video' ||
-    value === 'audio' ||
-    value === 'text' ||
-    value === 'agent'
-  );
-}
-
 function getSupportedAspectRatios(modelId: string): Set<string> {
   const sizeOptions = getSizeOptionsForModel(modelId);
   if (sizeOptions.length === 0) {
@@ -558,10 +549,11 @@ export function loadAIInputPreferences(): AIInputPreferences {
     ) || {};
   const rawGenerationType = stored.generationType;
   const isLegacyMode = stored.modeVersion !== 2;
-  const generationType =
+  // 收敛到发行档位暴露的类型：被隐藏的类型（视频/音频）不允许从存量配置里复活
+  const generationType: GenerationType =
     isLegacyMode && rawGenerationType === 'text'
       ? 'agent'
-      : isValidGenerationType(rawGenerationType)
+      : isExposedGenerationType(rawGenerationType)
       ? rawGenerationType
       : 'image';
 

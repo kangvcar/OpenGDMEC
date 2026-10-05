@@ -237,12 +237,14 @@ function getModelListRequestUrl(
       parsed.hostname.toLowerCase() === 'api.tu-zi.com'
     ) {
       const path = `${parsed.pathname.replace(/\/+$/, '')}/models`;
+      // 账户托管的 provider 依赖同源会话代理（凭证随 cookie 走）；
+      // 其余情况（含教师手动粘贴 API Key 的常规 provider）直连 api.tu-zi.com：
+      // 该域名返回 CORS 头，静态托管下不需要同源反向代理。
+      if (!accountManaged) {
+        return `${parsed.origin}${path.startsWith('/') ? path : `/${path}`}`;
+      }
       return new URL(
-        `${
-          accountManaged
-            ? '/__opentu_tuzi_session__'
-            : '/__opentu_tuzi_proxy__/api'
-        }${path.startsWith('/') ? path : `/${path}`}`,
+        `/__opentu_tuzi_session__${path.startsWith('/') ? path : `/${path}`}`,
         window.location.origin
       ).toString();
     }

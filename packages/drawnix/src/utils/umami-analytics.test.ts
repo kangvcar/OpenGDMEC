@@ -77,14 +77,13 @@ describe('Umami analytics', () => {
   });
 
   it.each(umamiEntryFiles)(
-    'does not include URL query parameters in automatic pageviews from %s',
+    'does not load a third-party analytics tracker from %s',
     (entryFile) => {
       const source = readFileSync(new URL(entryFile, import.meta.url), 'utf8');
 
-      expect(source).toContain(
-        'script.dataset.websiteId = "e6bd249e-bc68-4857-b6a5-02131b4ea286";'
-      );
-      expect(source).toContain('script.dataset.excludeSearch = "true";');
+      // 教师发行版不注入统计 tracker；埋点调用点在无 tracker 时静默降级
+      expect(source).not.toContain('umami.tu-zi.com/script.js');
+      expect(source).not.toContain('e6bd249e-bc68-4857-b6a5-02131b4ea286');
     }
   );
 });

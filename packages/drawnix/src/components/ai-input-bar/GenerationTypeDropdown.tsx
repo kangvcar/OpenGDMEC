@@ -5,6 +5,7 @@ import { ATTACHED_ELEMENT_CLASS_NAME } from '@plait/core';
 import { useI18n } from '../../i18n';
 import { Z_INDEX } from '../../constants/z-index';
 import type { GenerationType } from '../../utils/ai-input-parser';
+import { isExposedGenerationType } from '../../constants/distribution';
 import { KeyboardDropdown } from './KeyboardDropdown';
 import { HoverTip } from '../shared/hover';
 
@@ -14,13 +15,18 @@ export interface GenerationTypeDropdownProps {
   disabled?: boolean;
 }
 
-const TYPE_OPTIONS: Array<{ value: GenerationType; label: string; icon: React.ReactNode; zh: string; en: string }> = [
+const ALL_TYPE_OPTIONS: Array<{ value: GenerationType; label: string; icon: React.ReactNode; zh: string; en: string }> = [
   { value: 'image', label: '图片', icon: <Image size={14} />, zh: '图片', en: 'Image' },
   { value: 'video', label: '视频', icon: <Video size={14} />, zh: '视频', en: 'Video' },
   { value: 'audio', label: '音频', icon: <Music4 size={14} />, zh: '音频', en: 'Audio' },
   { value: 'text', label: '文本', icon: <FileText size={14} />, zh: '文本', en: 'Text' },
   { value: 'agent', label: 'Agent', icon: <Bot size={14} />, zh: 'Agent', en: 'Agent' },
 ];
+
+// 只保留当前发行档位暴露的生成类型
+const TYPE_OPTIONS = ALL_TYPE_OPTIONS.filter((opt) =>
+  isExposedGenerationType(opt.value)
+);
 
 export const GenerationTypeDropdown: React.FC<GenerationTypeDropdownProps> = ({
   value,

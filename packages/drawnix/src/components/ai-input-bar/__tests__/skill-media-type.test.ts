@@ -4,38 +4,47 @@ import {
   normalizeSkillOutputType,
 } from '../skill-media-type';
 
-describe('skill-media-type', () => {
+/**
+ * 教师发行版只暴露图片生成，视频/音频的媒体模型选择器不对外暴露。
+ * 因此这里断言的是**收敛后**的行为：推断出的 video/audio 一律被过滤掉。
+ */
+describe('skill-media-type（发行档位收敛）', () => {
   it('PPT 大纲 Skill 不触发媒体模型选择', () => {
     expect(normalizeSkillOutputType('ppt')).toBeUndefined();
     expect(inferSkillMediaTypes({ outputType: 'ppt' })).toEqual([]);
   });
 
-  it('优先使用显式输出类型', () => {
+  it('视频输出类型被收敛掉，不产生媒体模型选择', () => {
     expect(
       inferSkillMediaTypes({
         outputType: 'video',
         content: '调用 generate_image',
       })
-    ).toEqual(['video']);
+    ).toEqual([]);
   });
 
-  it('从工具名和内容推断媒体类型', () => {
-    expect(inferSkillMediaTypes({ mcpTool: 'generate_audio' })).toEqual([
-      'audio',
-    ]);
+  it('音频工具被收敛掉', () => {
+    expect(inferSkillMediaTypes({ mcpTool: 'generate_audio' })).toEqual([]);
+  });
+
+  it('混合内容只保留图片，视频被过滤', () => {
     expect(
       inferSkillMediaTypes({
         content: '先调用 generate_image，再调用 generate_video',
       })
-    ).toEqual(['image', 'video']);
+    ).toEqual(['image']);
   });
 
-  it('PPT 讲解视频 Skill 只显示图片和有声视频模型选择', () => {
+  it('PPT 讲解视频 Skill 只保留图片选择', () => {
     expect(
       inferSkillMediaTypes({
         mcpTool: 'generate_ppt_explainer_video',
         outputType: 'video',
       })
-    ).toEqual(['image', 'video']);
+    ).toEqual(['image']);
+  });
+
+  it('图片输出类型不受影响', () => {
+    expect(inferSkillMediaTypes({ outputType: 'image' })).toEqual(['image']);
   });
 });

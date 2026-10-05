@@ -1,5 +1,6 @@
-import { FileText, ImagePlus, Images, Maximize2, Settings2, Video, Rows3 } from "lucide-react";
+import { FileText, ImagePlus, Images, Maximize2, Settings2, Rows3 } from "lucide-react";
 
+// 教师发行版不暴露视频生成入口，故 nav 中不含 "video"
 export const navigationTools = [
     {
         slug: "canvas",
@@ -8,10 +9,6 @@ export const navigationTools = [
     {
         slug: "image",
         icon: ImagePlus,
-    },
-    {
-        slug: "video",
-        icon: Video,
     },
     {
         slug: "prompts",

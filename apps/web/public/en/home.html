@@ -59,7 +59,7 @@
             "@type": "SoftwareApplication",
             "@id": "https://opentu.ai/en/home.html#software",
             "name": "OpenTu",
-            "alternateName": "Opentu",
+            "alternateName": "OpenGDMEC",
             "url": "https://opentu.ai/en/home.html",
             "applicationCategory": "DesignApplication",
             "operatingSystem": "Any",
@@ -1146,57 +1146,10 @@
           };
         }
 
-        var isLocalDev =
-          window.location.hostname === "localhost" ||
-          window.location.hostname === "127.0.0.1";
-        var forceReport =
-          new URLSearchParams(window.location.search).get("report") === "1";
-        var shouldReportAnalytics = !isLocalDev || forceReport;
-        var pendingEvents = [];
-
-        function flushPendingEvents() {
-          if (!window.umami || !window.umami.track) return;
-          while (pendingEvents.length > 0) {
-            var pending = pendingEvents.shift();
-            try {
-              Promise.resolve(
-                window.umami.track(pending.name, pending.properties)
-              ).catch(function () {});
-            } catch (error) {
-              void error;
-            }
-          }
-        }
-
-        function track(eventName, properties) {
-          if (!shouldReportAnalytics) return;
-          var enrichedProperties = Object.assign(getCommonProperties(), properties || {});
-          if (!window.umami || !window.umami.track) {
-            if (pendingEvents.length < 20) {
-              pendingEvents.push({ name: eventName, properties: enrichedProperties });
-            }
-            return;
-          }
-          try {
-            Promise.resolve(window.umami.track(eventName, enrichedProperties)).catch(
-              function () {}
-            );
-          } catch (error) {
-            void error;
-          }
-        }
-
-        function initAnalytics() {
-          if (!shouldReportAnalytics || document.querySelector("script[data-website-id=\"e6bd249e-bc68-4857-b6a5-02131b4ea286\"]")) {
-            return;
-          }
-          var script = document.createElement("script");
-          script.defer = true;
-          script.src = "https://umami.tu-zi.com/script.js";
-          script.dataset.websiteId = "e6bd249e-bc68-4857-b6a5-02131b4ea286";
-          script.dataset.excludeSearch = "true";
-          script.onload = flushPendingEvents;
-          document.head.appendChild(script);
+        // 教师发行版不加载第三方统计 tracker。
+        // track 保留为 no-op，以兼容页面内既有的埋点调用点。
+        function track() {
+          /* analytics disabled in this distribution */
         }
 
         function scheduleWhenIdle(callback, timeout) {
@@ -1229,7 +1182,6 @@
           }, 4500);
         }
 
-        initAnalytics();
         registerHomeServiceWorker();
         track('home_seo_pageview', {
           viewport_width: window.innerWidth,

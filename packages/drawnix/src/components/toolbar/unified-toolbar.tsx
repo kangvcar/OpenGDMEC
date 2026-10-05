@@ -16,7 +16,7 @@ import { Island } from '../island';
 import { BottomActionsSection } from './bottom-actions-section';
 import { useViewportScale } from '../../hooks/useViewportScale';
 import { useDeviceType } from '../../hooks/useDeviceType';
-import { AIImageIcon, AIVideoIcon } from '../icons';
+import { AIImageIcon } from '../icons';
 import { DialogType, useDrawnix } from '../../hooks/use-drawnix';
 import { HoverTip } from '../shared/hover';
 
@@ -31,7 +31,7 @@ const TaskQueuePanel = lazy(() =>
 const TOOLBAR_MIN_HEIGHT = 460;
 
 // AI 按钮 ID，用于初始化时滚动到可见位置
-const AI_BUTTON_IDS = ['ai-image', 'ai-video'];
+const AI_BUTTON_IDS = ['ai-image'];
 
 const TOOLBAR_LEFT_STORAGE_KEY = 'aitu-toolbar-left';
 const TOOLBAR_DEFAULT_LEFT = 0;
@@ -440,10 +440,6 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
       openDialog(DialogType.aiImageGeneration);
     }, [openDialog]);
 
-    const handleAIVideoClick = useCallback(() => {
-      openDialog(DialogType.aiVideoGeneration);
-    }, [openDialog]);
-
     return (
       <>
         {/* 任务队列面板 - 只在首次展开后才渲染 */}
@@ -511,14 +507,6 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
                 aria-label="AI 图片生成"
               >
                 <AIImageIcon />
-              </button>
-              {/* AI 视频生成 */}
-              <button
-                className="unified-toolbar__collapsed-btn"
-                onClick={handleAIVideoClick}
-                aria-label="AI 视频生成"
-              >
-                <AIVideoIcon />
               </button>
             </div>
           )}

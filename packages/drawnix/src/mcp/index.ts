@@ -4,8 +4,6 @@
 
 import { mcpRegistry } from './registry';
 import { imageGenerationTool } from './tools/image-generation';
-import { videoGenerationTool } from './tools/video-generation';
-import { audioGenerationTool } from './tools/audio-generation';
 import { textGenerationTool } from './tools/text-generation';
 import { canvasInsertionTool } from './tools/canvas-insertion';
 import { aiAnalyzeTool } from './tools/ai-analyze';
@@ -15,11 +13,8 @@ import { gridImageTool } from './tools/photo-wall-tool';
 import { inspirationBoardTool } from './tools/creative-photo-wall-tool';
 import { splitImageTool } from './tools/split-image-tool';
 import { svgTool } from './tools/svg-tool';
-import { longVideoGenerationTool } from './tools/long-video-generation';
 import { pptGenerationTool } from './tools/ppt-generation';
-import { pptExplainerVideoTool } from './tools/ppt-explainer-video';
 import { knowledgeBaseTools } from './tools/knowledge-base-tool';
-import { videoAnalyzeTool } from './tools/video-analyze';
 import { audioAnalyzeTool } from './tools/audio-analyze';
 
 // 导出类型
@@ -85,12 +80,11 @@ export function initializeMCP(): void {
   }
   mcpInitialized = true;
 
+  // 发行档位只暴露图片生成：视频/音频生成与视频分析工具不注册到工具集，
+  // 使 Agent 模式也无法触达。工具实现本身保留（见 constants/distribution.ts）。
   mcpRegistry.registerAll([
     imageGenerationTool,
-    videoGenerationTool,
-    audioGenerationTool,
     textGenerationTool,
-    longVideoGenerationTool,
     canvasInsertionTool,
     aiAnalyzeTool,
     mermaidTool,
@@ -100,9 +94,7 @@ export function initializeMCP(): void {
     splitImageTool,
     svgTool,
     pptGenerationTool,
-    pptExplainerVideoTool,
     ...knowledgeBaseTools,
-    videoAnalyzeTool,
     audioAnalyzeTool,
   ]);
   // console.log('[MCP] Initialized with built-in tools');
