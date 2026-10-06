@@ -200,22 +200,21 @@ describe('AssetContext result visibility', () => {
     view.unmount();
   });
 
-  it('projects one PPT explainer final video when task and cache entries overlap', async () => {
+  it('projects one final video when task and cache entries overlap', async () => {
     mocks.getAssetTasks.mockResolvedValue([
       {
-        id: 'ppt-explainer-final',
+        id: 'final-video',
         type: TaskType.VIDEO,
         status: TaskStatus.COMPLETED,
         params: {
-          prompt: 'PPT 讲解视频',
+          prompt: '生成一段视频',
           resultVisibility: 'user',
-          pptExplainer: { schemaVersion: 1, sourceBoardId: 'board-1' },
         },
         createdAt: 1,
         updatedAt: 2,
         completedAt: 2,
         result: {
-          url: '/__aitu_cache__/video/ppt-explainer-final.mp4',
+          url: '/__aitu_cache__/video/final-video.mp4',
           format: 'mp4',
           size: 128,
           resultKind: 'video',
@@ -226,14 +225,14 @@ describe('AssetContext result visibility', () => {
     mocks.getInternalResultTaskIds.mockResolvedValue(new Set());
     mocks.getAllCachedMedia.mockResolvedValue([
       {
-        url: '/__aitu_cache__/video/ppt-explainer-final.mp4',
+        url: '/__aitu_cache__/video/final-video.mp4',
         type: 'video',
         mimeType: 'video/mp4',
         size: 128,
         cachedAt: 2,
         lastUsed: 2,
         metadata: {
-          taskId: 'ppt-explainer-final',
+          taskId: 'final-video',
           resultVisibility: 'user',
         },
       },
@@ -248,7 +247,7 @@ describe('AssetContext result visibility', () => {
     await waitFor(() => {
       expect(renderedAssets).toHaveLength(1);
       expect(renderedAssets[0]).toMatchObject({
-        taskId: 'ppt-explainer-final',
+        taskId: 'final-video',
         type: AssetType.VIDEO,
       });
     });

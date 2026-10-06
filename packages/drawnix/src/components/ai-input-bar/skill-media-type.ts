@@ -28,7 +28,7 @@ export function normalizeSkillOutputType(
 /**
  * 收敛到发行档位暴露的媒体类型。
  * 视频/音频 Skill 的模型选择器不对外暴露（见 constants/distribution.ts），
- * 因此这里识别出的 video/audio 一律过滤掉，PPT 讲解视频这类复合 Skill 只保留 image。
+ * 因此这里识别出的 video/audio 一律过滤掉，复合 Skill 只保留 image。
  */
 function filterExposedMediaTypes(types: SkillMediaType[]): SkillMediaType[] {
   return types.filter((type) => isExposedGenerationType(type));
@@ -45,10 +45,6 @@ function inferSkillMediaTypesUnfiltered(
 ): SkillMediaType[] {
   if (!skill) {
     return [];
-  }
-
-  if (skill.mcpTool === 'generate_ppt_explainer_video') {
-    return ['image', 'video'];
   }
 
   const outputMediaType = normalizeSkillOutputType(skill.outputType);
@@ -95,13 +91,11 @@ function getMediaToolNames(mediaType: SkillMediaType): string[] {
         'generate_grid_image',
         'generate_photo_wall',
         'generate_inspiration_board',
-        'generate_ppt_explainer_video',
       ];
     case 'video':
       return [
         'generate_video',
         'generate_long_video',
-        'generate_ppt_explainer_video',
       ];
     case 'audio':
       return ['generate_audio'];

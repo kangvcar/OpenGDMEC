@@ -30,6 +30,7 @@ import { HoverTip } from '../shared/hover';
 import { useModelPriceText, useModelMeta } from '../../hooks/use-model-pricing';
 import { Z_INDEX } from '../../constants/z-index';
 import { useSelectableModels } from '../../hooks/use-runtime-models';
+import { useHasInvocationCredentials } from '../../hooks/use-invocation-credentials';
 import {
   findMatchingSelectableModel,
   getSelectionKey,
@@ -101,6 +102,9 @@ function getItemInitial(model: ModelConfig): string {
 
 export const ModelSelector: React.FC<ModelSelectorProps> = React.memo(
   ({ className, value, valueRef, onChange, variant = 'capsule' }) => {
+    // 没配 Key 就不显示模型选择器（useSelectableModels 会回退到静态模型目录，
+    // 那样没配 Key 也会列出一堆用不了的模型）
+    const hasCredentials = useHasInvocationCredentials('text');
     const baseSelectableModels = useSelectableModels('text');
     const defaultModelId = baseSelectableModels[0]?.id || DEFAULT_TEXT_MODEL_ID;
     const [internalModel, setInternalModel] = useState<string>(defaultModelId);
@@ -436,6 +440,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = React.memo(
 
       return createPortal(menu, document.body);
     };
+
+    // 没配置可用凭据时整个不渲染（放在所有 hooks 之后，避免破坏 hooks 顺序）
+    if (!hasCredentials) {
+      return null;
+    }
 
     return (
       <div

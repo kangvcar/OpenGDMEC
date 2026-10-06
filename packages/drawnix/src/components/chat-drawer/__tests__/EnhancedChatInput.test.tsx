@@ -27,7 +27,9 @@ const generationControlsMock = vi.hoisted(() => ({
     compatibleParams: [],
     selectedCount: 1,
     setSelectedCount: vi.fn(),
-    currentModels: [],
+    currentModels: [{ id: 'gpt-5.4', type: 'text' }],
+    // 配好 Key 时模型下拉才渲染（未配 Key 时隐藏）
+    hasConfiguredCredentials: true,
     handleModelSelect: vi.fn(),
     handleModelConfigSelect: vi.fn(),
     handleParamSelect: vi.fn(),

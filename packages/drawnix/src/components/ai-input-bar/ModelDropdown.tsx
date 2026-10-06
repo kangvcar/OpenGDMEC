@@ -270,12 +270,6 @@ export interface ModelDropdownProps {
   providerProfilesOverride?: ProviderProfile[];
   /** 是否显示供应商管理入口 */
   showProviderAction?: boolean;
-  /** 无候选模型时触发器显示的短文案 */
-  emptyTriggerLabel?: string;
-  /** 无候选模型时菜单显示的说明 */
-  emptyText?: string;
-  /** 仅允许反显 models 中的候选项，不回退到静态模型目录 */
-  strictModelList?: boolean;
 }
 
 /**
@@ -299,9 +293,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   onOpenChange,
   providerProfilesOverride,
   showProviderAction = true,
-  emptyTriggerLabel,
-  emptyText,
-  strictModelList = false,
 }) => {
   const { setAppState } = useDrawnix();
   useSyncExternalStore(subscribeToModelDiscovery, getModelDiscoveryRevision);
@@ -476,7 +467,7 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   const currentModel =
     models.find(
       (model) => getModelKey(model) === (selectedSelectionKey || selectedModel)
-    ) || (strictModelList ? undefined : getModelConfig(selectedModel));
+    ) || getModelConfig(selectedModel);
   const currentProfile = useMemo(
     () => (currentModel ? getModelProfile(currentModel) : null),
     [currentModel, getModelProfile]
@@ -533,10 +524,9 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
     ? language === 'zh'
       ? `该供应商暂无可用的${typeLabel}模型`
       : `No ${typeLabel} models available from this provider`
-    : emptyText ||
-      (language === 'zh'
-        ? `暂无可用的${typeLabel}模型`
-        : `No ${typeLabel} models available`);
+    : language === 'zh'
+    ? `暂无可用的${typeLabel}模型`
+    : `No ${typeLabel} models available`;
 
   const handleAddDiscoveredModels = () => {
     if (!activeProvider || !activeDiscovery) return;
@@ -1067,7 +1057,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
           aria-label={`${
             currentModel?.shortLabel ||
             currentModel?.label ||
-            emptyTriggerLabel ||
             selectedModel ||
             (language === 'zh' ? '无可用模型' : 'No models')
           } (↑↓ Tab)`}
@@ -1097,8 +1086,7 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
             </>
           ) : (
             <span className="model-dropdown__code">
-              {emptyTriggerLabel ||
-                (language === 'zh' ? '无可用模型' : 'No models')}
+              {language === 'zh' ? '无可用模型' : 'No models'}
             </span>
           )}
           <ModelHealthBadge

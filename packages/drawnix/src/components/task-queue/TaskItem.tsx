@@ -33,11 +33,7 @@ import {
   isSora2VideoId,
 } from '../../types/character.types';
 import { RetryImage } from '../retry-image';
-import {
-  getPptExplainerModelLabel,
-  getPptExplainerStageText,
-  TaskProgressOverlay,
-} from './TaskProgressOverlay';
+import { TaskProgressOverlay } from './TaskProgressOverlay';
 import { useThumbnailUrl } from '../../hooks/useThumbnailUrl';
 import {
   getLyricsPreview,
@@ -258,37 +254,8 @@ export const TaskItem: React.FC<TaskItemProps> = React.memo(
     const isCancelled = task.status === TaskStatus.CANCELLED;
     const isRetryable =
       (isFailed || isCancelled) && task.params.agentAnalysis !== true;
-    const pptExplainerStage = task.params.pptExplainer?.stage;
-    const pptExplainerDiagnostics = task.params.pptExplainer?.diagnostics || [];
-    const latestPptExplainerDiagnostic =
-      pptExplainerDiagnostics[pptExplainerDiagnostics.length - 1];
-    const isCurrentCompositionDiagnostic = [
-      '正在以原 PPT',
-      '实时录制',
-      '已完成',
-      '正在校验',
-    ].some((prefix) => latestPptExplainerDiagnostic?.startsWith(prefix));
-    const pptExplainerStatusText =
-      (pptExplainerStage === 'finalizing' && isCurrentCompositionDiagnostic) ||
-      latestPptExplainerDiagnostic?.includes('正在重试')
-        ? latestPptExplainerDiagnostic
-        : undefined;
-    const pptExplainerStageText = getPptExplainerStageText(pptExplainerStage);
-    const statusLabel =
-      (task.status === TaskStatus.PENDING ||
-        task.status === TaskStatus.PROCESSING) &&
-      pptExplainerStageText
-        ? pptExplainerStageText
-        : getStatusLabel(task.status);
-    const modelLabel = getPptExplainerModelLabel(
-      pptExplainerStage,
-      task.params.model
-    );
-    const shouldShowProgressOverlay = Boolean(
-      task.status === TaskStatus.PROCESSING ||
-        (task.status === TaskStatus.PENDING &&
-          pptExplainerStage === 'review_pending')
-    );
+    const statusLabel = getStatusLabel(task.status);
+    const shouldShowProgressOverlay = task.status === TaskStatus.PROCESSING;
 
     // 使用传入的布局模式，如果没有传入则使用内部的 ResizeObserver（兼容旧用法）
     const isCompactLayout =
@@ -460,12 +427,6 @@ export const TaskItem: React.FC<TaskItemProps> = React.memo(
             <strong>状态：</strong>
             {statusLabel}
           </div>
-          {modelLabel && (
-            <div>
-              <strong>模型：</strong>
-              {modelLabel}
-            </div>
-          )}
           {isKlingVideoTask && klingModelVersion && (
             <div>
               <strong>Kling 版本：</strong>
@@ -628,8 +589,6 @@ export const TaskItem: React.FC<TaskItemProps> = React.memo(
                       realProgress={task.progress}
                       startedAt={task.startedAt}
                       mediaUrl={previewMediaUrl}
-                      pptExplainerStage={pptExplainerStage}
-                      pptExplainerStatusText={pptExplainerStatusText}
                     />
                   )
                 ) : (
@@ -772,12 +731,6 @@ export const TaskItem: React.FC<TaskItemProps> = React.memo(
                     {statusLabel}
                   </Tag>
 
-                  {/* Model Tag */}
-                  {modelLabel && (
-                    <Tag variant="outline" className="task-item__model-tag">
-                      {modelLabel}
-                    </Tag>
-                  )}
                   {isChatTask && videoAnalyzerTypeTag && (
                     <Tag variant="outline">{videoAnalyzerTypeTag}</Tag>
                   )}

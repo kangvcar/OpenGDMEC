@@ -353,30 +353,22 @@ describe('ModelDropdown', () => {
     expect(menu.style.bottom).toBe('84px');
   });
 
-  it('没有候选模型时显示明确空态而不是默认模型代号', () => {
+  it('没有候选模型时显示空态而不是默认模型代号', () => {
     const { container } = render(
       <ModelDropdown
-        selectedModel="doubao-seedance-2-0-260128"
+        selectedModel="no-such-model"
         models={[]}
         onSelect={vi.fn()}
-        emptyTriggerLabel="暂无已配置视频模型"
-        emptyText="请先在供应商设置中获取并勾选视频模型"
-        strictModelList
       />
     );
 
     const trigger = container.querySelector(
       '.model-dropdown__trigger--minimal'
     ) as HTMLElement;
-    expect(trigger.textContent).toContain('暂无已配置视频模型');
+    expect(trigger.textContent).toContain('无可用模型');
     expect(trigger.textContent).not.toContain('#img');
-    expect(trigger.getAttribute('aria-label')).toContain('暂无已配置视频模型');
-
-    fireEvent.mouseDown(trigger);
-
-    expect(
-      screen.getByText('请先在供应商设置中获取并勾选视频模型')
-    ).not.toBeNull();
+    // 未知模型 id 不得被伪造成模型代号
+    expect(trigger.getAttribute('aria-label')).not.toContain('#');
   });
 
   it('form 变体的 portal 菜单宽度不小于触发器宽度', () => {

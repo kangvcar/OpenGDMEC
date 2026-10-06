@@ -19,32 +19,7 @@ import {
 } from '../../utils/image-task-progress';
 import { ImageGenerationProgressDisplay } from '../shared/ImageGenerationProgressDisplay';
 import { useImageTaskProgress } from '../../hooks/useImageTaskProgress';
-import type { PptExplainerStage } from '../../services/ppt-explainer/types';
 import './task-progress-overlay.scss';
-
-const PPT_EXPLAINER_STAGE_TEXT: Partial<Record<PptExplainerStage, string>> = {
-  preparing: '正在生成PPT大纲',
-  review_pending: 'PPT大纲待确认',
-  snapshotting: '正在生成并固定PPT页面',
-  scripting: '正在生成逐页讲稿',
-  submitting: '正在生成逐页有声讲解',
-  polling: '正在生成逐页有声讲解',
-  finalizing: '正在合成PPT讲解视频',
-};
-
-export function getPptExplainerStageText(stage: unknown): string | undefined {
-  return typeof stage === 'string'
-    ? PPT_EXPLAINER_STAGE_TEXT[stage as PptExplainerStage]
-    : undefined;
-}
-
-export function getPptExplainerModelLabel(
-  stage: unknown,
-  videoModel?: string
-): string | undefined {
-  if (!getPptExplainerStageText(stage)) return videoModel;
-  return stage === 'submitting' || stage === 'polling' ? videoModel : undefined;
-}
 
 interface TaskProgressOverlayProps {
   /** 任务类型 */
@@ -65,10 +40,6 @@ interface TaskProgressOverlayProps {
   onImageError?: () => void;
   /** 预估生成时间（毫秒），默认 5 分钟 */
   estimatedDuration?: number;
-  /** PPT 讲解根任务的当前编排阶段 */
-  pptExplainerStage?: PptExplainerStage;
-  /** PPT 讲解根任务的当前细分进度 */
-  pptExplainerStatusText?: string;
 }
 
 export const TaskProgressOverlay: React.FC<TaskProgressOverlayProps> = ({
@@ -81,8 +52,6 @@ export const TaskProgressOverlay: React.FC<TaskProgressOverlayProps> = ({
   onImageLoaded,
   onImageError,
   estimatedDuration = IMAGE_GENERATION_ESTIMATE_MS,
-  pptExplainerStage,
-  pptExplainerStatusText,
 }) => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -133,21 +102,12 @@ export const TaskProgressOverlay: React.FC<TaskProgressOverlayProps> = ({
     return () => resizeObserver.disconnect();
   }, []);
 
-  // PPT 大纲待确认仍需展示明确阶段，其他任务只在处理中显示。
-  if (
-    taskStatus !== TaskStatus.PROCESSING &&
-    !(
-      taskStatus === TaskStatus.PENDING &&
-      pptExplainerStage === 'review_pending'
-    )
-  ) {
+  if (taskStatus !== TaskStatus.PROCESSING) {
     return null;
   }
 
   const progress = displayProgress ?? 0;
   const statusText =
-    pptExplainerStatusText?.trim() ||
-    getPptExplainerStageText(pptExplainerStage) ||
     (taskType === TaskType.IMAGE
       ? getImageTaskProgressStatusText(progress, !!mediaUrl, isImageLoading)
       : taskType === TaskType.AUDIO

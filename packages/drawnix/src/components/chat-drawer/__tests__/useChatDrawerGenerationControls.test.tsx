@@ -18,6 +18,9 @@ vi.mock('../../../hooks/use-runtime-models', () => ({
   useSelectableModels: (type: string) =>
     store.models.filter((model) => model.type === type),
 }));
+vi.mock('../../../hooks/use-invocation-credentials', () => ({
+  useHasInvocationCredentials: () => true,
+}));
 vi.mock('../../../utils/settings-manager', () => ({
   createModelRef: (profileId: string | null, modelId: string) =>
     modelId ? { profileId, modelId } : null,

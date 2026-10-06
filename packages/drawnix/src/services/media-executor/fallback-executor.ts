@@ -88,7 +88,6 @@ import {
   shouldUseStrictTaskInvocationRoute,
 } from '../task-invocation-route';
 import { isVirtualMediaUrl } from '../../utils/virtual-media-url';
-import { isPptExplainerTask } from '../ppt-explainer/validation';
 import {
   attachImageRecoveryRequestId,
   buildImageRecoveryUrl,
@@ -1605,7 +1604,6 @@ export class FallbackMediaExecutor implements IMediaExecutor {
       const videoTasks = pendingTasks.filter(
         (t) =>
           t.type === 'video' &&
-          !isPptExplainerTask(t) &&
           t.remoteId &&
           t.status === TaskStatus.PROCESSING
       );
@@ -1614,16 +1612,13 @@ export class FallbackMediaExecutor implements IMediaExecutor {
       for (const t of pendingTasks) {
         const isVideo = t.type === 'video';
         const hasRemoteId = !!t.remoteId;
-        const isPptExplainer = isPptExplainerTask(t);
-        const willResume = isVideo && !isPptExplainer && hasRemoteId;
+        const willResume = isVideo && hasRemoteId;
         console.warn(
           `[FallbackMediaExecutor]   task=${t.id} type=${t.type} remoteId=${
             t.remoteId || 'none'
           } → ${willResume ? 'RESUME' : 'SKIP'}${
             !isVideo ? ' (not video)' : ''
-          }${isPptExplainer ? ' (ppt explainer)' : ''}${
-            !hasRemoteId ? ' (no remoteId)' : ''
-          }`
+          }${!hasRemoteId ? ' (no remoteId)' : ''}`
         );
       }
 

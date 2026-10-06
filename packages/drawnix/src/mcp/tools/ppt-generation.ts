@@ -108,21 +108,6 @@ function replaceExistingPPTOutline(board: PlaitBoard): number {
   return removePPTFrames(board, board.children.filter(isPPTFrame));
 }
 
-export function removePptExplainerOwnedOutline(
-  board: PlaitBoard,
-  pptExplainerJobId: string
-): number {
-  const owner = pptExplainerJobId.trim();
-  if (!owner) return 0;
-
-  return removePPTFrames(
-    board,
-    board.children
-      .filter(isPPTFrame)
-      .filter((frame) => frame.pptMeta.pptExplainerJobId?.trim() === owner)
-  );
-}
-
 /**
  * 聚焦视口到指定 Frame
  */
@@ -243,8 +228,7 @@ function createPPTPage(
   pageSpec: PPTPageSpec,
   pageIndex: number,
   framePosition: Point,
-  generateOptions: PPTGenerationParams,
-  pptExplainerJobId?: string
+  generateOptions: PPTGenerationParams
 ): { frame: PlaitFrame; slidePrompt: string } {
   const referenceImages = normalizePPTReferenceImages(
     generateOptions.referenceImages
@@ -269,7 +253,6 @@ function createPPTPage(
     promptOptions
   );
   const pptMeta: PPTFrameMeta = {
-    ...(pptExplainerJobId ? { pptExplainerJobId } : {}),
     deckTitle: outline.title,
     layout: pageSpec.layout,
     pageIndex,
@@ -299,8 +282,6 @@ function createPPTPage(
 }
 
 export interface MaterializePPTOutlineOptions {
-  pptExplainerJobId?: string;
-  replaceExistingPpt?: boolean;
   signal?: AbortSignal;
   focusFirstFrame?: boolean;
   openEditor?: boolean;
@@ -324,8 +305,7 @@ export function materializePPTOutline(
   options: MaterializePPTOutlineOptions = {}
 ): MaterializedPPTOutline {
   options.signal?.throwIfAborted();
-  const replacedFrameCount =
-    options.replaceExistingPpt === false ? 0 : replaceExistingPPTOutline(board);
+  const replacedFrameCount = replaceExistingPPTOutline(board);
   options.onReplaced?.(replacedFrameCount);
 
   const startPosition = calcPPTFrameInsertionStartPosition(board);
@@ -344,8 +324,7 @@ export function materializePPTOutline(
       outline.pages[index],
       index + 1,
       framePositions[index],
-      generateOptions,
-      options.pptExplainerJobId
+      generateOptions
     );
     frames[index] = frame;
     options.onPageCreated?.(index + 1, outline.pages.length);
@@ -365,11 +344,7 @@ export function materializePPTOutline(
  */
 async function executePPTGeneration(
   params: PPTGenerationParams,
-  options: MCPExecuteOptions,
-  context: {
-    pptExplainerJobId?: string;
-    replaceExistingPpt?: boolean;
-  } = {}
+  options: MCPExecuteOptions
 ): Promise<MCPResult> {
   const { topic, pageCount, language, extraRequirements } = params;
   const startTime = Date.now();
@@ -471,8 +446,6 @@ async function executePPTGeneration(
       outline,
       generationParams,
       {
-        pptExplainerJobId: context.pptExplainerJobId,
-        replaceExistingPpt: context.replaceExistingPpt,
         signal: options.signal,
         onReplaced: (count) => {
           if (count > 0) {
@@ -692,18 +665,7 @@ export const pptGenerationTool: MCPTool = {
  */
 export async function generatePPT(
   params: PPTGenerationParams,
-  options?: Omit<MCPExecuteOptions, 'mode'> & {
-    /** Trusted main-thread ownership marker; never exposed in the MCP schema. */
-    pptExplainerJobId?: string;
-    /** PPT explainer may preserve other decks on the same board. */
-    replaceExistingPpt?: boolean;
-  }
+  options?: Omit<MCPExecuteOptions, 'mode'>
 ): Promise<MCPResult> {
-  const { pptExplainerJobId, replaceExistingPpt, ...executeOptions } =
-    options || {};
-  return executePPTGeneration(
-    params,
-    { ...executeOptions, mode: 'async' },
-    { pptExplainerJobId, replaceExistingPpt }
-  );
+  return executePPTGeneration(params, { ...(options || {}), mode: 'async' });
 }

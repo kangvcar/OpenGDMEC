@@ -31,10 +31,6 @@ import {
   isImageRequestRecoveryCandidate,
 } from '../services/image-generation-recovery-service';
 import { isImageSubmissionOutcomeUnknownError } from '../services/provider-routing';
-import {
-  isPptExplainerTask,
-  readPptExplainerState,
-} from '../services/ppt-explainer/validation';
 
 function inferImageFormat(url: string): string {
   const pathname = url.split(/[?#]/, 1)[0] || '';
@@ -842,29 +838,6 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
         return;
       }
 
-      if (isPptExplainerTask(task)) {
-        const state = readPptExplainerState(task);
-        if (state?.stage === 'review_pending') return;
-        if (
-          task.status !== TaskStatus.PENDING &&
-          task.status !== TaskStatus.PROCESSING
-        ) {
-          return;
-        }
-        const executionToken = claimTaskExecution(taskId, expectedToken);
-        if (!executionToken) return;
-        try {
-          const { runPptExplainerTask } = await import(
-            '../services/ppt-explainer/orchestrator'
-          );
-          if (!isCurrentTaskExecution(taskId, executionToken)) return;
-          await runPptExplainerTask(taskId);
-        } finally {
-          onTaskFinished(taskId, executionToken);
-        }
-        return;
-      }
-
       // Check if this is a resumable async image task
       if (
         task.status === TaskStatus.PROCESSING &&
@@ -1082,14 +1055,7 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
 
       // Process pending tasks
       const pendingTasks = tasks.filter(
-        (task) =>
-          task.status === TaskStatus.PENDING &&
-          readPptExplainerState(task)?.stage !== 'review_pending'
-      );
-
-      const resumablePptExplainerTasks = tasks.filter(
-        (task) =>
-          task.status === TaskStatus.PROCESSING && isPptExplainerTask(task)
+        (task) => task.status === TaskStatus.PENDING
       );
 
       // Process resumable tasks (processing with remoteId) — video tasks excluded, handled by FallbackMediaExecutor
@@ -1109,7 +1075,7 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
       );
 
       console.warn(
-        `[TaskExecutor] processPendingTasks: ${tasks.length} total, ${pendingTasks.length} pending, ${resumableTasks.length} resumable-image, ${resumableAudioTasks.length} resumable-audio, ${resumablePptExplainerTasks.length} resumable-ppt-explainer, ${recoverableImageRequestTasks.length} recoverable-image, ${executingTasksRef.current.size} executing`
+        `[TaskExecutor] processPendingTasks: ${tasks.length} total, ${pendingTasks.length} pending, ${resumableTasks.length} resumable-image, ${resumableAudioTasks.length} resumable-audio, ${recoverableImageRequestTasks.length} recoverable-image, ${executingTasksRef.current.size} executing`
       );
 
       pendingTasks.forEach((task) => {
@@ -1123,9 +1089,6 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
       resumableAudioTasks.forEach((task) => {
         enqueueTask(task);
       });
-      resumablePptExplainerTasks.forEach((task) => {
-        enqueueTask(task);
-      });
       recoverableImageRequestTasks.forEach(startImageRequestRecovery);
     };
 
@@ -1136,7 +1099,7 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
       const tasks = legacyTaskQueueService.getAllTasks();
       const processingTasks = tasks.filter(
         (task) =>
-          task.status === TaskStatus.PROCESSING && !task.params.documentBatch && !task.params.workflow && !isPptExplainerTask(task)
+          task.status === TaskStatus.PROCESSING && !task.params.documentBatch && !task.params.workflow
       );
 
       processingTasks.forEach((task) => {
@@ -1225,10 +1188,9 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
           const isPendingOrResumable =
             task.status === TaskStatus.PENDING ||
             (task.status === TaskStatus.PROCESSING &&
-              (isPptExplainerTask(task) ||
-                (Boolean(task.remoteId) &&
-                  (isResumableAsyncImageTask(task) ||
-                    task.type === TaskType.AUDIO))));
+              Boolean(task.remoteId) &&
+              (isResumableAsyncImageTask(task) ||
+                task.type === TaskType.AUDIO));
           if (!isPendingOrResumable) {
             pendingQueueRef.current = pendingQueueRef.current.filter(
               (item) => item.task.id !== task.id
@@ -1251,12 +1213,6 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
           if (!task.params.documentBatch && !task.params.workflow) {
               enqueueTask(task);
             }
-          } else if (
-            !executingTasksRef.current.has(task.id) &&
-            task.status === TaskStatus.PROCESSING &&
-            isPptExplainerTask(task)
-          ) {
-            enqueueTask(task);
           }
           // Resume async image tasks that have remoteId and are in processing state (video tasks excluded, handled by FallbackMediaExecutor)
           else if (
@@ -1303,9 +1259,6 @@ export function useTaskExecutor(isTaskStorageReady = true): void {
         generationAPIService.cancelRequest(taskId);
       });
       executingTasksRef.current.clear();
-      void import('../services/ppt-explainer/orchestrator').then(
-        ({ suspendPptExplainerRuns }) => suspendPptExplainerRuns()
-      );
       imageGenerationRecoveryService.stopAll();
     };
   }, [isTaskStorageReady]);

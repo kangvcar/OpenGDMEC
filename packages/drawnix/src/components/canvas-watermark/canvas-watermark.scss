@@ -1,0 +1,25 @@
+@import '../../styles/z-index';
+
+.canvas-watermark {
+  // 组件已 portal 到 body，这里才拿得到视口坐标。
+  // 若不 portal：水印挂在 .ai-input-bar 子树里，那个容器带 transform，
+  // absolute 与 fixed 都会改以它为包含块，top: 64px 会落到输入栏上方（实测 y=521）。
+  position: fixed;
+  // 低于画笔/钢笔设置条（top: 10px，z-index 2000），且让开缩放控件
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  // 高于画布内容（画布容器 z-index: auto），低于所有工具栏（2000+）
+  z-index: $z-canvas-decoration;
+
+  pointer-events: none; // 让点击穿透到画布
+  user-select: none;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: #1f2329;
+  opacity: 0.28;
+}

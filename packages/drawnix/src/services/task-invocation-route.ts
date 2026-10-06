@@ -66,50 +66,6 @@ const PERSISTABLE_METADATA_SCHEMA: Record<string, MetadataCloneRule> = {
     supportsTitle: true,
     supportsLyricsPrompt: true,
   },
-  pptExplainer: {
-    capabilities: {
-      sources: true,
-      presentationInputs: true,
-      presenterModes: true,
-      finalComposition: true,
-    },
-    responsePaths: {
-      submit: {
-        status: true,
-        error: true,
-        remoteId: true,
-        progress: true,
-        finalVideoUrl: true,
-      },
-      poll: {
-        status: true,
-        error: true,
-        remoteId: true,
-        progress: true,
-        finalVideoUrl: true,
-      },
-      cancel: {
-        status: true,
-        error: true,
-        remoteId: true,
-        progress: true,
-        finalVideoUrl: true,
-      },
-    },
-    statusMapping: {
-      queued: true,
-      processing: true,
-      completed: true,
-      failed: true,
-      cancelled: true,
-    },
-    progressScale: true,
-    idempotencyHeader: true,
-    cancel: {
-      pathTemplate: true,
-      method: true,
-    },
-  },
 };
 
 const SENSITIVE_METADATA_MARKER =

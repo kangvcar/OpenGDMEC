@@ -100,8 +100,7 @@ function isTaskTypeCompatibleWithStep(
     case TaskType.VIDEO:
       return (
         step.mcp === 'generate_video' ||
-        step.mcp === 'generate_long_video' ||
-        step.mcp === 'generate_ppt_explainer_video'
+        step.mcp === 'generate_long_video'
       );
     case TaskType.AUDIO:
       return step.mcp === 'generate_audio';

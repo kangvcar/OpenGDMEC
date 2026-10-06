@@ -89,9 +89,7 @@ export interface Translations {
   'menu.cloudSync': string;
   'menu.workflowMode': string;
   'menu.debugPanel': string;
-  'menu.version': string;
   'menu.commandPalette': string;
-  'menu.changelog': string;
   'menu.cleanInvalidLinks': string;
   'menu.cleanInvalidLinks.scanning': string;
   'menu.cleanInvalidLinks.success': string;
@@ -280,9 +278,7 @@ const translations: Record<Language, Translations> = {
     'menu.cloudSync': '云端同步',
     'menu.workflowMode': '工作流模式',
     'menu.debugPanel': '日志 / 调试',
-    'menu.version': '版本',
     'menu.commandPalette': '快捷命令',
-    'menu.changelog': '日志',
     'menu.cleanInvalidLinks': '清除失效媒体',
     'menu.cleanInvalidLinks.scanning': '正在扫描失效媒体...',
     'menu.cleanInvalidLinks.success': '已清除 {count} 个失效媒体',
@@ -468,9 +464,7 @@ const translations: Record<Language, Translations> = {
     'menu.cloudSync': 'Cloud Sync',
     'menu.workflowMode': 'Workflow Mode',
     'menu.debugPanel': 'Log / Debug',
-    'menu.version': 'Version',
     'menu.commandPalette': 'Commands',
-    'menu.changelog': 'Log',
     'menu.cleanInvalidLinks': 'Clean Invalid Media',
     'menu.cleanInvalidLinks.scanning': 'Scanning invalid media...',
     'menu.cleanInvalidLinks.success': 'Cleaned {count} invalid media',

@@ -53,11 +53,6 @@ export { longVideoGenerationTool, createLongVideoTask } from './tools/long-video
 export type { LongVideoGenerationParams } from './tools/long-video-generation';
 export { pptGenerationTool, generatePPT } from './tools/ppt-generation';
 export type { PPTGenerationParams } from '../services/ppt';
-export {
-  pptExplainerVideoTool,
-  generatePptExplainerVideo,
-} from './tools/ppt-explainer-video';
-export type { PptExplainerVideoParams } from './tools/ppt-explainer-video';
 export { knowledgeBaseTools } from './tools/knowledge-base-tool';
 export { videoAnalyzeTool } from './tools/video-analyze';
 export type { VideoAnalyzeParams, VideoAnalysisData, VideoShot } from './tools/video-analyze';

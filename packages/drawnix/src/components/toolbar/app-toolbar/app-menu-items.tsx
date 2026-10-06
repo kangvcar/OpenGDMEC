@@ -31,7 +31,6 @@ import MenuItem from '../../menu/menu-item';
 import { saveAsImage } from '../../../utils/image';
 import { useDrawnix } from '../../../hooks/use-drawnix';
 import { useI18n } from '../../../i18n';
-import { INSTITUTION_CREDIT_TEXT } from '../../../constants/institution-credit';
 import Menu from '../../menu/menu';
 import { useContext, useState, useCallback } from 'react';
 import { Workflow as WorkflowIcon } from 'lucide-react';
@@ -296,61 +295,6 @@ export const QuickCommands = () => {
   );
 };
 QuickCommands.displayName = 'QuickCommands';
-
-export const VersionInfo = () => {
-  const { t } = useI18n();
-  // 从 HTML meta 标签获取版本号
-  const version =
-    document
-      .querySelector('meta[name="app-version"]')
-      ?.getAttribute('content') || '0.0.0';
-
-  return (
-    <MenuItem
-      data-track="toolbar_click_menu_version"
-      onSelect={() => {}}
-      aria-label={t('menu.version')}
-    >
-      <span
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px',
-          width: '100%',
-        }}
-      >
-        <span
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-          }}
-        >
-          <span style={{ color: '#666' }}>
-            {t('menu.version')}：{version}
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span
-              style={{ color: '#1890ff', cursor: 'pointer' }}
-              data-track="toolbar_click_menu_changelog"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open('./versions.html', '_blank');
-              }}
-            >
-              {t('menu.changelog')}
-            </span>
-          </span>
-        </span>
-        <span style={{ color: '#a8b0bd', fontSize: '11px', lineHeight: 1.4 }}>
-          {INSTITUTION_CREDIT_TEXT}
-        </span>
-      </span>
-    </MenuItem>
-  );
-};
-VersionInfo.displayName = 'VersionInfo';
 
 /**
  * 检查 URL 是否有效

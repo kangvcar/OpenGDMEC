@@ -11,6 +11,7 @@ import {
   type ModelConfig,
 } from '../../constants/model-config';
 import { useSelectableModels } from '../../hooks/use-runtime-models';
+import { useHasInvocationCredentials } from '../../hooks/use-invocation-credentials';
 import {
   loadAIInputPreferences,
   loadScopedAIInputModelParams,
@@ -155,6 +156,13 @@ export function useChatDrawerGenerationControls(
   const videoModels = useSelectableModels('video');
   const audioModels = useSelectableModels('audio');
   const textModels = useSelectableModels('text');
+  // 有没有 Key 决定模型下拉要不要显示。判据用凭据本身，不能数模型列表：
+  // useSelectableModels 会回退到静态模型目录，而 useConfiguredSelectableModels 要等
+  // 一次 /models 发现往返才有内容，老师刚存完 Key 时它还是空的。
+  const imageCredentials = useHasInvocationCredentials('image');
+  const videoCredentials = useHasInvocationCredentials('video');
+  const audioCredentials = useHasInvocationCredentials('audio');
+  const textCredentials = useHasInvocationCredentials('text');
   const [initialGenerationState] = useState(
     () => sessionGenerationState || toGenerationState(loadAIInputPreferences())
   );
@@ -195,6 +203,16 @@ export function useChatDrawerGenerationControls(
     }
     return imageModels;
   }, [audioModels, generationType, imageModels, textModels, videoModels]);
+
+  /** 当前生成类型有没有可用的 Key（无 Key 时不渲染模型下拉） */
+  const hasConfiguredCredentials = useMemo(() => {
+    if (generationType === 'video') return videoCredentials;
+    if (generationType === 'audio') return audioCredentials;
+    if (generationType === 'text' || generationType === 'agent') {
+      return textCredentials;
+    }
+    return imageCredentials;
+  }, [audioCredentials, generationType, imageCredentials, textCredentials, videoCredentials]);
 
   const resolvePreferredModelSelection = useCallback(
     (type: GenerationType, models: ModelConfig[]) => {
@@ -489,6 +507,7 @@ export function useChatDrawerGenerationControls(
     selectedCount,
     setSelectedCount,
     currentModels,
+    hasConfiguredCredentials,
     handleModelSelect,
     handleModelConfigSelect,
     handleParamSelect,

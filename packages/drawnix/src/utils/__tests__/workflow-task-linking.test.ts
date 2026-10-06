@@ -116,28 +116,4 @@ describe('workflow-task-linking', () => {
     expect(isWorkflowStepTaskCompleted(workflow, step, [task])).toBe(true);
   });
 
-  it('matches a PPT explainer VIDEO task to its workflow step', () => {
-    const task = createTask({ type: TaskType.VIDEO });
-    const workflow = {
-      id: 'wf-1',
-      generationType: 'video',
-      steps: [
-        {
-          id: 'step-ppt-video',
-          mcp: 'generate_ppt_explainer_video',
-          args: {},
-          status: 'running' as const,
-          options: {
-            batchId: 'wf_batch_wf-1',
-            batchIndex: 1,
-          },
-        },
-      ],
-    };
-
-    expect(findWorkflowStepForTask(workflow, task)?.id).toBe('step-ppt-video');
-    expect(
-      findTaskForWorkflowStep(workflow, workflow.steps[0], [task])?.id
-    ).toBe('task-1');
-  });
 });

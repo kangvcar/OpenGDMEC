@@ -35,15 +35,6 @@ describe('skill-media-type（发行档位收敛）', () => {
     ).toEqual(['image']);
   });
 
-  it('PPT 讲解视频 Skill 只保留图片选择', () => {
-    expect(
-      inferSkillMediaTypes({
-        mcpTool: 'generate_ppt_explainer_video',
-        outputType: 'video',
-      })
-    ).toEqual(['image']);
-  });
-
   it('图片输出类型不受影响', () => {
     expect(inferSkillMediaTypes({ outputType: 'image' })).toEqual(['image']);
   });

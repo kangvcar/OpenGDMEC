@@ -661,6 +661,7 @@ export const EnhancedChatInput = forwardRef<
                   onSelect={generationControls.setGenerationType}
                   disabled={disabled}
                 />
+                {generationControls.hasConfiguredCredentials && (
                 <ModelDropdown
                   selectedModel={generationControls.selectedModel}
                   selectedSelectionKey={generationControls.selectedSelectionKey}
@@ -680,6 +681,7 @@ export const EnhancedChatInput = forwardRef<
                   }
                   disabled={disabled}
                 />
+                )}
                 {isGenerationMode &&
                   generationControls.compatibleParams.length > 0 && (
                     <ParametersDropdown

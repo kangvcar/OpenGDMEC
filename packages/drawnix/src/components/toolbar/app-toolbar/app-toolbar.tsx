@@ -17,7 +17,6 @@ import {
   CloudSync,
   DebugPanel,
   QuickCommands,
-  VersionInfo,
   CleanInvalidLinks,
 } from './app-menu-items';
 import { LanguageSwitcherMenu } from './language-switcher-menu';
@@ -118,7 +117,6 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
             <Settings />
             <MenuSeparator />
             <QuickCommands />
-            <VersionInfo />
           </Menu>
         </PopoverContent>
       </Popover>

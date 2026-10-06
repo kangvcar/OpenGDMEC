@@ -29,7 +29,6 @@ import {
   List,
   Presentation,
   Sparkles,
-  Video,
 } from 'lucide-react';
 import {
   SearchIcon,
@@ -146,19 +145,13 @@ import {
   insertAudioFromUrl,
   resolveAudioCardDimensions,
 } from '../../data/audio';
-import {
-  requestAIInputFocus,
-  resolvePptExplainerFrameIds,
-  updatePptExplainerFrameSelection,
-} from '../../services/ai-input-ui-events';
+import { requestAIInputFocus } from '../../services/ai-input-ui-events';
 import {
   createPPTFrameSnapshotDataUrl,
   createPPTFrameSnapshotKey,
   getPPTFrameSnapshotElements,
   resolvePPTFramePreviewUrl,
 } from '../../utils/frame-preview-snapshot';
-import { confirmAndRunPptExplainerTask } from '../../services/ppt-explainer/creation-service';
-import { readPptExplainerState } from '../../services/ppt-explainer/validation';
 
 interface FrameInfo {
   frame: PlaitFrame;
@@ -1124,11 +1117,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
     close: closeContextMenu,
   } = useContextMenuState<FrameInfo>();
   const [isExportingAllPPT, setIsExportingAllPPT] = useState(false);
-  const [confirmingPptExplainerTaskIds, setConfirmingPptExplainerTaskIds] =
-    useState<Set<string>>(() => new Set());
-  const [pptExplainerConfirmErrors, setPptExplainerConfirmErrors] = useState<
-    Record<string, string>
-  >({});
   const [pptLayoutColumns, setPPTLayoutColumns] = useState(() =>
     loadPPTFrameLayoutColumns()
   );
@@ -1395,56 +1383,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
     const sourceFrames = rootFrames.length > 0 ? rootFrames : frames;
     return getOrderedPPTFrameInfos(sourceFrames);
   }, [frames, rootFrames]);
-
-  const reviewPendingPptExplainerTasks = useMemo(() => {
-    if (!currentBoardId) return [];
-    return tasks
-      .map((task) => ({ task, state: readPptExplainerState(task) }))
-      .filter(
-        (
-          item
-        ): item is {
-          task: Task;
-          state: NonNullable<ReturnType<typeof readPptExplainerState>>;
-        } =>
-          item.state?.stage === 'review_pending' &&
-          item.state.sourceBoardId === currentBoardId &&
-          item.task.status === TaskStatus.PENDING
-      )
-      .sort((a, b) => a.task.createdAt - b.task.createdAt);
-  }, [currentBoardId, tasks]);
-
-  const handleConfirmPptExplainerTask = useCallback(async (taskId: string) => {
-    setConfirmingPptExplainerTaskIds((current) => {
-      if (current.has(taskId)) return current;
-      const next = new Set(current);
-      next.add(taskId);
-      return next;
-    });
-    setPptExplainerConfirmErrors((current) => {
-      if (!(taskId in current)) return current;
-      const next = { ...current };
-      delete next[taskId];
-      return next;
-    });
-    try {
-      await confirmAndRunPptExplainerTask(taskId);
-      MessagePlugin.success('已确认大纲，开始生成 PPT 讲解视频');
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : '大纲确认失败，请重试';
-      setPptExplainerConfirmErrors((current) => ({
-        ...current,
-        [taskId]: message,
-      }));
-    } finally {
-      setConfirmingPptExplainerTaskIds((current) => {
-        const next = new Set(current);
-        next.delete(taskId);
-        return next;
-      });
-    }
-  }, []);
 
   const filteredOutlineFrames = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -1772,50 +1710,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
       focusFrameViewport,
       frames,
       lastSelectedFrameId,
-      selectedFrameIds,
-      syncCanvasSelectedFrames,
-    ]
-  );
-
-  const handleTogglePptExplainerReference = useCallback(
-    (frameInfo: FrameInfo, checked: boolean) => {
-      const nextSelectedFrameIds = updatePptExplainerFrameSelection(
-        selectedFrameIds,
-        frameInfo.frame.id,
-        checked
-      );
-      if (checked) {
-        setLastSelectedFrameId(frameInfo.frame.id);
-      } else {
-        if (lastSelectedFrameId === frameInfo.frame.id) {
-          setLastSelectedFrameId(null);
-        }
-      }
-      setSelectedFrameIds(nextSelectedFrameIds);
-      syncCanvasSelectedFrames(
-        frames.filter((info) => nextSelectedFrameIds.has(info.frame.id))
-      );
-      analytics.trackPPTAction({
-        action: checked
-          ? 'select_explainer_reference_slide'
-          : 'deselect_explainer_reference_slide',
-        source:
-          pptViewMode === 'outline'
-            ? 'project_drawer_outline'
-            : 'project_drawer_slides',
-        pageCount: orderedPPTFrames.length,
-        selectedCount: resolvePptExplainerFrameIds(
-          orderedPPTFrames.map((info) => info.frame.id),
-          nextSelectedFrameIds
-        )?.length,
-        metadata: { frame_id: frameInfo.frame.id },
-      });
-    },
-    [
-      frames,
-      lastSelectedFrameId,
-      orderedPPTFrames,
-      pptViewMode,
       selectedFrameIds,
       syncCanvasSelectedFrames,
     ]
@@ -3670,15 +3564,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
   const outlineSelectionLabel = `${
     allOutlineSlidesSelected ? '取消' : '全选'
   }${selectedOutlineSlideCount}/${orderedPPTFrames.length}`;
-  const selectedExplainerFrameIds = resolvePptExplainerFrameIds(
-    orderedPPTFrames.map((info) => info.frame.id),
-    selectedFrameIds
-  );
-  const explainerPageCount =
-    selectedExplainerFrameIds?.length || orderedPPTFrames.length;
-  const explainerActionLabel = selectedExplainerFrameIds?.length
-    ? `用已选 ${selectedExplainerFrameIds.length} 页生成讲解视频`
-    : '用当前全部 PPT 页面生成讲解视频';
 
   if (!board) {
     return (
@@ -3761,32 +3646,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
             />
           </HoverTip>
           {frames.length > 0 && (
-            <HoverTip content={explainerActionLabel}>
-              <Button
-                variant="outline"
-                size="small"
-                shape="square"
-                icon={<Video size={16} strokeWidth={1.8} />}
-                aria-label={explainerActionLabel}
-                onClick={() => {
-                  analytics.trackPPTAction({
-                    action: 'open_explainer_video',
-                    source: 'project_drawer',
-                    pageCount: explainerPageCount,
-                    selectedCount: selectedExplainerFrameIds?.length || 0,
-                  });
-                  requestAIInputFocus({
-                    generationType: 'agent',
-                    skillId: 'generate_ppt_explainer_video',
-                    pptExplainerSource: 'current_ppt',
-                    pptExplainerFrameIds: selectedExplainerFrameIds,
-                    openPptExplainer: true,
-                  });
-                }}
-              />
-            </HoverTip>
-          )}
-          {frames.length > 0 && (
             <HoverTip
               content={
                 isExportingAllPPT ? '正在导出 PPT...' : '导出所有 PPT 页面'
@@ -3831,18 +3690,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
         </div>
       </div>
 
-      {frames.length > 0 && (
-        <div className="frame-panel__explainer-selection-status" role="status">
-          <Video size={14} strokeWidth={1.8} aria-hidden="true" />
-          <span>
-            讲解视频参考：
-            {selectedExplainerFrameIds?.length
-              ? `已选 ${selectedExplainerFrameIds.length} 页`
-              : '未选择，将使用全部 PPT 页面'}
-          </span>
-        </div>
-      )}
-
       {pptViewMode === 'outline' ? (
         orderedPPTFrames.length === 0 || filteredOutlineFrames.length === 0 ? (
           <div className="frame-panel__empty">
@@ -3882,40 +3729,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
         ) : (
           <div className="frame-panel__outline">
             <div className="frame-panel__outline-body">
-              {reviewPendingPptExplainerTasks.map(({ task, state }) => (
-                <div
-                  className="frame-panel__explainer-review"
-                  key={task.id}
-                  data-testid="ppt-explainer-review-pending"
-                >
-                  <div className="frame-panel__explainer-review-copy">
-                    <span className="frame-panel__explainer-review-title">
-                      PPT 讲解视频
-                    </span>
-                    <span className="frame-panel__explainer-review-topic">
-                      {state.topic?.trim() || '当前大纲'}
-                    </span>
-                    {pptExplainerConfirmErrors[task.id] ? (
-                      <span
-                        className="frame-panel__explainer-review-error"
-                        role="alert"
-                      >
-                        {pptExplainerConfirmErrors[task.id]}
-                      </span>
-                    ) : null}
-                  </div>
-                  <Button
-                    theme="primary"
-                    size="small"
-                    icon={<Video size={15} strokeWidth={1.8} />}
-                    loading={confirmingPptExplainerTaskIds.has(task.id)}
-                    disabled={confirmingPptExplainerTaskIds.has(task.id)}
-                    onClick={() => void handleConfirmPptExplainerTask(task.id)}
-                  >
-                    确认并生成
-                  </Button>
-                </div>
-              ))}
               <div className="frame-panel__outline-title">
                 <span className="frame-panel__outline-label">PPT 标题</span>
                 <Input
@@ -4024,22 +3837,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
                             )
                           }
                         />
-                        <HoverTip content="选择此页作为讲解视频参考">
-                          <Checkbox
-                            className="frame-panel__outline-explainer-checkbox"
-                            checked={selectedFrameIds.has(info.frame.id)}
-                            aria-label={`选择第 ${
-                              pageIndex + 1
-                            } 页作为讲解视频参考`}
-                            onClick={({ e }) => e.stopPropagation()}
-                            onChange={(checked) =>
-                              handleTogglePptExplainerReference(
-                                info,
-                                checked as boolean
-                              )
-                            }
-                          />
-                        </HoverTip>
                         <div className="frame-panel__outline-item-header">
                           <div className="frame-panel__outline-item-title">
                             <span className="frame-panel__outline-page-index">
@@ -4221,9 +4018,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
             const pptTransition = getPPTSlideTransition(
               info.pptMeta?.transition
             );
-            const pptPageIndex = orderedPPTFrames.findIndex(
-              (item) => item.frame.id === info.frame.id
-            );
             const hasPPTTransition = pptTransition.type !== 'none';
             const previewImageUrl = resolvePPTFramePreviewUrl(
               frameSnapshotUrls[info.frame.id],
@@ -4249,20 +4043,6 @@ export const FramePanel: React.FC<FramePanelProps> = ({
                 onContextMenu={(e) => handleContextMenu(e, info)}
                 {...dragProps}
               >
-                {info.pptMeta ? (
-                  <Checkbox
-                    className="frame-panel__slide-reference-checkbox"
-                    checked={selectedFrameIds.has(info.frame.id)}
-                    aria-label={`选择第 ${pptPageIndex + 1} 页作为讲解视频参考`}
-                    onClick={({ e }) => e.stopPropagation()}
-                    onChange={(checked) =>
-                      handleTogglePptExplainerReference(
-                        info,
-                        checked as boolean
-                      )
-                    }
-                  />
-                ) : null}
                 {info.pptMeta ? (
                   <PPTSlidePreview
                     imageUrl={previewImageUrl}
