@@ -10,12 +10,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '../popover/popover';
 import { useBoard } from '@plait-board/react-board';
 import { PlaitBoard } from '@plait/core';
 import { Z_INDEX } from '../../constants/z-index';
+import {
+  ADMIN_CONTACT_TEXT,
+  ADMIN_QR_URL,
+} from '../../constants/admin-contact';
 import { WeComIcon } from '../icons';
 import { ToolButton } from '../tool-button';
 import './feedback-button.scss';
-
-const QR_CODE_URL = 'https://tuziai.oss-cn-shenzhen.aliyuncs.com/aitu/AiTu.png';
-const SERVICE_QR_CODE_URL = 'https://tuziai.oss-cn-shenzhen.aliyuncs.com/linkme.png';
 
 export const FeedbackButton: React.FC = () => {
   const board = useBoard();
@@ -24,10 +25,8 @@ export const FeedbackButton: React.FC = () => {
 
   // 预加载图片
   useEffect(() => {
-    const img1 = new Image();
-    img1.src = QR_CODE_URL;
-    const img2 = new Image();
-    img2.src = SERVICE_QR_CODE_URL;
+    const img = new Image();
+    img.src = ADMIN_QR_URL;
   }, []);
 
   return (
@@ -36,8 +35,8 @@ export const FeedbackButton: React.FC = () => {
         <ToolButton
           type="icon"
           icon={<WeComIcon />}
-          aria-label="用户反馈群"
-          tooltip="用户反馈群"
+          aria-label={ADMIN_CONTACT_TEXT}
+          tooltip={ADMIN_CONTACT_TEXT}
           tooltipPlacement="right"
           selected={open}
           visible={true}
@@ -53,20 +52,12 @@ export const FeedbackButton: React.FC = () => {
           <div className="feedback-qrcode-grid">
             <div className="feedback-qrcode-item">
               <img
-                src={QR_CODE_URL}
-                alt="用户反馈群二维码"
+                src={ADMIN_QR_URL}
+                alt={`${ADMIN_CONTACT_TEXT}（管理员二维码）`}
                 className="feedback-qrcode-image"
               />
-              <div className="feedback-qrcode-text">用户反馈群</div>
+              <div className="feedback-qrcode-text">{ADMIN_CONTACT_TEXT}</div>
             </div>
-            {/* <div className="feedback-qrcode-item">
-              <img
-                src={SERVICE_QR_CODE_URL}
-                alt="客服二维码"
-                className="feedback-qrcode-image"
-              />
-              <div className="feedback-qrcode-text">客服</div>
-            </div> */}
           </div>
         </div>
       </PopoverContent>

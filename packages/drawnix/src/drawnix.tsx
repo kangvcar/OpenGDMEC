@@ -189,6 +189,14 @@ const ChatDrawer = lazy(() =>
     default: module.ChatDrawer,
   }))
 );
+// 未配置 API Key 的引导。刻意不放进 DrawnixDeferredFeatures ——
+// 那个子树要等 5s 定时器 + idle 回调才渲染，启动引导不该等那么久，
+// 也不该和版本提示之类的开关耦合。
+const AdminKeyGuidance = lazy(() =>
+  import('./components/admin-contact/admin-key-guidance').then((module) => ({
+    default: module.AdminKeyGuidance,
+  }))
+);
 
 type MediaLibraryOpenConfig = Pick<
   MediaLibraryModalProps,
@@ -1928,6 +1936,9 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
         </Wrapper>
         <Suspense fallback={null}>
           <ChatDrawer ref={chatDrawerRef} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AdminKeyGuidance />
         </Suspense>
         {deferredRuntimeEnabled && (
           <Suspense fallback={null}>

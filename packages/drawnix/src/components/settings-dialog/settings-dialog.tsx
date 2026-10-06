@@ -23,7 +23,6 @@ import {
   Copy,
   Eye,
   EyeOff,
-  FlaskConical,
   Loader2,
   Plus,
   Search,
@@ -109,7 +108,6 @@ import {
 } from '../../services/tuzi-postmessage-bridge';
 import { syncTuziSessionProviders } from '../../services/tuzi-session-provider-sync';
 import { hasTuziSystemToken } from '../../services/tuzi-token-auth';
-import { openModelBenchmarkTool } from '../../services/model-benchmark-launcher';
 import {
   analytics,
   getProviderEndpointAnalytics,
@@ -3797,49 +3795,7 @@ export const SettingsDialog = ({
     );
   };
 
-  const handleLaunchModelBenchmark = useCallback(
-    (payload: {
-      profileId: string;
-      modality: ModelType;
-      modelId?: string;
-      compareMode: 'cross-provider' | 'cross-model' | 'custom';
-      autoRun?: boolean;
-    }) => {
-      if (!payload.profileId) {
-        return;
-      }
-      openModelBenchmarkTool({
-        profileId: payload.profileId,
-        modelId: payload.modelId,
-        modality: payload.modality,
-        compareMode: payload.compareMode,
-        autoRun: payload.autoRun,
-      });
-      analytics.trackUIInteraction({
-        area: 'settings',
-        action: 'model_benchmark_launched',
-        control: 'model_benchmark',
-        source: 'settings_dialog',
-        metadata: {
-          profileId: payload.profileId,
-          modality: payload.modality,
-          compareMode: payload.compareMode,
-          hasModel: !!payload.modelId,
-          autoRun: !!payload.autoRun,
-        },
-      });
-    },
-    [setAppState]
-  );
-
   const renderProviderModelSummary = () => {
-    const providerDraftState = selectedProfile
-      ? getProviderDraftState(selectedProfile, initialProfiles)
-      : 'saved';
-    const canLaunchBenchmark =
-      !!selectedProfile?.apiKey.trim() &&
-      providerDraftState === 'saved' &&
-      runtimeState.status !== 'loading';
     const isDefaultProvider =
       selectedProfile?.id === LEGACY_DEFAULT_PROVIDER_PROFILE_ID;
     const displayModels = dedupeModelsByTypeAndId(runtimeState.models);
@@ -4319,32 +4275,6 @@ export const SettingsDialog = ({
                         {models.length}
                       </span>
                     </div>
-                    <HoverTip
-                      content={
-                        canLaunchBenchmark
-                          ? '测试当前供应商这一组模型'
-                          : '请先保存供应商配置并确保 API Key 可用'
-                      }
-                      showArrow={false}
-                    >
-                      <button
-                        type="button"
-                        className="settings-dialog__model-group-test"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          if (!selectedProfile) return;
-                          handleLaunchModelBenchmark({
-                            profileId: selectedProfile.id,
-                            modality: type,
-                            compareMode: 'cross-model',
-                            autoRun: true,
-                          });
-                        }}
-                        disabled={!canLaunchBenchmark}
-                      >
-                        测试本组
-                      </button>
-                    </HoverTip>
                   </div>
                   {!isCollapsed && (
                     <div className="settings-dialog__model-type-list">
@@ -4416,35 +4346,6 @@ export const SettingsDialog = ({
                                   );
                                 return null;
                               })()}
-                              <HoverTip
-                                content={
-                                  canLaunchBenchmark
-                                    ? '测试'
-                                    : '请先保存供应商配置并确保 API Key 可用'
-                                }
-                                showArrow={false}
-                              >
-                                <span className="settings-dialog__model-tip-trigger">
-                                  <button
-                                    type="button"
-                                    className="settings-dialog__model-icon-btn settings-dialog__model-icon-btn--test"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      if (!selectedProfile) return;
-                                      handleLaunchModelBenchmark({
-                                        profileId: selectedProfile.id,
-                                        modality: type,
-                                        modelId: model.id,
-                                        compareMode: 'cross-provider',
-                                        autoRun: true,
-                                      });
-                                    }}
-                                    disabled={!canLaunchBenchmark}
-                                  >
-                                    <FlaskConical size={14} />
-                                  </button>
-                                </span>
-                              </HoverTip>
                               {canRemoveModel ? (
                                 <HoverTip
                                   content="移除此模型"
@@ -4927,19 +4828,6 @@ export const SettingsDialog = ({
         selectedModelIds={runtimeState.selectedModelIds}
         onClose={() => setDiscoveryDialogOpen(false)}
         onConfirm={handleApplySelectedModels}
-        onTestModel={(modelId) => {
-          if (!selectedProfile) return;
-          const model = runtimeState.discoveredModels.find(
-            (m) => m.id === modelId
-          );
-          handleLaunchModelBenchmark({
-            profileId: selectedProfile.id,
-            modelId,
-            modality: model?.type || 'image',
-            compareMode: 'cross-provider',
-            autoRun: true,
-          });
-        }}
       />
       {confirmDialog}
     </>

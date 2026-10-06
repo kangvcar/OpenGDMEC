@@ -1869,8 +1869,13 @@ export const AUDIO_MODEL_SELECT_OPTIONS = AUDIO_MODELS.map((model) => ({
 
 /**
  * 默认图片模型 ID
+ *
+ * 教师发行版：与管理员在 tu-zi 后台发放的 Key 所开放的模型保持一致，
+ * 避免默认选中一个 Key 无权调用的模型（旧默认值会被
+ * runtime-model-discovery 的 getPinnedSelectableModel 重新插回下拉框，
+ * 看着能选、一点就报错）。
  */
-export const DEFAULT_IMAGE_MODEL_ID = 'gpt-image-2';
+export const DEFAULT_IMAGE_MODEL_ID = 'gpt-image-2.5';
 
 /**
  * 获取默认图片模型 ID（优先使用环境变量）
@@ -1902,9 +1907,9 @@ export function getDefaultVideoModel(): string {
 export const DEFAULT_VIDEO_MODEL = DEFAULT_VIDEO_MODEL_ID;
 
 /**
- * 默认文本模型 ID
+ * 默认文本模型 ID（教师发行版，与发放的 Key 所开放的模型一致）
  */
-export const DEFAULT_TEXT_MODEL_ID = 'gpt-5.5';
+export const DEFAULT_TEXT_MODEL_ID = 'gpt-6-luna';
 
 /**
  * 获取默认文本模型 ID

@@ -1,0 +1,78 @@
+.admin-key-guidance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0 2px;
+
+  // 二维码卡片：白底 + 柔光，让扫码区从弹窗背景里浮起来。
+  // 用中性灰阴影而不是品牌色：全局 primary 还是上游的橙色（见遗留项），
+  // 这里的强调色跟着按钮走，避免弹窗内部出现蓝橙两套强调色。
+  &__qr-card {
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  &__qr {
+    display: block;
+    width: 196px;
+    height: 196px;
+    border-radius: 10px;
+    object-fit: contain;
+  }
+
+  &__text {
+    margin: 18px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2329;
+    line-height: 1.5;
+    letter-spacing: 0.2px;
+    text-align: center;
+  }
+
+  &__hint {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: #8a94a6;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  // 分隔线兼小标题：两侧渐隐细线，避免生硬的整条横线
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 22px 0 14px;
+    font-size: 12px;
+    color: #a0aab8;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.12),
+        rgba(0, 0, 0, 0)
+      );
+    }
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__error {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #e34d59;
+    line-height: 1.5;
+  }
+}

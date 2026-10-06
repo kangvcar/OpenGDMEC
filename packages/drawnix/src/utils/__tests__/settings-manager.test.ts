@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DRAWNIX_SETTINGS_KEY } from '../../constants/storage';
+import { DEFAULT_IMAGE_MODEL_ID } from '../../constants/model-config';
 
 function createStorageMock(): Storage {
   const store = new Map<string, string>();
@@ -378,10 +379,10 @@ describe('settings-manager', () => {
     const { settingsManager } = await import('../settings-manager');
     const settings = settingsManager.getSettings();
 
-    expect(settings.gemini.imageModelName).toBe('gpt-image-2');
+    expect(settings.gemini.imageModelName).toBe(DEFAULT_IMAGE_MODEL_ID);
     expect(settings.invocationPresets[0]?.image.defaultModelRef).toMatchObject({
       profileId: 'legacy-default',
-      modelId: 'gpt-image-2',
+      modelId: DEFAULT_IMAGE_MODEL_ID,
     });
     expect(settings.migrations).toMatchObject({
       legacyDefaultImageModelV1: true,

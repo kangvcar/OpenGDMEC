@@ -4,10 +4,8 @@ import {
   OpenFileIcon,
   SaveFileIcon,
   TrashIcon,
-  GithubIcon,
   BackupRestoreIcon,
   DebugLogIcon,
-  BookOpenIcon,
   CloudIcon,
   CleanBrokenLinksIcon,
   CommandPaletteIcon,
@@ -276,23 +274,6 @@ export const Settings = () => {
 };
 Settings.displayName = 'Settings';
 
-export const GitHubLink = () => {
-  const { t } = useI18n();
-  return (
-    <MenuItem
-      icon={<GithubIcon />}
-      data-track="toolbar_click_menu_github"
-      onSelect={() => {
-        window.open('https://github.com/ljquan/aitu', '_blank');
-      }}
-      aria-label={t('menu.github')}
-    >
-      {t('menu.github')}
-    </MenuItem>
-  );
-};
-GitHubLink.displayName = 'GitHubLink';
-
 export const QuickCommands = () => {
   const { appState, setAppState } = useDrawnix();
   const { t } = useI18n();
@@ -314,23 +295,6 @@ export const QuickCommands = () => {
   );
 };
 QuickCommands.displayName = 'QuickCommands';
-
-export const UserManual = () => {
-  const { t } = useI18n();
-  return (
-    <MenuItem
-      icon={<BookOpenIcon />}
-      data-track="toolbar_click_menu_manual"
-      onSelect={() => {
-        window.open('./user-manual/index.html', '_blank');
-      }}
-      aria-label={t('menu.userManual')}
-    >
-      {t('menu.userManual')}
-    </MenuItem>
-  );
-};
-UserManual.displayName = 'UserManual';
 
 export const VersionInfo = () => {
   const { t } = useI18n();

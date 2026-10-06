@@ -5,133 +5,20 @@
 import { GeminiConfig } from './types';
 import { geminiSettings } from '../settings-manager';
 import { isTuziEmbeddedMode } from '../../services/tuzi-embedded-config';
+import { requestAdminApiKey } from '../admin-key-guidance-event';
 
 /**
- * DOM弹窗获取API Key
+ * 请求填写 API Key。
+ *
+ * 教师发行版把手搓的 DOM 浮层换成了带品牌感的引导弹窗（二维码 + 输入框），
+ * 见 components/admin-contact/admin-key-guidance.tsx。弹窗在老师提交时已经把
+ * Key 写入 gemini 设置，这里只负责把值回传给调用方。
+ *
+ * 返回 null 表示"本次没有拿到 Key"，调用方据此中止操作 —— 与旧实现
+ * 用户取消时的语义完全一致。
  */
 export function promptForApiKey(): Promise<string | null> {
-  if (typeof window === 'undefined') return Promise.resolve(null);
-
-  return new Promise((resolve) => {
-    // 创建弹窗遮罩
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    `;
-
-    // 创建弹窗内容
-    const dialog = document.createElement('div');
-    dialog.style.cssText = `
-      background: white;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      width: 400px;
-      max-width: 90vw;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    `;
-
-    dialog.innerHTML = `
-      <h3 style="margin: 0 0 16px 0; color: #333; font-size: 18px;">配置 API Key</h3>
-      <p style="margin: 0 0 16px 0; color: #666; line-height: 1.5;">
-        请输入您的 API Key，输入后将自动保存到本地存储中。
-      </p>
-      <p style="margin: 0 0 8px 0; color: #666; line-height: 1.5;">
-        您可以从以下地址获取 API Key（新建令牌渠道分组选择default）:
-        <a href="https://api.tu-zi.com/token" target="_blank" rel="noopener noreferrer" 
-           style="color: #0052d9; text-decoration: none;">
-          https://api.tu-zi.com/token
-        </a>
-      </p>
-      <a href="https://www.bilibili.com/video/BV1k4PqzPEKz/" target="_blank" rel="noopener noreferrer"
-         style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #fb7299; color: #fff; border-radius: 4px; font-size: 14px; text-decoration: none; margin-bottom: 16px;">
-        ▶ 观看视频教程 (B站)
-      </a>
-      <input type="text" id="apiKeyInput" placeholder="请输入 API Key" 
-             style="width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; box-sizing: border-box; margin-bottom: 16px;" />
-      <div style="display: flex; gap: 8px; justify-content: flex-end;">
-        <button id="cancelBtn" 
-                style="padding: 8px 16px; border: 1px solid #d9d9d9; border-radius: 4px; background: white; color: #333; cursor: pointer; font-size: 14px;">
-          取消
-        </button>
-        <button id="confirmBtn" 
-                style="padding: 8px 16px; border: 1px solid #0052d9; border-radius: 4px; background: #0052d9; color: white; cursor: pointer; font-size: 14px;">
-          确认
-        </button>
-      </div>
-    `;
-
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
-
-    // 获取元素
-    const input = dialog.querySelector('#apiKeyInput') as HTMLInputElement;
-    const cancelBtn = dialog.querySelector('#cancelBtn') as HTMLButtonElement;
-    const confirmBtn = dialog.querySelector('#confirmBtn') as HTMLButtonElement;
-
-    // 阻止所有键盘事件冒泡到页面其他元素（防止输入被捕获到表格等）
-    const stopKeyboardPropagation = (e: KeyboardEvent) => {
-      e.stopPropagation();
-    };
-    overlay.addEventListener('keydown', stopKeyboardPropagation, true);
-    overlay.addEventListener('keyup', stopKeyboardPropagation, true);
-    overlay.addEventListener('keypress', stopKeyboardPropagation, true);
-
-    // 自动聚焦到输入框
-    setTimeout(() => input.focus(), 100);
-
-    // 清理函数
-    const cleanup = () => {
-      overlay.removeEventListener('keydown', stopKeyboardPropagation, true);
-      overlay.removeEventListener('keyup', stopKeyboardPropagation, true);
-      overlay.removeEventListener('keypress', stopKeyboardPropagation, true);
-      document.body.removeChild(overlay);
-    };
-
-    // 确认按钮点击
-    confirmBtn.addEventListener('click', async () => {
-      const apiKey = input.value.trim();
-      if (apiKey) {
-        // 更新本地设置（内部会 await syncToIndexedDB，确保 SW 能拿到最新配置）
-        await geminiSettings.update({ apiKey });
-        cleanup();
-        resolve(apiKey);
-      } else {
-        input.style.borderColor = '#ff4d4f';
-        input.focus();
-      }
-    });
-
-    // 取消按钮点击
-    cancelBtn.addEventListener('click', () => {
-      cleanup();
-      resolve(null);
-    });
-
-    // 回车键确认
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        confirmBtn.click();
-      }
-    });
-
-    // 点击遮罩关闭
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        cleanup();
-        resolve(null);
-      }
-    });
-  });
+  return requestAdminApiKey();
 }
 
 /**

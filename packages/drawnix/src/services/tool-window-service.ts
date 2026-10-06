@@ -14,6 +14,7 @@ import {
 } from '../types/toolbox.types';
 import { analytics } from '../utils/umami-analytics';
 import { toolRegistry } from '../tools/registry';
+import { toolboxService } from './toolbox-service';
 
 /** localStorage key for pinned tools */
 const PINNED_TOOLS_STORAGE_KEY = 'aitu-pinned-tools';
@@ -762,8 +763,25 @@ class ToolWindowService {
       };
     }
 
+    // 目录里没有：可能是自定义工具，也可能是已从工具目录摘掉的内置工具。
+    const serviceTool = toolboxService.getToolById(toolId);
+    if (serviceTool) {
+      return {
+        instanceId: `${LAUNCHER_INSTANCE_PREFIX}${toolId}`,
+        toolId,
+        instanceIndex: 0,
+        tool: serviceTool,
+        status: 'closed',
+        activationOrder: 0,
+        isPinned: true,
+        isLauncher: true,
+      };
+    }
+
+    // 自定义工具尚未加载完时，仍允许用缓存信息兜底；加载完之后依旧解析不到，
+    // 说明这个内置工具已经不在目录里了，不再渲染成点了没反应的幽灵图标。
     const info = this.pinnedToolInfos.get(toolId);
-    if (!info) {
+    if (!info || toolboxService.isReady()) {
       return undefined;
     }
 

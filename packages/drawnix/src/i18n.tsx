@@ -84,7 +84,6 @@ export interface Translations {
   'menu.exportImage.png': string;
   'menu.exportImage.jpg': string;
   'menu.cleanBoard': string;
-  'menu.github': string;
   'menu.settings': string;
   'menu.backupRestore': string;
   'menu.cloudSync': string;
@@ -92,7 +91,6 @@ export interface Translations {
   'menu.debugPanel': string;
   'menu.version': string;
   'menu.commandPalette': string;
-  'menu.userManual': string;
   'menu.changelog': string;
   'menu.cleanInvalidLinks': string;
   'menu.cleanInvalidLinks.scanning': string;
@@ -277,7 +275,6 @@ const translations: Record<Language, Translations> = {
     'menu.exportImage.png': 'PNG',
     'menu.exportImage.jpg': 'JPG',
     'menu.cleanBoard': '清除画布',
-    'menu.github': 'GitHub',
     'menu.settings': '设置',
     'menu.backupRestore': '备份 / 恢复',
     'menu.cloudSync': '云端同步',
@@ -285,7 +282,6 @@ const translations: Record<Language, Translations> = {
     'menu.debugPanel': '日志 / 调试',
     'menu.version': '版本',
     'menu.commandPalette': '快捷命令',
-    'menu.userManual': '用户手册',
     'menu.changelog': '日志',
     'menu.cleanInvalidLinks': '清除失效媒体',
     'menu.cleanInvalidLinks.scanning': '正在扫描失效媒体...',
@@ -467,7 +463,6 @@ const translations: Record<Language, Translations> = {
     'menu.exportImage.png': 'PNG',
     'menu.exportImage.jpg': 'JPG',
     'menu.cleanBoard': 'Clear Board',
-    'menu.github': 'GitHub',
     'menu.settings': 'Settings',
     'menu.backupRestore': 'Backup / Restore',
     'menu.cloudSync': 'Cloud Sync',
@@ -475,7 +470,6 @@ const translations: Record<Language, Translations> = {
     'menu.debugPanel': 'Log / Debug',
     'menu.version': 'Version',
     'menu.commandPalette': 'Commands',
-    'menu.userManual': 'User Manual',
     'menu.changelog': 'Log',
     'menu.cleanInvalidLinks': 'Clean Invalid Media',
     'menu.cleanInvalidLinks.scanning': 'Scanning invalid media...',

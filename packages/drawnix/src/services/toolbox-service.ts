@@ -61,6 +61,16 @@ class ToolboxService {
   }
 
   /**
+   * 持久化的自定义工具是否已加载完成。
+   *
+   * 加载完成前 `getToolById` 查不到自定义工具，调用方需要区分
+   * “工具不存在”和“还没加载出来”。
+   */
+  isReady(): boolean {
+    return this.isInitialized;
+  }
+
+  /**
    * 初始化服务（加载持久化数据）
    */
   private async initialize(): Promise<void> {

@@ -13,7 +13,7 @@ import React, {
   useEffect,
 } from 'react';
 import { Button, Input, MessagePlugin } from 'tdesign-react';
-import { SearchIcon, AddIcon } from 'tdesign-icons-react';
+import { SearchIcon } from 'tdesign-icons-react';
 import { PlaitBoard, getViewportOrigination } from '@plait/core';
 import { useDrawnix } from '../../hooks/use-drawnix';
 import { ToolTransforms } from '../../plugins/with-tool';
@@ -28,7 +28,6 @@ import {
 } from '../../constants/toolbox-shared';
 import { toolRegistry } from '../../tools/registry';
 import { ToolList } from './ToolList';
-import { CustomToolDialog } from '../custom-tool-dialog/CustomToolDialog';
 import { BaseDrawer } from '../side-drawer';
 import { useConfirmDialog } from '../dialog/ConfirmDialog';
 import { needsApiKeyConfiguration } from '../../utils/url-template';
@@ -56,7 +55,6 @@ export const ToolboxDrawer: React.FC<ToolboxDrawerProps> = ({
   const { board, appState, setAppState } = useDrawnix();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [customToolDialogVisible, setCustomToolDialogVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const { confirm, confirmDialog } = useConfirmDialog();
 
@@ -373,19 +371,6 @@ export const ToolboxDrawer: React.FC<ToolboxDrawerProps> = ({
   }, [filteredTools.length, searchQuery]);
 
   /**
-   * 处理添加自定义工具按钮点击
-   */
-  const handleAddCustomTool = useCallback(() => {
-    analytics.trackUIInteraction({
-      area: 'toolbox',
-      action: 'open_custom_tool_dialog',
-      control: 'add_custom_tool',
-      source: 'toolbox_drawer',
-    });
-    setCustomToolDialogVisible(true);
-  }, []);
-
-  /**
    * 处理删除工具
    */
   const handleDeleteTool = useCallback(
@@ -427,44 +412,6 @@ export const ToolboxDrawer: React.FC<ToolboxDrawerProps> = ({
       }
     },
     [confirm]
-  );
-
-  /**
-   * 处理添加成功
-   */
-  const handleCustomToolSaved = useCallback(() => {
-    analytics.trackUIInteraction({
-      area: 'toolbox',
-      action: 'custom_tool_saved',
-      control: 'custom_tool_dialog',
-      source: 'toolbox_drawer',
-    });
-    // 触发列表刷新
-    setRefreshKey((prev) => prev + 1);
-    // 清空搜索和分类过滤，显示所有工具
-    setSearchQuery('');
-    setSelectedCategory(null);
-  }, []);
-
-  /**
-   * 处理对话框关闭
-   */
-  const handleDialogClose = useCallback(() => {
-    setCustomToolDialogVisible(false);
-  }, []);
-
-  // Header actions
-  const headerActions = (
-    <Button
-      variant="outline"
-      size="small"
-      icon={<AddIcon />}
-      onClick={handleAddCustomTool}
-      title="添加自定义工具"
-      data-track="toolbox_click_add_custom_tool"
-    >
-      添加工具
-    </Button>
   );
 
   // Filter section: search + category
@@ -526,7 +473,6 @@ export const ToolboxDrawer: React.FC<ToolboxDrawerProps> = ({
         onClose={handleClose}
         title="工具箱"
         subtitle={`${filteredTools.length} 个工具`}
-        headerActions={headerActions}
         filterSection={filterSection}
         position="toolbar-right"
         width="narrow"
@@ -549,15 +495,6 @@ export const ToolboxDrawer: React.FC<ToolboxDrawerProps> = ({
           />
         )}
       </BaseDrawer>
-
-      {/* Custom Tool Dialog */}
-      {customToolDialogVisible && (
-        <CustomToolDialog
-          visible={customToolDialogVisible}
-          onClose={handleDialogClose}
-          onSuccess={handleCustomToolSaved}
-        />
-      )}
       {confirmDialog}
     </>
   );

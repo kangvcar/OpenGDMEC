@@ -17,11 +17,9 @@ import {
   CloudSync,
   DebugPanel,
   QuickCommands,
-  UserManual,
   VersionInfo,
   CleanInvalidLinks,
 } from './app-menu-items';
-import { GithubIcon } from '../../icons';
 import { LanguageSwitcherMenu } from './language-switcher-menu';
 import Menu from '../../menu/menu';
 import MenuSeparator from '../../menu/menu-separator';
@@ -120,7 +118,6 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
             <Settings />
             <MenuSeparator />
             <QuickCommands />
-            <UserManual />
             <VersionInfo />
           </Menu>
         </PopoverContent>
@@ -180,18 +177,6 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
         })}
       >
         {content}
-        <ToolButton
-          type="icon"
-          icon={<GithubIcon />}
-          visible={true}
-          tooltip={t('menu.github')}
-          tooltipPlacement="right"
-          aria-label={t('menu.github')}
-          data-track="toolbar_click_github"
-          onPointerUp={() => {
-            window.open('https://github.com/ljquan/aitu', '_blank');
-          }}
-        />
       </div>
     );
   }
