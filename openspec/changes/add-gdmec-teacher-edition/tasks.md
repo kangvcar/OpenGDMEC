@@ -47,5 +47,7 @@
 - [ ] 5.4 更新 `apps/web-e2e` 依赖视频入口的用例、重建 Playwright 视觉回归基线 — **未做**
 - [ ] 5.5 端到端手测：真实 tu-zi 子密钥跑通「粘贴 Key → 提示词 → 出图 → 插入画布」— **需用户执行**
 - [x] 5.6 UI 层无视频入口可达：产物 JS 中残留的 `ai-video` 字符串均为非 UI 用途（`toolbar-config-service.ts` LEGACY 检测数组、CSS 类名 `.ai-video-generation-container`、dialog id、事件名），线上 `ALL_BUTTON_IDS` 已无该项
-- [ ] 5.7 DevTools 确认无到 `umami.tu-zi.com` 的请求 — **需用户执行**
-- [ ] 5.8 部署 Cloudflare Pages 并记录国内可达性实测 — **需用户执行**
+- [x] 5.7 确认无到 `umami.tu-zi.com` 的请求：线上页面全新加载 280 条网络事件中 umami 匹配数为 0；DOM 内 `umami` 字符串为 0
+- [x] 5.8 部署 Cloudflare Pages — **已上线**：项目 `opengdmec`，GitHub 集成 `kangvcar/openimg`，生产分支 `develop`，构建命令 `pnpm install && pnpm nx reset && pnpm run build:web`，输出目录 `dist/apps/web`。站点 **https://opengdmec.pages.dev**。**国内可达性实测仍未做**
+- [x] 5.9 线上产物核对：title `OpenGDMEC - 我的画板1`、`_headers` 的 CSP 生效、深层路由 200、Service Worker `activated` 且走 `cache-storage`、`api.tu-zi.com/v1/models` 直连 CORS 通过（401 为无 Key 预期）
+- [x] 5.10 子域名对齐品牌：Pages 的 `*.pages.dev` 子域名绑定在项目创建时，Rename 不改 hostname（弹窗明确说明），故新建 `opengdmec` 项目并将原 `openimg` 项目删除（避免同一分支重复构建）
