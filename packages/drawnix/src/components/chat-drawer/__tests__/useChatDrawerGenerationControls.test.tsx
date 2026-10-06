@@ -142,12 +142,12 @@ describe('chat drawer generation state synchronization', () => {
     const { result, persist } = renderWithSession();
     persist.mockClear();
     act(() => {
-      result.current.controls.handleParamSelect('resolution', '2k');
+      result.current.controls.handleParamSelect('resolution', '1k');
       result.current.controls.setSelectedCount(3);
     });
     expect(
       result.current.session.generationState?.selectedParams.resolution
-    ).toBe('2k');
+    ).toBe('1k');
     expect(result.current.session.generationState?.selectedCount).toBe(3);
     expect(persist).toHaveBeenCalledTimes(1);
   });
@@ -161,12 +161,12 @@ describe('chat drawer generation state synchronization', () => {
         generationState: {
           ...legacyState(),
           selectedCount: 4,
-          selectedParams: { resolution: '2k' },
+          selectedParams: { resolution: '1k' },
         },
       })
     );
     expect(result.current.controls.selectedCount).toBe(4);
-    expect(result.current.controls.selectedParams.resolution).toBe('2k');
+    expect(result.current.controls.selectedParams.resolution).toBe('1k');
     expect(persist).toHaveBeenCalledTimes(1);
     expect(persist.mock.calls[0]).toEqual([
       'session-2',

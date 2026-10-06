@@ -77,7 +77,7 @@ describe('model-config image size options', () => {
       params
         .find((param) => param.id === 'resolution')
         ?.options?.map((option) => option.value)
-    ).toEqual(['1k', '2k', '4k']);
+    ).toEqual(['1k']); // 发行档位只开放 1K
     expect(qualityParams).toHaveLength(1);
     expect(qualityParams[0]?.options?.map((option) => option.value)).toEqual([
       'auto',
@@ -96,14 +96,12 @@ describe('model-config image size options', () => {
         params
           .find((param) => param.id === 'resolution')
           ?.options?.map((option) => option.value)
-      ).toEqual(['auto', '1k', '2k', '4k']);
+      ).toEqual(['auto', '1k']); // 2K/4K 已下架
       expect(
         params.find((param) => param.id === 'resolution')?.options
       ).toEqual([
         { value: 'auto', label: '自动' },
         { value: '1k', label: '1K' },
-        { value: '2k', label: '2K' },
-        { value: '4k', label: '4K' },
       ]);
       expect(
         params
@@ -119,7 +117,7 @@ describe('model-config image size options', () => {
       params
         .find((param) => param.id === 'resolution')
         ?.options?.map((option) => option.value)
-    ).toEqual(['auto', '1k', '2k', '4k']);
+    ).toEqual(['auto', '1k']); // 2K/4K 已下架
     expect(
       params
         .find((param) => param.id === 'quality')
@@ -173,15 +171,13 @@ describe('model-config image size options', () => {
     expect(getCompatibleParams('gpt-image-1.5')).toEqual([]);
   });
 
-  it('保留 Gemini preview 的旧 quality 档位参数', () => {
+  it('保留 Gemini preview 的旧 quality 档位参数（已下架 2K/4K）', () => {
     const params = getCompatibleParams('gemini-3-pro-image-preview');
     const qualityParams = params.filter((param) => param.id === 'quality');
 
     expect(qualityParams).toHaveLength(1);
     expect(qualityParams[0]?.options?.map((option) => option.value)).toEqual([
       '1k',
-      '2k',
-      '4k',
     ]);
   });
 

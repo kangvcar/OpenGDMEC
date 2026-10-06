@@ -13,7 +13,7 @@
 - [Service Worker 预缓存机制](#service-worker-预缓存机制)
 - [工作流提交机制](#工作流提交机制)
 - [WorkZone 画布元素](#workzone-画布元素)
-- [灵感创意板块](#灵感创意板块)
+- [画布水印](#画布水印-canvaswatermark)
 - [历史提示词功能](#历史提示词功能)
 - [图片合并与分割](#图片合并与分割)
 
@@ -390,25 +390,23 @@ window.dispatchEvent(new CustomEvent('ai-generation-complete', {
 - WorkZone 已在视口内时不滚动（避免干扰用户）
 
 
-### 灵感创意板块 (InspirationBoard)
+### 画布水印 (CanvasWatermark)
 
-当画板为空时，在 AI 输入框上方显示灵感创意板块，帮助用户快速开始创作。
+画布为空时在画布顶部居中显示机构署名（「人工智能学院 · 教师发展中心 联合支持」），有内容即消失。
 
 **核心文件**：
-- `components/inspiration-board/InspirationBoard.tsx` - 主组件
-- `components/inspiration-board/InspirationCard.tsx` - 模版卡片组件
-- `components/inspiration-board/constants.ts` - 模版数据配置
+- `components/canvas-watermark/CanvasWatermark.tsx` - 组件
+- `components/canvas-watermark/canvas-watermark.scss` - 样式
 
-**功能特点**：
-- 画板为空时自动显示，有内容时隐藏
-- 3x2 网格布局展示创意模版
-- 支持分页浏览更多模版
-- 点击模版自动填充提示词到输入框
-- 提供"提示词"快捷按钮，可打开香蕉提示词工具
+**必须是屏幕固定浮层而不是 Plait 插件**：CLAUDE.md 那条「新画布功能必须做成插件」的理由是坐标系不一致与事件冲突，而这个水印不参与 board 坐标系（不随缩放平移），且 `pointer-events: none` 后不产生任何事件，两个前提都不成立。仓库里的同类浮层（缩放控件/minimap/输入栏/工具栏）也全是固定定位。
+
+**必须 portal 到 body**：组件渲染在 `.ai-input-bar` 子树里，该容器 `position: fixed` 且带 `transform`，会同时成为 `absolute` 与 `fixed` 后代的包含块，水印会跑到输入栏上方而不是画布顶部。
+
+导出走 Plait 的 `toImage`，只渲染 `board-host-svg`，所以水印天然不进导出图。
 
 **数据加载状态管理 (`isDataReady`)**：
 
-为了避免在画布数据加载完成前误判画布为空（导致灵感板闪烁），项目使用 `isDataReady` 状态来标识数据是否已准备好。
+为了避免在画布数据加载完成前误判画布为空（导致水印闪烁），项目使用 `isDataReady` 状态来标识数据是否已准备好。
 
 **数据流**：
 ```
@@ -429,7 +427,7 @@ SelectionWatcher (isDataReady prop)
 **关键逻辑**：
 - `app.tsx`：初始 `isDataReady = false`，在 `setValue` 完成后（`finally` 块中）设置为 `true`
 - `SelectionWatcher`：只有当 `isDataReady` 为 `true` 时才开始检查画布是否为空
-- 避免在数据加载前误判画布为空，防止灵感板闪烁
+- 避免在数据加载前误判画布为空，防止水印闪烁
 
 ### 历史提示词功能
 

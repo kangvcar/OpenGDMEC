@@ -181,8 +181,9 @@ export interface ImageGenerationParams {
   background?: 'transparent' | 'opaque' | 'auto';
   outputFormat?: 'png' | 'jpeg' | 'webp';
   outputCompression?: number;
-  resolution?: '1k' | '2k' | '4k';
-  quality?: 'auto' | 'low' | 'medium' | 'high' | '1k' | '2k' | '4k';
+  // 发行档位只开放 1K：2K/4K 已从 UI 与 MCP schema 摘除，这里同步收口
+  resolution?: '1k';
+  quality?: 'auto' | 'low' | 'medium' | 'high' | '1k';
   model?: string;
   count?: number;
   /** 批次 ID（批量生成时） */

@@ -5,7 +5,6 @@ import {
   SaveFileIcon,
   TrashIcon,
   BackupRestoreIcon,
-  DebugLogIcon,
   CloudIcon,
   CleanBrokenLinksIcon,
   CommandPaletteIcon,
@@ -234,23 +233,6 @@ export const WorkflowModeMenuItem = ({
   );
 };
 WorkflowModeMenuItem.displayName = 'WorkflowModeMenuItem';
-
-export const DebugPanel = () => {
-  const { t } = useI18n();
-  return (
-    <MenuItem
-      icon={<DebugLogIcon />}
-      data-track="toolbar_click_menu_debug"
-      onSelect={() => {
-        window.location.href = './sw-debug.html';
-      }}
-      aria-label={t('menu.debugPanel')}
-    >
-      {t('menu.debugPanel')}
-    </MenuItem>
-  );
-};
-DebugPanel.displayName = 'DebugPanel';
 
 export const Settings = () => {
   const { setAppState } = useDrawnix();

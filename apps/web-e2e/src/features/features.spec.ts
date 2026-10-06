@@ -21,10 +21,6 @@ test.describe('@feature 功能测试', () => {
     await page.waitForFunction(() =>
       Boolean((window as unknown as DrawnixTestWindow).__drawnixBoard)
     );
-    await expect(
-      page.locator('[data-testid="inspiration-board"]')
-    ).toBeVisible();
-
     const insertImage = async (id: string, prompt: string) => {
       await page.evaluate(
         ({ id, prompt }) => {
@@ -93,7 +89,7 @@ test.describe('@feature 功能测试', () => {
 
   /**
    * 测试1：主画布交互功能
-   * AI输入栏、模型选择、灵感板、绘图工具
+   * AI输入栏、模型选择、绘图工具
    */
   test('主画布：AI输入、绘图工具', async ({ page }) => {
     await page.goto('/');
@@ -127,42 +123,6 @@ test.describe('@feature 功能测试', () => {
     await sizeSelector.click();
     await page.waitForTimeout(200);
     await page.keyboard.press('Escape');
-
-    // === 灵感创意板（必须通过）===
-    const inspirationBoard = page.locator('[data-testid="inspiration-board"]');
-    await expect(inspirationBoard).toBeVisible();
-    const inspirationTitle = page.getByRole('heading', {
-      name: '灵感创意',
-      level: 3,
-    });
-    await expect(inspirationTitle).toBeVisible();
-    const firstInspirationCard = inspirationBoard.getByRole('heading', {
-      name: '智能拆分宫格图',
-      level: 3,
-    });
-    await expect(firstInspirationCard).toBeVisible();
-    await expect(
-      inspirationBoard.getByRole('heading', { name: '生成PPT大纲', level: 3 })
-    ).toBeVisible();
-
-    await firstInspirationCard.click();
-    await expect(aiInput).toHaveValue('生成16宫格猫咪表情包');
-    const sendGuide = page.locator('[data-testid="inspiration-send-guide"]');
-    await expect(sendGuide).toBeVisible();
-    await expect(
-      inspirationBoard.getByRole('heading', { name: '确认后发送', level: 3 })
-    ).toBeVisible();
-    await expect(
-      sendGuide.getByText('下一步：点击发送按钮开始生成')
-    ).toBeVisible();
-
-    await page.locator('[data-testid="inspiration-guide-back"]').click();
-    await expect(sendGuide).toBeHidden();
-    await expect(inspirationTitle).toBeVisible();
-    await expect(firstInspirationCard).toBeVisible();
-    await expect(
-      inspirationBoard.getByRole('heading', { name: '生成PPT大纲', level: 3 })
-    ).toBeVisible();
 
     // === 绘图功能（必须通过）===
     const canvas = page.locator('.board-host-svg');

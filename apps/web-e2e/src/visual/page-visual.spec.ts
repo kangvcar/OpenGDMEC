@@ -33,15 +33,12 @@ test.describe('@visual 页面级视觉回归', () => {
   });
 
   /**
-   * 测试2：空画布状态（含灵感板）
+   * 测试2：空画布状态
    */
-  test('页面：空画布与灵感板', async ({ page }) => {
+  test('页面：空画布', async ({ page }) => {
     await app.goto();
     await app.waitForStable(2000);
-    
-    // 空画布应该显示灵感创意板
-    const hasInspirationBoard = await app.inspirationBoard.isVisible().catch(() => false);
-    
+
     await expect(page).toHaveScreenshot('page-empty-canvas.png', {
       maxDiffPixelRatio: 0.10,
       fullPage: true,

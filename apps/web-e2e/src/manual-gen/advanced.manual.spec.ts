@@ -86,41 +86,6 @@ test.describe('进阶功能手册', () => {
     }
   });
 
-  test('调试面板截图', async ({ page }, testInfo) => {
-    testInfo.annotations.push({
-      type: 'manual',
-      description: JSON.stringify({
-        category: 'advanced',
-        title: '调试面板',
-        description: '使用调试面板排查问题',
-      }),
-    });
-
-    // 访问调试面板
-    await page.goto('/sw-debug.html');
-    await page.waitForTimeout(2000);
-
-    // 带标注截图调试面板
-    const annotations: Annotation[] = [
-      circle(100, 100, 1),
-      arrow(150, 100, 'Service Worker 状态', 'right'),
-      circle(100, 200, 2),
-      arrow(150, 200, '缓存存储信息', 'right'),
-      circle(100, 300, 3),
-      arrow(150, 300, '任务队列状态', 'right'),
-    ];
-    
-    await screenshotWithAnnotations(
-      page,
-      'test-results/manual-screenshots/debug-panel.png',
-      annotations
-    );
-    await testInfo.attach('debug-panel', {
-      path: 'test-results/manual-screenshots/debug-panel.png',
-      contentType: 'image/png',
-    });
-  });
-
   test('编辑操作截图', async ({ page }, testInfo) => {
     testInfo.annotations.push({
       type: 'manual',

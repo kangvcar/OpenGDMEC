@@ -183,12 +183,8 @@ import type {
   CanvasAssociationRef,
   GenerationParams,
 } from '../../types/shared/core.types';
-import {
-  analytics,
-  type PromptAnalyticsType,
-} from '../../utils/umami-analytics';
+import { analytics } from '../../utils/umami-analytics';
 import classNames from 'classnames';
-import { InspirationBoard } from '../inspiration-board';
 import { CanvasWatermark } from '../canvas-watermark/CanvasWatermark';
 import { AIInputComposerShell } from './AIInputComposerShell';
 import { GenerationTypeDropdown } from './GenerationTypeDropdown';
@@ -505,12 +501,6 @@ function areAllWorkflowStepsCompleted(workflow: WorkflowDefinition): boolean {
     workflow.steps.length > 0 &&
     workflow.steps.every((step) => step.status === 'completed')
   );
-}
-
-function toPromptAnalyticsType(
-  type?: PromptType
-): PromptAnalyticsType | undefined {
-  return type as PromptAnalyticsType | undefined;
 }
 
 type PromptLineageMeta = NonNullable<GenerationParams['promptMeta']>;
@@ -1921,8 +1911,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
     const [promptSuggestion, setPromptSuggestion] = useState<string | null>(
       null
     );
-    const [isInspirationSendGuideActive, setIsInspirationSendGuideActive] =
-      useState(false);
     const [isPromptOptimizeOpen, setIsPromptOptimizeOpen] = useState(false);
     const [selectedContent, setSelectedContent] = useState<SelectedContent[]>(
       []
@@ -3654,51 +3642,12 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
       videoModels,
     ]);
 
-    // 处理灵感模版选择：将提示词替换到输入框并切换到 Agent 模式
-    const handleSelectInspirationPrompt = useCallback(
-      (info: {
-        prompt: string;
-        modelType: 'agent';
-        skillId?: string;
-        templateId?: string;
-        title?: string;
-        category?: string;
-      }) => {
-        void confirmOverwriteInputIfNeeded().then((confirmed) => {
-          if (!confirmed) return;
-          applyCanvasAssociationPromptOverwrite(info.prompt);
-          setIsInspirationSendGuideActive(true);
-          setGenerationType('agent');
-          if (info.skillId) {
-            setSelectedSkillId(info.skillId);
-            const systemSkill = findSystemSkillById(info.skillId);
-            if (systemSkill) {
-              setSelectedSkillMediaTypes(inferSkillMediaTypes(systemSkill));
-            }
-          }
-          inputRef.current?.focus();
-
-          // 埋点：灵感模板选择（用于追踪转化率）
-          analytics.track('inspiration_selected', {
-            promptLength: info.prompt.length,
-            modelType: info.modelType,
-            skillId: info.skillId,
-            templateId: info.templateId,
-            title: info.title,
-            category: info.category,
-          });
-        });
-      },
-      [applyCanvasAssociationPromptOverwrite, confirmOverwriteInputIfNeeded]
-    );
-
     // 处理历史提示词选择：将提示词回填到输入框并切换生成类型
     const handleSelectHistoryPrompt = useCallback(
       (info: { content: string; modelType?: PromptType }) => {
         void confirmOverwriteInputIfNeeded().then((confirmed) => {
           if (!confirmed) return;
           applyCanvasAssociationPromptOverwrite(info.content);
-          setIsInspirationSendGuideActive(false);
 
           // 根据 modelType 自动切换生成类型
           if (info.modelType) {
@@ -3747,55 +3696,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
         );
       }, 300);
     }, []);
-
-    // 处理打开提示词工具（香蕉提示词）- 通过 WinBox 弹窗方式打开
-    const handleOpenPromptTool = useCallback(
-      async (source = 'ai_input_bar') => {
-        const [{ toolRegistry }, { toolWindowService }] = await Promise.all([
-          import('../../tools/registry'),
-          import('../../services/tool-window-service'),
-        ]);
-        // 从内置工具列表中获取香蕉提示词工具配置
-        const tool = toolRegistry.getManifestById('banana-prompt');
-        if (!tool) {
-          console.warn('[AIInputBar] Banana prompt tool not found');
-          analytics.trackPromptAction({
-            action: 'open_tool',
-            surface: source,
-            promptType: toPromptAnalyticsType(generationType),
-            prompt,
-            source,
-            status: 'failed',
-            metadata: {
-              tool_id: 'banana-prompt',
-              reason: 'tool_not_found',
-            },
-          });
-          return;
-        }
-
-        analytics.trackPromptAction({
-          action: 'open_tool',
-          surface: source,
-          promptType: toPromptAnalyticsType(generationType),
-          prompt,
-          source,
-          status: 'success',
-          metadata: {
-            tool_id: tool.id,
-            tool_type: 'external_prompt_library',
-          },
-        });
-
-        // 通过 toolWindowService 打开 WinBox 弹窗
-        toolWindowService.openTool(tool);
-      },
-      [generationType, prompt]
-    );
-
-    const handleOpenPromptToolFromInspiration = useCallback(() => {
-      handleOpenPromptTool('inspiration_board');
-    }, [handleOpenPromptTool]);
 
     const assetToSelectedContent = useCallback(
       (asset: Asset): Promise<SelectedContent> =>
@@ -5099,7 +4999,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
           return; // 仅防止快速重复点击
         }
         submitLockRef.current = true;
-        setIsInspirationSendGuideActive(false);
         onEnableRuntime?.();
 
         const submitStartTime = Date.now();
@@ -7220,7 +7119,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
           event.preventDefault();
           const nextPrompt = suggestion || '';
           applyCanvasAssociationPromptOverwrite(nextPrompt);
-          setIsInspirationSendGuideActive(false);
           requestAnimationFrame(() => {
             const input = inputRef.current;
             if (!input) return;
@@ -7430,7 +7328,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
         dismissPromptSuggestion();
         promptRef.current = newValue;
         setPrompt(newValue);
-        setIsInspirationSendGuideActive(false);
         if (
           !areCanvasAssociationRefsEqual(
             canvasAssociationRefsRef.current,
@@ -7608,9 +7505,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
       (prompt.trim().length > 0 ||
         generationContent.length > 0 ||
         canvasAssociationRefs.length > 0);
-    const shouldHighlightInspirationSend =
-      isInspirationSendGuideActive && canGenerate && !isSubmitting;
-    const showInspirationBoard = isCanvasEmpty === true;
     const hasSelectedTextContent = selectedContent.some(
       (item) => item.type === 'text' && item.text?.trim()
     );
@@ -7960,7 +7854,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
             ATTACHED_ELEMENT_CLASS_NAME,
             className,
             {
-              'ai-input-bar--with-inspiration': showInspirationBoard,
               'ai-input-bar--bound-image': Boolean(boundInputPosition),
               'ai-input-bar--canvas-association-picking': Boolean(
                 canvasAssociationTrigger
@@ -7989,12 +7882,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
 
           {/* 判空结果未知（null）时不渲染，避免启动瞬间闪一下 */}
           <CanvasWatermark visible={isCanvasEmpty === true} />
-
-          <InspirationBoard
-            isCanvasEmpty={showInspirationBoard}
-            onSelectPrompt={handleSelectInspirationPrompt}
-            onOpenPromptTool={handleOpenPromptToolFromInspiration}
-          />
 
           <AIInputComposerShell
             variant="canvas"
@@ -8278,8 +8165,6 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
                 className={classNames('ai-input-bar__send-btn', {
                   active: canGenerate,
                   loading: isSubmitting,
-                  'ai-input-bar__send-btn--guide':
-                    shouldHighlightInspirationSend,
                 })}
                 onMouseDown={(e) => {
                   e.preventDefault();

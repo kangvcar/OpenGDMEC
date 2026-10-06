@@ -66,7 +66,6 @@ export class ErrorBoundary extends Component<Props, State> {
             collectAndDownloadErrorLog(this.state.error, this.state.errorInfo)
           }
           onSafeModeReload={safeModeReload}
-          onGoToDebug={goToDebug}
         />
       );
     }
@@ -81,7 +80,6 @@ export class ErrorBoundary extends Component<Props, State> {
           collectAndDownloadErrorLog(this.state.error, this.state.errorInfo)
         }
         onSafeModeReload={safeModeReload}
-        onGoToDebug={goToDebug}
       />
     );
   }
@@ -96,12 +94,6 @@ export function safeModeReload(): void {
     /* ignore */
   }
   window.location.reload();
-}
-
-export function goToDebug(): void {
-  const debugUrl = '/sw-debug.html';
-  // iframe 内直接跳转，保持同一浏览上下文以访问 SW/IndexedDB 数据
-  window.location.href = debugUrl;
 }
 
 // ==================== Unified Fallback UI ====================
@@ -124,7 +116,6 @@ export interface ErrorFallbackProps {
   /** 通用 */
   onExportLog?: () => void;
   onSafeModeReload: () => void;
-  onGoToDebug: () => void;
 }
 
 const VARIANT_CONFIG: Record<
@@ -180,7 +171,6 @@ export const ErrorFallbackUI: React.FC<ErrorFallbackProps> = (props) => {
     componentStack,
     onExportLog,
     onSafeModeReload,
-    onGoToDebug,
   } = props;
   const [showDetail, setShowDetail] = React.useState(false);
   const cfg = VARIANT_CONFIG[variant];
@@ -285,27 +275,19 @@ export const ErrorFallbackUI: React.FC<ErrorFallbackProps> = (props) => {
         {/* 底部帮助区域 */}
         <div style={styles.helpSection}>
           <div style={styles.helpRow}>
-            {/* 二维码 */}
+            {/* 二维码：与 packages/drawnix/src/constants/admin-contact.ts 的 ADMIN_QR_URL
+                同一份资产。这里不 import 那个常量 —— @aitu/drawnix 没导出 admin-contact，
+                而本文件是崩溃路径，只用内联样式（CSS/模块可能加载失败），不该为此拉整个
+                barrel 进来。改资产时两处一起改。 */}
             <img
-              src="https://nav.ourzhishi.top/api/dynamic-image/qr-code"
-              alt="企业微信二维码"
+              src="/admin-qr.png"
+              alt="管理员二维码"
               style={styles.qrcode}
-              referrerPolicy="no-referrer"
             />
-            {/* 右侧文字 + 按钮 */}
+            {/* 右侧文字 */}
             <div style={styles.helpText}>
               <p style={styles.helpTitle}>需要帮助？</p>
-              <p style={styles.helpDesc}>
-                扫码联系客服，或前往调试页面导出完整日志与备份数据
-              </p>
-              <HoverButton
-                label="打开调试页面"
-                onClick={onGoToDebug}
-                bg="#f0eefa"
-                bgHover="#e2ddf7"
-                color="#5A4FCF"
-                small
-              />
+              <p style={styles.helpDesc}>微信扫码联系管理员协助处理</p>
             </div>
           </div>
         </div>

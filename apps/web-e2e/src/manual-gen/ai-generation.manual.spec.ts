@@ -113,67 +113,6 @@ test.describe('AI 生成功能手册', () => {
     });
   });
 
-  test('使用灵感创意板', async ({ page }, testInfo) => {
-    testInfo.annotations.push({
-      type: 'manual',
-      description: JSON.stringify({
-        category: 'ai-generation',
-        title: '使用灵感创意板',
-        description: '当画布为空时，灵感创意板会显示推荐的创作模板',
-        steps: [
-          '在空画布上，灵感创意板自动显示',
-          '浏览不同的创意模板',
-          '点击感兴趣的模板',
-          '模板的提示词会自动填充到输入框',
-        ],
-      }),
-    });
-
-    // 等待灵感板显示
-    await page.waitForTimeout(1000);
-    
-    // 灵感创意板标题（必须通过）
-    const inspirationTitle = page.getByRole('heading', { name: '灵感创意', level: 3 });
-    await expect(inspirationTitle).toBeVisible();
-    
-    // 带标注的灵感板截图
-    const firstCard = page.getByRole('heading', { name: '智能拆分宫格图', level: 3 });
-    const annotations1: Annotation[] = [];
-    const cardHighlight = await highlightElement(firstCard.locator('..').locator('..'), '点击使用模板');
-    if (cardHighlight) annotations1.push(cardHighlight);
-    
-    await screenshotWithAnnotations(
-      page,
-      'test-results/manual-screenshots/inspiration-step-1.png',
-      annotations1
-    );
-    await testInfo.attach('inspiration-step-1', {
-      path: 'test-results/manual-screenshots/inspiration-step-1.png',
-      contentType: 'image/png',
-    });
-    
-    // 点击第一个灵感卡片（必须通过）
-    await expect(firstCard).toBeVisible();
-    await firstCard.click();
-    await page.waitForTimeout(500);
-    
-    // 点击后显示提示词已填充
-    const textarea = page.locator('[data-testid="ai-input-textarea"]');
-    const annotations2: Annotation[] = [];
-    const textareaHighlight = await highlightElement(textarea, '提示词已填充');
-    if (textareaHighlight) annotations2.push(textareaHighlight);
-    
-    await screenshotWithAnnotations(
-      page,
-      'test-results/manual-screenshots/inspiration-step-2.png',
-      annotations2
-    );
-    await testInfo.attach('inspiration-step-2', {
-      path: 'test-results/manual-screenshots/inspiration-step-2.png',
-      contentType: 'image/png',
-    });
-  });
-
   test('AI 视频生成入口', async ({ page }, testInfo) => {
     testInfo.annotations.push({
       type: 'manual',

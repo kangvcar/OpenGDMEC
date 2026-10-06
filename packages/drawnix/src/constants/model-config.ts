@@ -2883,17 +2883,15 @@ export const IMAGE_PARAMS: ParamConfig[] = [
     modelType: 'image',
   },
   // GPT Image 2 分辨率档位（由 adapter 结合宽高比映射为官方像素 size）
+  // 发行档位只开放 1K：2K/4K 又贵又容易失败（见 openspec add-gdmec-teacher-edition）。
+  // 存量偏好不用另做迁移 —— sanitizeSelectedParams 会把不在 options 里的值降回 defaultValue。
   {
     id: 'resolution',
     label: '图片分辨率',
     shortLabel: '分辨率',
-    description: '选择 1K / 2K / 4K 输出档位',
+    description: '1K 输出档位',
     valueType: 'enum',
-    options: [
-      { value: '1k', label: '1K' },
-      { value: '2k', label: '2K' },
-      { value: '4k', label: '4K' },
-    ],
+    options: [{ value: '1k', label: '1K' }],
     defaultValue: '1k',
     compatibleModels: GPT_IMAGE_2_MODEL_IDS.filter(
       (modelId) => !GPT_IMAGE_25_EXTENDED_MODEL_IDS.includes(modelId)
@@ -2908,8 +2906,6 @@ export const IMAGE_PARAMS: ParamConfig[] = [
     options: [
       { value: 'auto', label: '自动' },
       { value: '1k', label: '1K' },
-      { value: '2k', label: '2K' },
-      { value: '4k', label: '4K' },
     ],
     defaultValue: 'auto',
     compatibleModels: GPT_IMAGE_25_EXTENDED_MODEL_IDS,
@@ -3069,18 +3065,14 @@ export const IMAGE_PARAMS: ParamConfig[] = [
     compatibleModels: ['doubao-seedream-5-0-260128'],
     modelType: 'image',
   },
-  // nano-banana-2 图片质量（1K/2K/4K）- 适用于 gemini-3-pro-image-preview 和 gemini-3.1-flash-image-preview
+  // nano-banana-2 图片质量（1K）- 适用于 gemini-3-pro-image-preview 和 gemini-3.1-flash-image-preview
   {
     id: 'quality',
     label: '图片质量',
     shortLabel: '质量',
-    description: '选择图像生成质量（1K/2K/4K）',
+    description: '图像生成质量（1K）',
     valueType: 'enum',
-    options: [
-      { value: '1k', label: '1K' },
-      { value: '2k', label: '2K' },
-      { value: '4k', label: '4K' },
-    ],
+    options: [{ value: '1k', label: '1K' }],
     defaultValue: '1k',
     compatibleModels: [
       'gemini-3.1-flash-image-preview',

@@ -7,19 +7,23 @@ describe('ai-generation-preferences-service', () => {
     localStorage.clear();
   });
 
+  // 发行档位只开放「自动 / 1K」：存量 2K/4K 偏好一律降回可选值
   it.each(['gpt-image-2.5', 'gpt-image-2.5-vip', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare'])(
-    '%s 保留 4K 偏好并修正尺寸，将已移除的计费档恢复为自动',
+    '%s 将已下架的 4K/2K 档降回自动并修正尺寸',
     async (modelId) => {
       const { sanitizeImageToolExtraParams } = await import('../ai-generation-preferences-service');
       expect(sanitizeImageToolExtraParams(modelId, {
         size: 'auto', resolution: '4k',
-      })).toMatchObject({ size: 'auto', resolution: '4k' });
+      })).toMatchObject({ size: 'auto', resolution: 'auto' });
       expect(sanitizeImageToolExtraParams(modelId, {
         size: 'auto', resolution: '2k',
-      })).toMatchObject({ size: 'auto', resolution: '2k' });
+      })).toMatchObject({ size: 'auto', resolution: 'auto' });
       expect(sanitizeImageToolExtraParams(modelId, {
         size: '1536x1024', resolution: '4k',
-      })).toMatchObject({ size: '3x2', resolution: '4k' });
+      })).toMatchObject({ size: '3x2', resolution: 'auto' });
+      expect(sanitizeImageToolExtraParams(modelId, {
+        size: 'auto', resolution: '1k',
+      })).toMatchObject({ size: 'auto', resolution: '1k' });
       expect(sanitizeImageToolExtraParams(modelId, {
         size: 'auto', resolution: 'auto',
       })).toMatchObject({ size: 'auto', resolution: 'auto' });
@@ -30,14 +34,17 @@ describe('ai-generation-preferences-service', () => {
   );
 
   it.each(['gpt-image-2', 'gpt-image-2-vip'])(
-    '%s retains automatic aspect ratio with the selected K tier',
+    '%s 只有 1K 一档，存量档位一律降回 1k',
     async (modelId) => {
       const { sanitizeImageToolExtraParams } = await import('../ai-generation-preferences-service');
-      for (const resolution of ['1k', '2k', '4k']) {
+      for (const resolution of ['2k', '4k']) {
         expect(sanitizeImageToolExtraParams(modelId, {
           size: 'auto', resolution, quality: 'medium',
-        })).toMatchObject({ size: 'auto', resolution, quality: 'medium' });
+        })).toMatchObject({ size: 'auto', resolution: '1k', quality: 'medium' });
       }
+      expect(sanitizeImageToolExtraParams(modelId, {
+        size: 'auto', resolution: '1k', quality: 'medium',
+      })).toMatchObject({ size: 'auto', resolution: '1k', quality: 'medium' });
     }
   );
 
@@ -203,7 +210,8 @@ describe('ai-generation-preferences-service', () => {
     }
   );
 
-  it('将 GPT Image 的旧 quality 档位偏好迁移到 resolution', async () => {
+  // 旧 quality 档位里的 2k/4k 已随分辨率档位一起下架，不再迁移到 resolution，直接丢弃回默认
+  it('丢弃 GPT Image 旧 quality 里的已下架分辨率档位', async () => {
     localStorage.setItem(
       'aitu_ai_image_tool_preferences',
       JSON.stringify({
@@ -238,7 +246,7 @@ describe('ai-generation-preferences-service', () => {
     ).toMatchObject({
       extraParams: {
         size: '16x9',
-        resolution: '2k',
+        resolution: '1k',
         quality: 'auto',
       },
       aspectRatio: '16:9',
@@ -277,7 +285,7 @@ describe('ai-generation-preferences-service', () => {
     ).toMatchObject({
       extraParams: {
         size: '16x9',
-        resolution: '4k',
+        resolution: '1k', // 存入的 4k 已下架，读取时降回唯一档位
         quality: 'high',
       },
       aspectRatio: '16:9',
@@ -319,12 +327,12 @@ describe('ai-generation-preferences-service', () => {
       )
     ).toMatchObject({
       size: '16x9',
-      resolution: '2k',
+      resolution: '1k',
       quality: 'medium',
     });
   });
 
-  it('保留 Gemini preview 的旧 quality 档位语义', async () => {
+  it('保留 Gemini preview 的旧 quality 档位语义（已下架档位降回 1k）', async () => {
     localStorage.setItem(
       'aitu_ai_image_tool_preferences',
       JSON.stringify({
@@ -362,7 +370,7 @@ describe('ai-generation-preferences-service', () => {
     ).toMatchObject({
       extraParams: {
         size: '1x1',
-        quality: '4k',
+        quality: '1k', // 旧语义里的 4k 档已下架，只剩 1k
       },
       aspectRatio: '1:1',
     });

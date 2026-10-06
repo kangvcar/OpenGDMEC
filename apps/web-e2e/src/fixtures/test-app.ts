@@ -83,9 +83,6 @@ export class DrawnixApp {
   
   // 弹出工具栏
   readonly popupToolbar: Locator;
-  
-  // 灵感创意板
-  readonly inspirationBoard: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -172,9 +169,6 @@ export class DrawnixApp {
     
     // 弹出工具栏
     this.popupToolbar = page.locator('[data-testid="popup-toolbar"]');
-    
-    // 灵感创意板
-    this.inspirationBoard = page.locator('[data-testid="inspiration-board"]');
   }
 
   /**

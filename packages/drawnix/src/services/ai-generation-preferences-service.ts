@@ -143,61 +143,6 @@ function getModelPreferenceKey(
   return modelId;
 }
 
-function getEnumOptionValues(param?: {
-  options?: Array<{ value: string }>;
-}): Set<string> {
-  return new Set(param?.options?.map((option) => option.value) || []);
-}
-
-function migrateLegacyGPTImageQualityParam(
-  compatibleParams: ReturnType<typeof getCompatibleParams>,
-  persistedParams: PersistedParams
-): PersistedParams {
-  const resolutionParam = compatibleParams.find(
-    (param) => param.id === 'resolution'
-  );
-  const qualityParam = compatibleParams.find((param) => param.id === 'quality');
-  const resolutionOptions = getEnumOptionValues(resolutionParam);
-  const qualityOptions = getEnumOptionValues(qualityParam);
-
-  const hasGPTResolutionOptions =
-    resolutionOptions.has('1k') &&
-    resolutionOptions.has('2k') &&
-    (resolutionOptions.has('4k') || resolutionOptions.has('auto'));
-  const hasOfficialGPTQualityOptions =
-    qualityOptions.has('auto') &&
-    qualityOptions.has('low') &&
-    qualityOptions.has('medium') &&
-    qualityOptions.has('high');
-
-  if (!hasGPTResolutionOptions || !hasOfficialGPTQualityOptions) {
-    return persistedParams;
-  }
-
-  const nextParams = { ...persistedParams };
-  const persistedResolution = nextParams.resolution;
-  const persistedQuality = nextParams.quality;
-
-  if (
-    persistedQuality &&
-    ['1k', '2k', '4k'].includes(persistedQuality) &&
-    !resolutionOptions.has(persistedResolution)
-  ) {
-    nextParams.resolution = persistedQuality;
-  }
-
-  if (persistedQuality && !qualityOptions.has(persistedQuality)) {
-    delete nextParams.quality;
-  }
-
-  // The removed top tier restores to the highest selectable billing tier.
-  if (nextParams.resolution === '4k' && !resolutionOptions.has('4k')) {
-    nextParams.resolution = '2k';
-  }
-
-  return nextParams;
-}
-
 function sanitizeSelectedParams(
   modelId: string,
   rawParams: unknown,
@@ -207,7 +152,7 @@ function sanitizeSelectedParams(
   const excludeParamIds = new Set(options?.excludeParamIds || []);
   const persistedParams = normalizeGPTImage25ResolutionParams(
     modelId,
-    migrateLegacyGPTImageQualityParam(compatibleParams, asRecord(rawParams))
+    asRecord(rawParams)
   );
   const nextParams: PersistedParams = {};
 

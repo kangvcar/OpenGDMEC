@@ -15,7 +15,6 @@ import {
   Settings,
   BackupRestore,
   CloudSync,
-  DebugPanel,
   QuickCommands,
   CleanInvalidLinks,
 } from './app-menu-items';
@@ -107,7 +106,6 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
                 onOpenBackupRestore?.();
               }}
             />
-            <DebugPanel />
             <CloudSync
               onOpenCloudSync={() => {
                 setAppMenuOpen(false);

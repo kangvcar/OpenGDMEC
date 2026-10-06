@@ -71,7 +71,7 @@ describe('image-inspection-pure', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('每个完整分组共生成 242 个白名单巡检用例', () => {
+  it('每个完整分组共生成 194 个白名单巡检用例', () => {
     const cases = buildImageInspectionCases(
       IMAGE_INSPECTION_MODEL_IDS.map((modelId) => ({
         profileId: 'complete-profile',
@@ -80,7 +80,7 @@ describe('image-inspection-pure', () => {
       }))
     );
 
-    expect(cases).toHaveLength(242);
+    expect(cases).toHaveLength(194);
     expect(new Set(cases.map((item) => item.modelId))).toEqual(
       new Set(IMAGE_INSPECTION_MODEL_IDS)
     );
@@ -110,8 +110,8 @@ describe('image-inspection-pure', () => {
   it.each([
     ['gpt-image-2-vip', 30, ['1k', '2k', '4k'], 'resolution'],
     ['gpt-image-2', 30, ['1k', '2k', '4k'], 'resolution'],
-    ['gemini-3.1-flash-image-preview', 42, ['1k', '2k', '4k'], 'quality'],
-    ['gemini-3-pro-image-preview', 30, ['1k', '2k', '4k'], 'quality'],
+    ['gemini-3.1-flash-image-preview', 14, ['1k'], 'quality'],
+    ['gemini-3-pro-image-preview', 10, ['1k'], 'quality'],
     ['gemini-3-pro-image-preview-2k-vip', 10, ['2k'], null],
     ['gemini-3-pro-image-preview-4k-vip', 10, ['4k'], null],
     ['gemini-3.1-flash-image-preview-4k', 10, ['4k'], null],
@@ -180,9 +180,9 @@ describe('image-inspection-pure', () => {
     ).toEqual({ resolution: '2k' });
     expect(
       resolveImageInspectionResolutionParams(
-        findCase('gemini-3-pro-image-preview', '4k')
+        findCase('gemini-3-pro-image-preview', '1k')
       )
-    ).toEqual({ quality: '4k' });
+    ).toEqual({ quality: '1k' });
     expect(
       resolveImageInspectionResolutionParams(
         findCase('gemini-3-pro-image-preview-4k-vip', '4k')
@@ -213,7 +213,7 @@ describe('image-inspection-pure', () => {
     });
   });
 
-  it('builds dynamic Gemini 1K/2K/4K cases from model parameters', () => {
+  it('builds Gemini cases from the registered quality options', () => {
     const cases = buildImageInspectionCases([
       {
         profileId: 'gemini',
@@ -229,7 +229,7 @@ describe('image-inspection-pure', () => {
       cases
         .filter((item) => item.requestedAspectRatio === '1x1')
         .map((item) => item.requestedResolution)
-    ).toEqual(['1k', '2k', '4k']);
+    ).toEqual(['1k']); // 发行档位只开放 1K
     expect(cases[0]?.resolutionParamId).toBe('quality');
   });
 

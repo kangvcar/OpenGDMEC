@@ -29,7 +29,7 @@ import type {
   PlaitTheme,
   Viewport,
 } from '@plait/core';
-import { ErrorFallbackUI, safeModeReload, goToDebug } from './ErrorBoundary';
+import { ErrorFallbackUI, safeModeReload } from './ErrorBoundary';
 import { collectAndDownloadErrorLog } from '../utils/error-log-exporter';
 
 const Drawnix = lazy(() =>
@@ -952,7 +952,6 @@ export function App() {
         memoryInfo={crashRecoveryService.getMemoryInfo()}
         onIgnore={() => handleSafeModeChoice(false)}
         onSafeModeReload={() => handleSafeModeChoice(true)}
-        onGoToDebug={goToDebug}
       />
     );
   }
@@ -968,7 +967,6 @@ export function App() {
         errorStack={initError.stack}
         onExportLog={() => collectAndDownloadErrorLog(initError)}
         onSafeModeReload={safeModeReload}
-        onGoToDebug={goToDebug}
       />
     );
   }
