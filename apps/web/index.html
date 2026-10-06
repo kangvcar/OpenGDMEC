@@ -243,6 +243,17 @@
         white-space: nowrap;
       }
 
+      /* 机构署名。与 OpenGDMEC 字标同属品牌锁定区，故用 muted 小字紧跟字标，
+         与下方状态文案拉开层级。注意热启动时启动屏仅可见约 300ms，
+         这里只是正式落款，不能作为唯一署名位（另见引导弹窗/反馈 Popover）。 */
+      .app-boot-credit {
+        color: var(--app-boot-muted);
+        font-size: 12px;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+        text-wrap: balance;
+      }
+
       .app-boot-title {
         margin: 0;
         color: var(--app-boot-text);
@@ -521,6 +532,9 @@
             height="72"
           />
           <span class="app-boot-wordmark">OpenGDMEC</span>
+          <span class="app-boot-credit"
+            >人工智能学院 · 教师发展中心 联合支持</span
+          >
         </div>
         <p class="app-boot-title" data-app-boot-title>正在唤起工作台</p>
         <p class="app-boot-tip" data-app-boot-tip>

@@ -41,6 +41,17 @@
     text-align: center;
   }
 
+  // 机构署名：比 hint 更弱，紧跟在「免费额度」之后，
+  // 用来交代这份额度是谁支持的
+  &__credit {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #a8b0bd;
+    line-height: 1.5;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
   // 分隔线兼小标题：两侧渐隐细线，避免生硬的整条横线
   &__divider {
     display: flex;

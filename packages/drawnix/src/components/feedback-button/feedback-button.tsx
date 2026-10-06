@@ -14,6 +14,7 @@ import {
   ADMIN_CONTACT_TEXT,
   ADMIN_QR_URL,
 } from '../../constants/admin-contact';
+import { INSTITUTION_CREDIT_TEXT } from '../../constants/institution-credit';
 import { WeComIcon } from '../icons';
 import { ToolButton } from '../tool-button';
 import './feedback-button.scss';
@@ -36,7 +37,9 @@ export const FeedbackButton: React.FC = () => {
           type="icon"
           icon={<WeComIcon />}
           aria-label={ADMIN_CONTACT_TEXT}
-          tooltip={ADMIN_CONTACT_TEXT}
+          // 浮层展开时关掉 tooltip：tooltip 落在浮层右下角，会整条盖住署名行，
+          // 而且此刻浮层里本来就写着同样的文案，留着纯属重复。
+          tooltip={open ? undefined : ADMIN_CONTACT_TEXT}
           tooltipPlacement="right"
           selected={open}
           visible={true}
@@ -57,6 +60,9 @@ export const FeedbackButton: React.FC = () => {
                 className="feedback-qrcode-image"
               />
               <div className="feedback-qrcode-text">{ADMIN_CONTACT_TEXT}</div>
+              <div className="feedback-qrcode-credit">
+                {INSTITUTION_CREDIT_TEXT}
+              </div>
             </div>
           </div>
         </div>

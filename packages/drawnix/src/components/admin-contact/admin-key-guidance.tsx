@@ -25,6 +25,7 @@ import {
   ADMIN_CONTACT_TEXT,
   ADMIN_QR_URL,
 } from '../../constants/admin-contact';
+import { INSTITUTION_CREDIT_TEXT } from '../../constants/institution-credit';
 import './admin-key-guidance.scss';
 
 export const AdminKeyGuidance: React.FC = () => {
@@ -153,6 +154,7 @@ export const AdminKeyGuidance: React.FC = () => {
         <p className="admin-key-guidance__hint">
           微信扫码添加管理员，领取免费额度
         </p>
+        <p className="admin-key-guidance__credit">{INSTITUTION_CREDIT_TEXT}</p>
 
         <div className="admin-key-guidance__divider">已有 Key？直接粘贴</div>
 
