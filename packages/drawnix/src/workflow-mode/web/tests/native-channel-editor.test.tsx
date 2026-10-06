@@ -59,7 +59,7 @@ describe('OpenTu credential autofill in the channel editor', () => {
         render(editor({ channel: { ...channel, apiKey: 'user-key' } }));
         await waitFor(() => expect(vi.mocked(readNativeProviderCredentials).mock.settledResults[0]?.type).toBe('fulfilled'));
         expect(input('API Key').value).toBe('user-key');
-        fireEvent.mouseDown(screen.getByRole('combobox', { name: '从 OpenTu 自动填入' }));
+        fireEvent.mouseDown(screen.getByRole('combobox', { name: '从 OpenGDMEC 自动填入' }));
         fireEvent.click(await screen.findByText('默认分组'));
         expect(input('API Key').value).toBe('test-default');
         expect(input('接口地址').value).toBe('https://provider.example/v1');

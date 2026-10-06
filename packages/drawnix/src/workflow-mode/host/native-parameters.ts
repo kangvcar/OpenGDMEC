@@ -224,7 +224,7 @@ export function applyNativeAdapterContract(
       ? parameter
       : {
           ...parameter,
-          disabledReason: '当前 OpenTu 渠道适配器没有此参数的请求字段',
+          disabledReason: '当前 OpenGDMEC 渠道适配器没有此参数的请求字段',
         };
   });
 }
@@ -264,7 +264,7 @@ export function describeNativeModel(
   capability: Capability
 ): Pick<WorkflowChannel['models'][number], 'parameters' | 'referenceInputs'> {
   const normalizedModelId = modelId.toLowerCase();
-  // Tuzi discovery may return a concrete Kling version while OpenTu's
+  // Tuzi discovery may return a concrete Kling version while OpenGDMEC's
   // contract is declared on the capability model. Resolve that alias before
   // loading parameters so local channels receive the same dedicated fields.
   const physicalSeedance = normalizedModelId.match(/^doubao-seedance-(1-5-pro|1-0-pro(?:-fast)?|1-0-lite)_(480p|720p|1080p)$/);

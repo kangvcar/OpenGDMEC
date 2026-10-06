@@ -1024,7 +1024,7 @@ export async function fetchImageModels(config: Pick<AiConfig, "baseUrl" | "apiKe
                 .sort((a, b) => a.localeCompare(b));
         }
         let modelsUrl = buildApiUrl(config.baseUrl, "/models");
-        // The local OpenTu host already proxies this provider; its error responses omit CORS headers.
+        // The local OpenGDMEC host already proxies this provider; its error responses omit CORS headers.
         if (["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname)) {
             const target = new URL(modelsUrl, window.location.origin);
             if (target.origin === "https://api.tu-zi.com" && target.pathname === "/v1/models") {

@@ -177,7 +177,7 @@ export function mapNativeModels(
     if (entries.length)
       channels.push({
         id: `opentu-native-${source.id ?? 'legacy'}`,
-        name: `OpenTu / ${source.name}`,
+        name: `OpenGDMEC / ${source.name}`,
         opentuProfileId: source.id,
         baseUrl,
         apiKey: '',
@@ -336,7 +336,7 @@ export async function readNativeModels(): Promise<ModelDefaults> {
       );
       model.adapterId = adapter?.id;
       if (!adapter)
-        model.unavailableReason = 'OpenTu 当前未提供此模型的调用适配器';
+        model.unavailableReason = 'OpenGDMEC 当前未提供此模型的调用适配器';
       if (adapter?.kind === 'image')
         model.referenceInputs = {
           images: {

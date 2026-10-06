@@ -8,7 +8,7 @@ const guides = [
     {
         id: "start", title: "快速开始", subtitle: "先完成一次生成，再组织你的创作流程。", to: "/config", action: "打开配置",
         steps: [
-            "打开「配置」，在渠道设置中填写服务商提供的接口地址和 API Key，添加需要的模型并保存。已有 OpenTu 分组时，可在本地渠道编辑器中选择「从 OpenTu 自动填入」，核对后保存。",
+            "打开「配置」，在渠道设置中填写服务商提供的接口地址和 API Key，添加需要的模型并保存。已有 OpenGDMEC 分组时，可在本地渠道编辑器中选择「从 OpenGDMEC 自动填入」，核对后保存。",
             "在偏好设置中选择对应能力的默认模型，或在生成时手动选择。模型名称出现在列表中，并不代表当前账号已开通该模型。",
             "进入「生图工作台」，输入一段具体描述，选择模型和参数；第一次先生成一张，确认配置可用。",
             "查看生成结果，下载到本机，或加入「我的资产」。需要继续组合创作时，再进入「我的画布」。",
@@ -65,7 +65,7 @@ const guides = [
             "通过本轮进度查看排队、处理中、成功、失败或待确认项。暂停只阻止后续提交，刷新后需点击继续恢复剩余队列。",
             "在当前轮次或历史中选择结果下载 ZIP，也可导出失败清单，或将单张结果保存到资产。",
         ],
-        note: "批量生成目前只支持页面列出的 OpenTu 图片模型，不支持自定义渠道或脚本模型。PDF 自动整理仍需人工核对；关闭浏览器后不会继续提交新任务。",
+        note: "批量生成目前只支持页面列出的 OpenGDMEC 图片模型，不支持自定义渠道或脚本模型。PDF 自动整理仍需人工核对；关闭浏览器后不会继续提交新任务。",
     },
     {
         id: "storage", title: "保存、导出与任务恢复", subtitle: "保留创作成果，也保留尚未确认的任务线索。",
@@ -101,12 +101,12 @@ export default function DocsPage() {
     const theme = canvasThemes[useThemeStore((state) => state.theme)];
     const navigation = [...guides, { id: "shortcuts", title: "快捷操作" }, { id: "faq", title: "常见问题" }];
     return (
-        <main className="h-full min-h-0 overflow-y-auto" style={{ background: theme.node.panel, color: theme.node.text }} aria-label="OpenTu 使用文档">
+        <main className="h-full min-h-0 overflow-y-auto" style={{ background: theme.node.panel, color: theme.node.text }} aria-label="OpenGDMEC 使用文档">
             <div className="mx-auto max-w-6xl px-5 py-8 sm:px-10 sm:py-12">
                 <header className="border-b pb-8" style={{ borderColor: theme.node.stroke }}>
-                    <div className="mb-5 flex items-center gap-2 text-sm font-semibold"><BookOpen className="size-4" aria-hidden="true" />OpenTu / 使用指南</div>
+                    <div className="mb-5 flex items-center gap-2 text-sm font-semibold"><BookOpen className="size-4" aria-hidden="true" />OpenGDMEC / 使用指南</div>
                     <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">从第一次生成，到完整创作流程</h1>
-                    <p className="mt-4 max-w-2xl text-base leading-7" style={{ color: theme.node.muted }}>这份文档介绍 OpenTu 工作流模式的日常用法。先配置模型，再选择画布或工作台开始创作；参考素材、提示词和生成结果可以在同一个工作区中复用。</p>
+                    <p className="mt-4 max-w-2xl text-base leading-7" style={{ color: theme.node.muted }}>这份文档介绍 OpenGDMEC 工作流模式的日常用法。先配置模型，再选择画布或工作台开始创作；参考素材、提示词和生成结果可以在同一个工作区中复用。</p>
                 </header>
                 <div className="grid gap-10 pt-8 lg:grid-cols-[180px_minmax(0,1fr)]">
                     <aside>
@@ -143,7 +143,7 @@ export default function DocsPage() {
                             <h2 id="faq-heading" className="text-2xl font-semibold">常见问题</h2>
                             <dl className="mt-6 space-y-7">{questions.map(([question, answer]) => <div key={question}><dt className="text-base font-semibold">{question}</dt><dd className="mt-2 text-sm leading-7" style={{ color: theme.node.muted }}>{answer}</dd></div>)}</dl>
                         </section>
-                        <footer className="border-t pt-5 text-xs leading-6" style={{ borderColor: theme.node.stroke, color: theme.node.muted }}>本文面向 OpenTu 工作流模式。模型能力和参数以当前界面为准，供应商实际响应可能不同。</footer>
+                        <footer className="border-t pt-5 text-xs leading-6" style={{ borderColor: theme.node.stroke, color: theme.node.muted }}>本文面向 OpenGDMEC 工作流模式。模型能力和参数以当前界面为准，供应商实际响应可能不同。</footer>
                     </article>
                 </div>
             </div>

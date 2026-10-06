@@ -20,10 +20,10 @@ export function isNativeResult(result: GenerationResult | undefined, capability:
 
 export async function requestNative(config: AiConfig, model: string, params: Omit<GenerationRequest, "channelId" | "model">, signal?: AbortSignal, taskId?: string): Promise<GenerationResult> {
     const channel = nativeChannel(config, model, params.capability);
-    if (!channel) throw new Error("当前模型没有绑定 OpenTu 渠道。");
+    if (!channel) throw new Error("当前模型没有绑定 OpenGDMEC 渠道。");
     signal?.throwIfAborted();
     validateNativeReferences(nativeModel(config, params.capability, model)?.referenceInputs || {}, params);
     const result = await executeNative({ ...params, channelId: channel.id, model: modelOptionName(model) }, signal, taskId);
-    if (!isNativeResult(result, params.capability)) throw new Error("OpenTu 未返回有效生成结果。");
+    if (!isNativeResult(result, params.capability)) throw new Error("OpenGDMEC 未返回有效生成结果。");
     return result;
 }

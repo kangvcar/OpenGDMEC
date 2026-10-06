@@ -30,7 +30,7 @@ export async function executeNative(request: GenerationRequest, signal?: AbortSi
     return await Promise.race([generateNative(request, controller.signal), cancelled]);
   } catch (error) {
     if (controller.signal.aborted) throw new DOMException('Aborted', 'AbortError');
-    throw new Error(request.capability === 'text' ? safeTextError(error).message : 'OpenTu 生成失败，请检查渠道模型绑定、额度和请求参数。');
+    throw new Error(request.capability === 'text' ? safeTextError(error).message : 'OpenGDMEC 生成失败，请检查渠道模型绑定、额度和请求参数。');
   } finally {
     pendingRequests.delete(abort);
     signal?.removeEventListener('abort', abort);

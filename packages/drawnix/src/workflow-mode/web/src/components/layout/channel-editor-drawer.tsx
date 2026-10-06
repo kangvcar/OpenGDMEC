@@ -43,7 +43,7 @@ export function ChannelEditorDrawer({ open, channel, onSave, onClose }: { open: 
             const provider = automaticChannelCredentials(channel, profiles, preferredProfileId);
             if (provider) setDraft((current) => current ? { ...current, baseUrl: provider.baseUrl, apiKey: provider.apiKey, apiFormat: provider.apiFormat } : current);
         }).catch(() => {
-            if (active) setProviderError("读取 OpenTu 配置失败，请重新打开编辑器重试，或手动填写。");
+            if (active) setProviderError("读取 OpenGDMEC 配置失败，请重新打开编辑器重试，或手动填写。");
         }).finally(() => {
             if (active) setLoadingProviders(false);
         });
@@ -105,7 +105,7 @@ export function ChannelEditorDrawer({ open, channel, onSave, onClose }: { open: 
                     <Select className="w-full" value={draft.apiFormat} options={apiFormatOptions} onChange={changeApiFormat} />
                 </label>
                 <div className="md:col-span-2">
-                    <label htmlFor="workflow-opentu-provider" className="mb-1 block text-sm font-medium">从 OpenTu 自动填入</label>
+                    <label htmlFor="workflow-opentu-provider" className="mb-1 block text-sm font-medium">从 OpenGDMEC 自动填入</label>
                     <Select
                         id="workflow-opentu-provider"
                         aria-describedby="workflow-opentu-provider-help"

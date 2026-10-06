@@ -24,7 +24,7 @@ export async function prepareBatchGeneration(batch: DocumentBatch, rowIds: strin
         const settings = { ...batch.defaults, ...row.overrides };
         const model = String(settings.model || '');
         const resolved = resolveBatchImageModel(catalog.channels, model);
-        if (!resolved) throw new Error(`任务「${row.title}」模型渠道不支持批量生成或已失效，请重新选择 OpenTu 图片模型`);
+        if (!resolved) throw new Error(`任务「${row.title}」模型渠道不支持批量生成或已失效，请重新选择 OpenGDMEC 图片模型`);
         const { channel, entry } = resolved;
         if (row.references.length > 16) throw new Error('每行最多 16 张参考图');
         validateNativeReferences(entry.referenceInputs || {}, { images: row.references.map(r => r.id) });

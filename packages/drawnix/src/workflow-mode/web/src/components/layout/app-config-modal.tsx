@@ -210,7 +210,7 @@ export function AppConfigPanel({ showDoneButton = false, initialTab = "channels"
                                             <div className="min-w-0">
                                                 <div className="truncate text-sm font-semibold">{channel.name || t("config.channels.unnamed")}</div>
                                                 <div className="mt-1 truncate text-xs text-stone-500">
-                                                    {channel.providerKind === "tuzi-fixed" ? "Tuzi 固定渠道" : channel.opentuProfileId !== undefined ? "OpenTu 托管" : "本地渠道"} · {apiFormatLabel(channel.apiFormat)} · {t("config.channels.modelCount", { count: channel.models.length })} · {channel.baseUrl || (channel.opentuProfileId !== undefined ? "使用 OpenTu 配置" : t("config.channels.missingUrl"))}
+                                                    {channel.providerKind === "tuzi-fixed" ? "Tuzi 固定渠道" : channel.opentuProfileId !== undefined ? "OpenGDMEC 托管" : "本地渠道"} · {apiFormatLabel(channel.apiFormat)} · {t("config.channels.modelCount", { count: channel.models.length })} · {channel.baseUrl || (channel.opentuProfileId !== undefined ? "使用 OpenGDMEC 配置" : t("config.channels.missingUrl"))}
                                                 </div>
                                             </div>
                                             <div className="flex shrink-0 gap-2">

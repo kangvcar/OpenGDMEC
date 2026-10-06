@@ -28,7 +28,7 @@ export function textRequestBody(path: string, body: { model: string; messages: G
   };
 }
 
-// Only the local OpenTu host is known to provide this same-origin proxy.
+// Only the local OpenGDMEC host is known to provide this same-origin proxy.
 export const fetchTextCompletion: typeof fetch = (input, init) => {
   if (typeof input === 'string' && typeof window !== 'undefined' &&
       ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {

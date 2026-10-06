@@ -223,5 +223,5 @@ export async function generateNative(
       resultKind: 'audio',
     };
   }
-  throw new Error('OpenTu 暂无此模型的生成适配器，请检查渠道绑定。');
+  throw new Error('OpenGDMEC 暂无此模型的生成适配器，请检查渠道绑定。');
 }

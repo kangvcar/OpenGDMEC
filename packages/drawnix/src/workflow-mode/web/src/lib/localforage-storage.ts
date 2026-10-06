@@ -2,7 +2,7 @@ import localforage from "localforage";
 import type { StateStorage } from "zustand/middleware";
 
 // Keep the standalone workflow database and store names, but avoid mutating
-// localforage's global default instance used by the rest of OpenTu.
+// localforage's global default instance used by the rest of OpenGDMEC.
 const store = localforage.createInstance({ name: "infinite-canvas", storeName: "app_state" });
 
 export const localForageStorage: StateStorage = {

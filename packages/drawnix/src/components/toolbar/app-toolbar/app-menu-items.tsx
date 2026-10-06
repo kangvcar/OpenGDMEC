@@ -368,16 +368,6 @@ export const VersionInfo = () => {
           >
             {t('menu.changelog')}
           </span>
-          <span
-            style={{ color: '#1890ff', cursor: 'pointer' }}
-            data-track="toolbar_click_menu_more_versions"
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open('https://release.opentu.ai/', '_blank');
-            }}
-          >
-            {t('menu.more')}
-          </span>
         </span>
       </span>
     </MenuItem>

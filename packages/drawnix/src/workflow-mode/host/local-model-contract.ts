@@ -27,7 +27,7 @@ export function localModelContract(
   if (capability === 'video') {
     const result = localVideoContract(model, baseUrl);
     return result
-      ? { ...result, unavailableReason: apiFormat === 'gemini' ? '此视频模型的 OpenTu 适配器需要 OpenAI 兼容渠道' : result.unavailableReason, binding: undefined, requestSchema: undefined }
+      ? { ...result, unavailableReason: apiFormat === 'gemini' ? '此视频模型的 OpenGDMEC 适配器需要 OpenAI 兼容渠道' : result.unavailableReason, binding: undefined, requestSchema: undefined }
       : undefined;
   }
   const alias = capability === 'audio' ? getSunoModelAlias(model) : null;
@@ -72,12 +72,12 @@ export function localModelContract(
     resolveAdapterForModel(contractModel, capability);
   const adapterId = adapter?.id;
   let unavailableReason = !adapter
-    ? 'OpenTu 当前未提供此模型的调用适配器'
+    ? 'OpenGDMEC 当前未提供此模型的调用适配器'
     : undefined;
   if (imageAction === 'edit' && !binding && bindings[0]?.metadata?.image?.action === 'generation')
     unavailableReason = '当前渠道未提供此模型的参考图编辑接口';
   if (apiFormat === 'gemini' && adapterId !== 'gemini-image-adapter')
-    unavailableReason = '此模型的 OpenTu 适配器需要 OpenAI 兼容渠道';
+    unavailableReason = '此模型的 OpenGDMEC 适配器需要 OpenAI 兼容渠道';
   const parameters = applyNativeAdapterContract(
     extendAdapterParameters(contract.parameters || [], adapterId),
     capability,

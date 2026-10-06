@@ -9,7 +9,7 @@ import {
   serializeNativeParameter,
 } from './native-parameters';
 
-/** Resolve the same registered adapters as OpenTu without importing its channels. */
+/** Resolve the same registered adapters as OpenGDMEC without importing its channels. */
 export function localVideoContract(model: string, baseUrl = '') {
   const adapter = resolveAdapterForModel(model, 'video');
   const adapterId = isSeedance2ModelId(model)
@@ -89,7 +89,7 @@ export function localVideoContract(model: string, baseUrl = '') {
   const isH3 = model.toLowerCase() === 'minimax-h3';
   const unavailableReason =
     !isH3 && !supported.includes(adapterId || '')
-      ? 'OpenTu 尚无此视频模型的可用适配器'
+      ? 'OpenGDMEC 尚无此视频模型的可用适配器'
       : undefined;
   return {
     ...contract,

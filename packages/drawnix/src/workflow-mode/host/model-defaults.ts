@@ -85,7 +85,7 @@ export function mapModelDefaults(
               profile.imageApiCompatibility !== 'openai-gpt-image')));
       if (special) {
         warnings.push(
-          `${profile.name} / ${id}：需要 OpenTu 专用调用适配，未导入。`
+          `${profile.name} / ${id}：需要 OpenGDMEC 专用调用适配，未导入。`
         );
         continue;
       }
@@ -141,7 +141,7 @@ export async function readModelDefaults(): Promise<ModelDefaults> {
     if (!profiles.some((item) => item.id === id))
       profiles.push({
         id,
-        name: 'OpenTu',
+        name: 'OpenGDMEC',
         baseUrl: route.baseUrl,
         apiKey: route.apiKey,
         providerType: route.providerType || 'openai-compatible',

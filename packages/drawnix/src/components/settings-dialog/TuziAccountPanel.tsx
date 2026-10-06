@@ -1507,7 +1507,7 @@ export function TuziAccountPanel({
                     </h3>
                     <p>
                       {embeddedBridge
-                        ? '系统令牌由当前 Tuzi 账户安全提供，不会保存在 OpenTu。'
+                        ? '系统令牌由当前 Tuzi 账户安全提供，不会保存在 OpenGDMEC。'
                         : '使用系统令牌读取账户数据并同步托管 Provider。'}
                     </p>
                     {!embeddedBridge ? (

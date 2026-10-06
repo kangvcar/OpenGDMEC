@@ -140,7 +140,7 @@ export const AnimatedThemeToggler = ({ children, className, duration = 400, vari
             onThemeChange?.(nextTheme);
         };
 
-        // Animate only this mode; document-level transitions also capture OpenTu's shell.
+        // Animate only this mode; document-level transitions also capture OpenGDMEC's shell.
         flushSync(applyTheme);
         workflowRoot().animate?.(
             { clipPath: getThemeTransitionClipPaths(shape, x, y, maxRadius, viewportWidth, viewportHeight) },

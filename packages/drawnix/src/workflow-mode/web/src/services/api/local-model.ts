@@ -68,7 +68,7 @@ export async function requestLocalModelImage(config: AiConfig, prompt: string, i
         return (result.data || []).map((item: { url?: string; b64_json?: string }) => item.url || (item.b64_json ? `data:image/png;base64,${item.b64_json}` : "")).filter(Boolean) as string[];
     }
     const adapter = getModelAdapter(contract?.adapterId || "");
-    if (adapter?.kind !== "image") throw new Error("OpenTu 暂无此图片模型的适配器");
+    if (adapter?.kind !== "image") throw new Error("OpenGDMEC 暂无此图片模型的适配器");
     const result = await adapter.generateImage(context, {
         prompt,
         model: route.model,

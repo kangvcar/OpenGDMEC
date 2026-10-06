@@ -1,4 +1,4 @@
-/** Shared history for the OpenTu canvas and the workflow's nested pages. */
+/** Shared history for the OpenGDMEC canvas and the workflow's nested pages. */
 export const WORKFLOW_NAVIGATION = 'opentu:workflow-navigation';
 
 let navigationSnapshot: { href: string; state: unknown } | undefined;

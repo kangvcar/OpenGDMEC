@@ -49,7 +49,7 @@ class ImageInspectionErrorBoundary extends React.Component<
         }}
       >
         <h2 style={{ marginTop: 0 }}>巡检报表显示异常</h2>
-        <p>已隔离异常，不会导致 OpenTu 闪退。服务端后台巡检仍会继续运行。</p>
+        <p>已隔离异常，不会导致 OpenGDMEC 闪退。服务端后台巡检仍会继续运行。</p>
         <button
           type="button"
           onClick={() => this.setState({ error: null })}

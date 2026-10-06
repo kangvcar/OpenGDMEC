@@ -70,12 +70,12 @@ function Settings({ value, onChange }: { value: BatchSettings; onChange: (value:
     return (
         <div className="space-y-3">
             <ModelPicker config={config} capability="image" value={valid ? value.model : ""} onChange={(model) => onChange({ ...value, model })} fullWidth />
-            {!valid && <Alert type="warning" message={value.model ? "该批次保存的模型渠道已失效或不支持批量生成，请重新选择 OpenTu 图片模型。" : "请选择 OpenTu 图片模型；自定义渠道及脚本模型暂不支持持久批量队列。"} />}
+            {!valid && <Alert type="warning" message={value.model ? "该批次保存的模型渠道已失效或不支持批量生成，请重新选择 OpenGDMEC 图片模型。" : "请选择 OpenGDMEC 图片模型；自定义渠道及脚本模型暂不支持持久批量队列。"} />}
             <Button size="small" loading={refreshing} onClick={async () => {
                 setRefreshing(true);
-                try { await syncOpenTuModels(); } catch { message.error("OpenTu 模型读取失败，请检查供应商配置后重试"); }
+                try { await syncOpenTuModels(); } catch { message.error("OpenGDMEC 模型读取失败，请检查供应商配置后重试"); }
                 finally { setRefreshing(false); }
-            }}>刷新 OpenTu 模型</Button>
+            }}>刷新 OpenGDMEC 模型</Button>
             <label className="flex items-center gap-3 text-sm">
                 每行生成数量
                 <InputNumber min={1} max={1000} value={value.count} onChange={(count) => onChange({ ...value, count: count || 1 })} />

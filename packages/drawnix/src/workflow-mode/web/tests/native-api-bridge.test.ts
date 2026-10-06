@@ -71,7 +71,7 @@ describe("direct native generation", () => {
         vi.mocked(generateNative).mockRejectedValueOnce(new Error("HTTP 403: model unavailable sk-secret"));
         await expect(requestNative(textConfig, textConfig.model, textRequest)).rejects.toThrow("HTTP 403: model unavailable [redacted]");
         vi.mocked(generateNative).mockRejectedValueOnce(new Error("secret request"));
-        await expect(requestNative(config, config.model, audioRequest)).rejects.toThrow("OpenTu 生成失败，请检查渠道模型绑定、额度和请求参数。");
+        await expect(requestNative(config, config.model, audioRequest)).rejects.toThrow("OpenGDMEC 生成失败，请检查渠道模型绑定、额度和请求参数。");
     });
     it("removes cancellation listeners once a request completes", async () => {
         const controller = new AbortController();

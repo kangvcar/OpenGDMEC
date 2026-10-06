@@ -191,8 +191,8 @@
             <code>7201 -&gt; 7200</code> 的真实跨端口 iframe 嵌入<br />
             <strong>状态:</strong> localhost
             任意端口已在白名单中，应该正常显示<br />
-            <strong>用途:</strong> 复现 <code>api.tu-zi.com/oepntu</code> 嵌入
-            <code>opentu.ai</code> 的模式
+            <strong>用途:</strong> 复现 <code>api.tu-zi.com</code> 嵌入
+            <code>opengdmec.pages.dev</code> 的模式
           </div>
           <div class="note">
             <strong>推荐本地复现:</strong>
@@ -399,7 +399,7 @@ Content-Security-Policy: frame-ancestors 'self' localhost:* 127.0.0.1:* *.localh
         if (isLocalHost) {
           return `${location.protocol}//${location.hostname}:7200`;
         }
-        return 'https://opentu.ai';
+        return 'https://opengdmec.pages.dev';
       }
 
       function normalizeBaseUrl(url) {

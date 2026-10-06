@@ -664,8 +664,8 @@ export function ImageInspectionReport({
               ← 返回模型测试
             </button>
           ) : null}
-          <h1>OpenTu 生图巡检报表</h1>
-          <p>Tuzi 服务端后台运行；关闭、刷新 OpenTu 或短时断网都不会中断。</p>
+          <h1>OpenGDMEC 生图巡检报表</h1>
+          <p>Tuzi 服务端后台运行；关闭、刷新 OpenGDMEC 或短时断网都不会中断。</p>
         </div>
         <div className="image-inspection__header-actions">
           {activeRun ? (

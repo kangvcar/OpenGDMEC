@@ -91,7 +91,6 @@ export interface Translations {
   'menu.workflowMode': string;
   'menu.debugPanel': string;
   'menu.version': string;
-  'menu.more': string;
   'menu.commandPalette': string;
   'menu.userManual': string;
   'menu.changelog': string;
@@ -285,7 +284,6 @@ const translations: Record<Language, Translations> = {
     'menu.workflowMode': '工作流模式',
     'menu.debugPanel': '日志 / 调试',
     'menu.version': '版本',
-    'menu.more': '更多',
     'menu.commandPalette': '快捷命令',
     'menu.userManual': '用户手册',
     'menu.changelog': '日志',
@@ -476,7 +474,6 @@ const translations: Record<Language, Translations> = {
     'menu.workflowMode': 'Workflow Mode',
     'menu.debugPanel': 'Log / Debug',
     'menu.version': 'Version',
-    'menu.more': 'More',
     'menu.commandPalette': 'Commands',
     'menu.userManual': 'User Manual',
     'menu.changelog': 'Log',

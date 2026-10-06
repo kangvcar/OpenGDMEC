@@ -69,7 +69,7 @@ export function TuziTokenPicker({
   const [groups, setGroups] = useState<TuziProviderGroup[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
-  const [name, setName] = useState('OpenTu 日常使用');
+  const [name, setName] = useState('OpenGDMEC 日常使用');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -324,8 +324,8 @@ export function TuziTokenPicker({
               {mode === 'import'
                 ? '来自 Tuzi「令牌管理」 · 保留你设置的名称、分组与限制'
                 : unsupported
-                ? '配置后自动添加到 OpenTu。已有账户分组会继续复用。'
-                : '创建后自动添加到 OpenTu，也会显示在 Tuzi「令牌管理」。'}
+                ? '配置后自动添加到 OpenGDMEC。已有账户分组会继续复用。'
+                : '创建后自动添加到 OpenGDMEC，也会显示在 Tuzi「令牌管理」。'}
             </p>
           </div>
         </div>
@@ -403,7 +403,7 @@ export function TuziTokenPicker({
                     !!managedResponse.current
                   }
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="例如：OpenTu 日常使用"
+                  placeholder="例如：OpenGDMEC 日常使用"
                 />
                 <small>这个名称也会显示在 Tuzi 的令牌管理中。</small>
               </label>
