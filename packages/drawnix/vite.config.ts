@@ -18,9 +18,10 @@ try {
   if (fs.existsSync(versionPath)) {
     const versionContent = fs.readFileSync(versionPath, 'utf-8');
     const versionJson = JSON.parse(versionContent);
-    if (versionJson.version) {
-      appVersion = versionJson.version;
-      // console.log(`[Drawnix] Loaded version from shared version.json: ${appVersion}`);
+    // 与 apps/web 两个 vite config 保持同一口径（buildVersion 含构建标识）
+    const sharedVersion = versionJson.buildVersion || versionJson.version;
+    if (sharedVersion) {
+      appVersion = sharedVersion;
     }
   }
 } catch (e) {

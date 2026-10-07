@@ -1,6 +1,8 @@
 {
   "version": "1.1.21",
-  "buildTime": "2026-10-06T19:00:49.650Z",
+  "buildVersion": "1.1.21",
+  "buildId": null,
+  "buildTime": "2026-10-06T19:53:51.718Z",
   "gitCommit": "unknown",
   "changelog": [
     "preserve manual providers with legacy Tuzi API (#288)"

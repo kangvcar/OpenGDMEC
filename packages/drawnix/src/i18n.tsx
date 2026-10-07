@@ -95,6 +95,12 @@ export interface Translations {
   'menu.cleanInvalidLinks.noInvalid': string;
   'menu.cleanInvalidLinks.error': string;
 
+  // Version update
+  'versionUpdate.tooltip': string;
+  'versionUpdate.dialogTitle': string;
+  'versionUpdate.updateNow': string;
+  'versionUpdate.buildInfo': string;
+
   // Dialog translations
   'dialog.mermaid.title': string;
   'dialog.mermaid.description': string;
@@ -283,6 +289,12 @@ const translations: Record<Language, Translations> = {
     'menu.cleanInvalidLinks.noInvalid': '未发现失效媒体',
     'menu.cleanInvalidLinks.error': '清除失败',
 
+    // Version update
+    'versionUpdate.tooltip': '新版本 v{version} 已就绪',
+    'versionUpdate.dialogTitle': '新版本',
+    'versionUpdate.updateNow': '立即更新',
+    'versionUpdate.buildInfo': '构建',
+
     // Dialog translations
     'dialog.mermaid.title': 'Mermaid 转 Drawnix',
     'dialog.mermaid.description': '目前仅支持',
@@ -467,6 +479,12 @@ const translations: Record<Language, Translations> = {
     'menu.cleanInvalidLinks.success': 'Cleaned {count} invalid media',
     'menu.cleanInvalidLinks.noInvalid': 'No invalid media found',
     'menu.cleanInvalidLinks.error': 'Clean failed',
+
+    // Version update
+    'versionUpdate.tooltip': 'New version v{version} is ready',
+    'versionUpdate.dialogTitle': 'New version',
+    'versionUpdate.updateNow': 'Update now',
+    'versionUpdate.buildInfo': 'Build',
 
     // Dialog translations
     'dialog.mermaid.title': 'Mermaid to Drawnix',

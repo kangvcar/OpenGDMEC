@@ -19,6 +19,7 @@ import {
   CleanInvalidLinks,
 } from './app-menu-items';
 import { LanguageSwitcherMenu } from './language-switcher-menu';
+import { VersionUpdateButton } from './version-update-button';
 import Menu from '../../menu/menu';
 import MenuSeparator from '../../menu/menu-separator';
 import { useI18n } from '../../../i18n';
@@ -162,6 +163,7 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
           />
         </ToolbarContextMenu>
       )}
+      <VersionUpdateButton embedded={embedded} />
     </Stack.Row>
   );
   if (embedded) {

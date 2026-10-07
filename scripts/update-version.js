@@ -7,6 +7,14 @@ function getCurrentVersion() {
   return packageJson.version;
 }
 
+// 构建标识（Cloudflare Pages 构建时注入 commit SHA）。
+// 只为让每次部署产出的 sw.js 字节不同——浏览器靠字节差异检测 Service Worker
+// 更新，版本号不变就会认为"没有新版本"，用户永远卡在旧的应用外壳缓存里。
+function getBuildId() {
+  const sha = process.env.CF_PAGES_COMMIT_SHA;
+  return typeof sha === 'string' && sha.length >= 7 ? sha.slice(0, 7) : null;
+}
+
 // 更新 Service Worker 中的版本号（已废弃，sw.js 现在是构建产物）
 function updateServiceWorkerVersion(version) {
   // sw.js 现在是构建产物，不再需要手动更新
@@ -32,15 +40,22 @@ function createVersionFile(version) {
     }
   }
   
+  const buildId = getBuildId();
+  // version 必须保持纯净 semver：release-manage / safe-version-bump 都做严格比对。
+  // buildVersion 才是喂给 vite define 的那份（见三个 vite config 的 appVersion）。
+  const buildVersion = buildId ? `${version}+${buildId}` : version;
+
   const versionInfo = {
     version: version,
+    buildVersion: buildVersion,
+    buildId: buildId,
     buildTime: new Date().toISOString(),
-    gitCommit: process.env.GITHUB_SHA || 'unknown',
+    gitCommit: process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || 'unknown',
     changelog: existingChangelog
   };
-  
+
   fs.writeFileSync(versionPath, JSON.stringify(versionInfo, null, 2));
-  console.log(`✅ Version file created: ${version}${existingChangelog.length > 0 ? ` (保留 ${existingChangelog.length} 条更新日志)` : ''}`);
+  console.log(`✅ Version file created: ${buildVersion}${existingChangelog.length > 0 ? ` (保留 ${existingChangelog.length} 条更新日志)` : ''}`);
 }
 
 // 更新 HTML 文件，添加版本号到资源链接

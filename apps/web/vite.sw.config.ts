@@ -10,7 +10,9 @@ try {
   if (fs.existsSync(versionPath)) {
     const versionContent = fs.readFileSync(versionPath, 'utf-8');
     const versionJson = JSON.parse(versionContent);
-    appVersion = versionJson.version || '0.0.0';
+    // 必须与 vite.config.ts 读出的一致：SW 的 APP_VERSION 要和
+    // precache-manifest.json / idle-prefetch-manifest.json 的 version 对得上
+    appVersion = versionJson.buildVersion || versionJson.version || '0.0.0';
     console.log(`[Vite SW] Loaded version from version.json: ${appVersion}`);
   } else {
     console.warn('[Vite SW] version.json not found at', versionPath);

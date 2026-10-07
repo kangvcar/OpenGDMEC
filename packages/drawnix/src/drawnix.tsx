@@ -366,7 +366,6 @@ export const Drawnix: React.FC<DrawnixProps> = ({
   const [backupRestoreOpen, setBackupRestoreOpen] = useState(false);
   const [cloudSyncOpen, setCloudSyncOpen] = useState(false);
   const [deferredRuntimeEnabled, setDeferredRuntimeEnabled] = useState(false);
-  const [versionUpdateEnabled, setVersionUpdateEnabled] = useState(false);
   const [performancePanelEnabled, setPerformancePanelEnabled] = useState(false);
   const [toolWindowManagerEnabled, setToolWindowManagerEnabled] =
     useState(false);
@@ -748,7 +747,6 @@ export const Drawnix: React.FC<DrawnixProps> = ({
     let idleId: number | undefined;
     const timer = window.setTimeout(() => {
       const enableNonCriticalUi = () => {
-        setVersionUpdateEnabled(true);
         setPerformancePanelEnabled(true);
       };
 
@@ -918,7 +916,6 @@ export const Drawnix: React.FC<DrawnixProps> = ({
   );
 
   const shouldRenderDeferredFeatures =
-    versionUpdateEnabled ||
     performancePanelEnabled ||
     toolWindowManagerEnabled ||
     appState.openCommandPalette ||
@@ -996,7 +993,6 @@ export const Drawnix: React.FC<DrawnixProps> = ({
                       shouldRenderDeferredFeatures={
                         shouldRenderDeferredFeatures
                       }
-                      versionUpdateEnabled={versionUpdateEnabled}
                       performancePanelEnabled={performancePanelEnabled}
                       toolWindowManagerEnabled={toolWindowManagerEnabled}
                       minimizedToolsBarEnabled={minimizedToolsBarEnabled}
@@ -1034,7 +1030,6 @@ interface DrawnixContentProps {
   backupRestoreOpen: boolean;
   deferredRuntimeEnabled: boolean;
   shouldRenderDeferredFeatures: boolean;
-  versionUpdateEnabled: boolean;
   performancePanelEnabled: boolean;
   toolWindowManagerEnabled: boolean;
   minimizedToolsBarEnabled: boolean;
@@ -1087,7 +1082,6 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
   backupRestoreOpen,
   deferredRuntimeEnabled,
   shouldRenderDeferredFeatures,
-  versionUpdateEnabled,
   performancePanelEnabled,
   toolWindowManagerEnabled,
   minimizedToolsBarEnabled,
@@ -1951,7 +1945,6 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
               board={board}
               value={value}
               containerRef={containerRef}
-              versionUpdateEnabled={versionUpdateEnabled}
               performancePanelEnabled={performancePanelEnabled}
               toolWindowManagerEnabled={toolWindowManagerEnabled}
               projectDrawerOpen={projectDrawerOpen}
