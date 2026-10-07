@@ -1,3 +1,13 @@
+## 1.1.25 (2026-10-07)
+
+### 🩹 Fixes
+
+- 修复触屏点不开「语言 / 导出图片」子菜单 ([03fcb772](https://github.com/ljquan/opentu/commit/03fcb772))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.24 (2026-10-07)
 
 ### 🩹 Fixes

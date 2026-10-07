@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.25",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "修复触屏点不开「语言 / 导出图片」子菜单"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "修复触屏点不开「语言 / 导出图片」子菜单"
+    },
+    {
       "version": "1.1.24",
       "date": "2026-10-07",
       "changes": {
@@ -974,19 +987,6 @@
       },
       "type": "patch",
       "highlights": "为绘图工具添加键盘快捷键调整大小功能"
-    },
-    {
-      "version": "0.9.5",
-      "date": "2026-05-06",
-      "changes": {
-        "features": [],
-        "fixes": [
-          "修复蒙版画笔导出和预览样式问题"
-        ],
-        "improvements": []
-      },
-      "type": "patch",
-      "highlights": "修复蒙版画笔导出和预览样式问题"
     }
   ]
 }
