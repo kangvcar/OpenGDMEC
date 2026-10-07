@@ -1,10 +1,17 @@
 {
-  "version": "1.1.21",
-  "buildVersion": "1.1.21",
-  "buildId": null,
-  "buildTime": "2026-10-06T19:53:51.718Z",
+  "version": "1.1.22",
+  "buildTime": "2026-10-07T05:47:57.530Z",
   "gitCommit": "unknown",
   "changelog": [
-    "preserve manual providers with legacy Tuzi API (#288)"
+    "修复触屏文本/箭头失效与面板溢出，图片默认 16:9、联系入口改企业微信",
+    "修复部署后 Service Worker 不更新,刷新始终是旧页面",
+    "出错弹窗换本校二维码、摘除调试入口与灵感创意、分辨率收敛到 1K",
+    "画布水印、摘除 PPT 讲解视频、未配 Key 时隐藏模型列表",
+    "新增「人工智能学院 · 教师发展中心 联合支持」机构署名",
+    "全面收敛 UI 品牌为 OpenGDMEC 并接入校徽",
+    "隐藏对话面板、Key 引导改为用户触发、水印字号调大",
+    "新增面向高校教师的 OpenGDMEC 发行档位",
+    "收敛入口并新增获取 API Key 引导",
+    "修复移动端阻断缺陷并收敛响应式样式"
   ]
 }

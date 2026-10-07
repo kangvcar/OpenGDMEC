@@ -1,3 +1,32 @@
+## 1.1.22 (2026-10-07)
+
+### 🚀 Features
+
+- 隐藏对话面板、Key 引导改为用户触发、水印字号调大 ([348aab98](https://github.com/ljquan/opentu/commit/348aab98))
+- 画布水印、摘除 PPT 讲解视频、未配 Key 时隐藏模型列表 ([88487b83](https://github.com/ljquan/opentu/commit/88487b83))
+- 新增「人工智能学院 · 教师发展中心 联合支持」机构署名 ([4cb50d41](https://github.com/ljquan/opentu/commit/4cb50d41))
+- 收敛入口并新增获取 API Key 引导 ([883e0959](https://github.com/ljquan/opentu/commit/883e0959))
+- 全面收敛 UI 品牌为 OpenGDMEC 并接入校徽 ([a0960c35](https://github.com/ljquan/opentu/commit/a0960c35))
+- 新增面向高校教师的 OpenGDMEC 发行档位 ([01c1dc56](https://github.com/ljquan/opentu/commit/01c1dc56))
+
+### 🩹 Fixes
+
+- 修复触屏文本/箭头失效与面板溢出，图片默认 16:9、联系入口改企业微信 ([458b44ed](https://github.com/ljquan/opentu/commit/458b44ed))
+- 修复移动端阻断缺陷并收敛响应式样式 ([60e3cadb](https://github.com/ljquan/opentu/commit/60e3cadb))
+- 修复部署后 Service Worker 不更新,刷新始终是旧页面 ([9fcde357](https://github.com/ljquan/opentu/commit/9fcde357))
+- 出错弹窗换本校二维码、摘除调试入口与灵感创意、分辨率收敛到 1K ([410dc5ef](https://github.com/ljquan/opentu/commit/410dc5ef))
+
+### 🔧 Chores
+
+- docs: 增加「推送前必须先升版本号」规则 ([dc3bcc2a](https://github.com/ljquan/opentu/commit/dc3bcc2a))
+- refactor(teacher): 引导弹窗改版、去掉画布卡片、水印自适应 ([cb07e773](https://github.com/ljquan/opentu/commit/cb07e773))
+- docs(manual): 用户手册去除上游指向，品牌收敛为 OpenGDMEC ([6fd7f060](https://github.com/ljquan/opentu/commit/6fd7f060))
+- docs(openspec): 同步教师发行版任务台账与线上部署结果 ([f4983467](https://github.com/ljquan/opentu/commit/f4983467))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.21 (2026-09-30)
 
 ### 🩹 Fixes
