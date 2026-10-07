@@ -170,7 +170,7 @@ $mobile-border-radius: 12px;         // 移动端圆角
     right: 0;
     bottom: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh; // 避免移动端地址栏区域导致内容被裁
     max-width: none;
     max-height: none;
     border-radius: 0;

@@ -361,6 +361,8 @@ export function MediaLibraryModal({
         resizable={true}
         movable={true}
         modal={false}
+        // 手机上 minWidth=800 会把窗口撑出视口，最大化可绕过该约束
+        autoMaximize={isMobile}
         className="winbox-media-library media-library-modal"
         data-testid="media-library-modal"
         icon={<MediaLibraryIcon size={18} />}

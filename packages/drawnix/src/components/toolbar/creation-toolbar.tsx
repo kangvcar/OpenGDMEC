@@ -70,6 +70,7 @@ import { addImage } from '../../utils/image';
 import { useI18n, Translations } from '../../i18n';
 import { ToolbarSectionProps } from './toolbar.types';
 import { useToolbarConfig } from '../../hooks/use-toolbar-config';
+import { useIsMobile } from '../../hooks/useDeviceType';
 import { useDragSort } from '../../hooks/use-drag-sort';
 import { ToolbarContextMenu } from './toolbar-context-menu';
 import Menu from '../menu/menu';
@@ -234,7 +235,9 @@ export const CreationToolbar: React.FC<ToolbarSectionProps> = ({
   onEnableToolWindows,
 }) => {
   const board = useBoard();
-  const { appState, openDialog } = useDrawnix();
+  const { openDialog } = useDrawnix();
+  // 与 unified-toolbar 的窄栏模式判定保持一致（≤1024px 视为移动/平板布局）
+  const isMobile = useIsMobile();
   const { t } = useI18n();
   const setPointer = useSetPointer();
   const container = PlaitBoard.getBoardContainer(board);
@@ -870,8 +873,8 @@ export const CreationToolbar: React.FC<ToolbarSectionProps> = ({
       const button = buttonMap.get(buttonId);
       if (!button) return null;
 
-      // 移动端隐藏手型工具
-      if (appState.isMobile && button.pointer === PlaitPointerType.hand) {
+      // 窄栏模式下隐藏手型工具：触控拖拽本身就能平移画布
+      if (isMobile && button.pointer === PlaitPointerType.hand) {
         return null;
       }
 
@@ -888,7 +891,7 @@ export const CreationToolbar: React.FC<ToolbarSectionProps> = ({
     },
     [
       buttonMap,
-      appState.isMobile,
+      isMobile,
       renderPopoverButton,
       renderNormalButton,
       renderZoomToolbar,

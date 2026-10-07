@@ -265,6 +265,16 @@ $drawer-input-max-height: 280px;
   }
 }
 
+// 触屏设备放大这个竖条：18px 宽在手指下几乎点不中。
+// 用 pointer: coarse 而不是宽度断点 —— 横屏手机宽度会超过 768px，
+// 那一档拿不到下面的移动端覆盖，仍会退回 18px。
+@media (hover: none) and (pointer: coarse) {
+  .chat-drawer-trigger {
+    width: 44px; // = $mobile-button-min-size
+    min-width: 44px;
+  }
+}
+
 // ============================================================================
 // Message List
 // ============================================================================
@@ -562,6 +572,8 @@ $drawer-input-max-height: 280px;
   border-bottom: 1px solid var(--td-component-border);
   max-height: 400px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   &__header {
@@ -781,9 +793,24 @@ $drawer-input-max-height: 280px;
     }
   }
 
+  // 这是手机端唯一的聊天入口，以前直接 display:none 等于功能不可用。
+  // 保持侧边标签形态（与桌面同一套心智），但放大到触控目标尺寸：
+  // 原来 18px 宽既点不中，也没有 hover 提示其用途。
+  // 位置沿用基类的竖直居中 —— 底部是全宽的 AI 输入栏（还会随内容预览变高），
+  // 顶部是缩放控件，只有中段是空的，放这里不会和任何浮层打架。
   .chat-drawer-trigger {
-    // 移动端隐藏侧边触发器，使用其他方式打开
-    display: none;
+    width: 44px; // = $mobile-button-min-size
+    min-width: 44px;
+    height: 56px;
+    // 组件内联了 right（跟随抽屉左缘）；移动端抽屉是全宽，入口恒贴右缘
+    right: 0 !important;
+    border-radius: 12px 0 0 12px;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.12);
+
+    // 抽屉打开时是 100vw 全屏面板，自带关闭按钮，入口让位
+    &--active {
+      display: none;
+    }
   }
 
   // 消息列表调整
@@ -816,6 +843,20 @@ $drawer-input-max-height: 280px;
       height: 36px;
       min-width: 36px;
     }
+  }
+}
+
+// 641-768px（横屏手机/小平板）补漏：上面的 ≤640 覆盖管不到这一档。
+// .model-selector__dropdown 与 .session-list 是 .chat-drawer 的兄弟/后代，
+// 但没有落进 .chat-drawer 的媒体块，所以这里用顶层选择器。
+@media (min-width: 641px) and (max-width: 768px) {
+  .model-selector__dropdown {
+    min-width: 0;
+    max-width: calc(100vw - 32px);
+  }
+
+  .session-list {
+    max-height: calc(100dvh - 110px);
   }
 }
 
@@ -1009,6 +1050,8 @@ $drawer-input-max-height: 280px;
 .chat-messages-list {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: $spacing-lg;
   padding-right: 0;
   display: flex;

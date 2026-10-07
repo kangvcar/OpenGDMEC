@@ -544,6 +544,14 @@ $green-health: #10b981;
   }
 }
 
+// 移动端：600px 最小宽度会让菜单在手机上横向溢出到屏幕外。
+// 与 model-selector.scss 的同款覆盖保持一致。
+@media (max-width: 640px) {
+  .model-dropdown__menu {
+    min-width: 0;
+  }
+}
+
 @keyframes model-dropdown-fade-in {
   from {
     opacity: 0;

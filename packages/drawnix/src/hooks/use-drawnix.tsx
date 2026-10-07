@@ -56,7 +56,6 @@ export type DialogInitialDataByType = Partial<
 
 export type DrawnixState = {
   pointer: DrawnixPointerType;
-  isMobile: boolean;
   isPencilMode: boolean;
   /** @deprecated 使用 openDialogTypes 代替，保留用于向后兼容 */
   openDialogType?: DialogType | null;

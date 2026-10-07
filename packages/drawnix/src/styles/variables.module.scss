@@ -1,11 +1,5 @@
 @import "./open-color";
 
-@mixin isMobile() {
-  @at-root .drawnix--mobile#{&} {
-    @content;
-  }
-}
-
 @mixin toolbarButtonColorStates {
   &.fillable {
     .tool-icon_type_radio,

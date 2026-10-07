@@ -60,6 +60,18 @@ const useBoardPluginEvent = (
     { target: viewportContainerRef }
   );
 
+  // 浏览器可能接管手势（如捏合缩放）而派发 pointercancel，此时指针不会再有 pointerup。
+  // 不处理会让插件里累积的指针记录永久残留（见 withPinchZoom）。
+  // 走 pointerCancel 而非 globalPointerUp：后者会重跑拖拽收尾逻辑，可能提交刚被中止的拖拽。
+  useEventListener(
+    'pointercancel',
+    (event) => {
+      BOARD_TO_MOVING_POINT_IN_BOARD.delete(board);
+      board.pointerCancel(event);
+    },
+    { target: viewportContainerRef }
+  );
+
   useEventListener(
     'dblclick',
     (event) => {

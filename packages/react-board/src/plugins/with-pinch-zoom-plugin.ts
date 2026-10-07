@@ -17,17 +17,16 @@ interface PointerRecord {
 }
 
 export const withPinchZoom = (board: PlaitBoard) => {
-  const { pointerDown, pointerMove, pointerUp, globalPointerUp } = board;
+  const { pointerDown, pointerMove, pointerUp, globalPointerUp, pointerCancel } =
+    board;
 
   const pointerRecords: PointerRecord[] = [];
-  let initializeZoom = 0;
   let isPinching = false;
 
   board.pointerDown = (event: PointerEvent) => {
     const point: Point = [event.clientX, event.clientY];
 
     if (pointerRecords.length < 2) {
-      initializeZoom = board.viewport.zoom;
       pointerRecords.push({
         pointerId: event.pointerId,
         lastPoint: point,
@@ -151,26 +150,34 @@ export const withPinchZoom = (board: PlaitBoard) => {
     pointerMove(event);
   };
 
-  board.pointerUp = (event: PointerEvent) => {
-    const index = pointerRecords.findIndex(
-      (r) => r.pointerId === event.pointerId
-    );
+  // 指针离开后不再构成双指手势，捏合状态必须一并复位，
+  // 否则残留的 isPinching 会把下一次手势也判定为缩放。
+  const releasePointer = (pointerId: number) => {
+    const index = pointerRecords.findIndex((r) => r.pointerId === pointerId);
     if (index !== -1) {
       pointerRecords.splice(index, 1);
     }
+    if (pointerRecords.length < 2) {
+      isPinching = false;
+    }
+  };
 
+  board.pointerUp = (event: PointerEvent) => {
+    releasePointer(event.pointerId);
     pointerUp(event);
   };
 
   board.globalPointerUp = (event: PointerEvent) => {
-    const index = pointerRecords.findIndex(
-      (r) => r.pointerId === event.pointerId
-    );
-    if (index !== -1) {
-      pointerRecords.splice(index, 1);
-    }
-
+    releasePointer(event.pointerId);
     globalPointerUp(event);
+  };
+
+  // 浏览器接管手势（捏合缩放、长按菜单等）时只会派发 pointercancel，
+  // 没有 pointerup。不清理记录就会让 length >= 2 永久成立，
+  // 上面 pointerMove 的提前 return 会吞掉此后所有移动 —— 画布仿佛卡死。
+  board.pointerCancel = (event: PointerEvent) => {
+    releasePointer(event.pointerId);
+    pointerCancel(event);
   };
 
   return board;

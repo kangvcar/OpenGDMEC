@@ -303,20 +303,6 @@ const shouldAutoCloseToolboxDrawer = (): boolean =>
 const shouldAutoCloseTaskDrawer = (): boolean =>
   !getDrawerPinned(DRAWER_PIN_KEYS.task);
 
-function detectMobileViewport(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  const coarsePointer =
-    window.matchMedia?.('(pointer: coarse)').matches ?? false;
-  const compactViewport =
-    window.matchMedia?.('(max-width: 768px)').matches ?? false;
-  const touchCapable = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
-
-  return compactViewport || (coarsePointer && touchCapable);
-}
-
 export const Drawnix: React.FC<DrawnixProps> = ({
   value,
   viewport,
@@ -344,7 +330,6 @@ export const Drawnix: React.FC<DrawnixProps> = ({
     // TODO: need to consider how to maintenance the pointer state in future
     return {
       pointer: PlaitPointerType.hand,
-      isMobile: detectMobileViewport(),
       isPencilMode: false,
       openDialogTypes: new Set(),
       dialogInitialData: null,
@@ -1748,12 +1733,7 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
   ]);
 
   return (
-    <div
-      className={classNames('drawnix', {
-        'drawnix--mobile': appState.isMobile,
-      })}
-      ref={containerRef}
-    >
+    <div className="drawnix" ref={containerRef}>
       <div className="drawnix__main">
         <Wrapper
           value={value}

@@ -339,9 +339,11 @@
       top: auto;
       bottom: calc(#{$safe-area-bottom} + 70px); // 给 AI 输入栏留出空间
       height: auto;
-      max-height: calc(100vh - 160px); // 限制最大高度
-      width: 38px; // 固定宽度，确保收起和展开状态一致（以收起状态为准）
-      max-width: 38px;
+      max-height: calc(100dvh - 160px); // 限制最大高度
+      // 宽度 = 44px 触控目标 + 两侧各 4px section padding，
+      // 否则 min-width:44px 的按钮会戳出药丸背景
+      width: 52px;
+      max-width: 52px;
       border-radius: 16px;
 
       .unified-toolbar__drag-handle {
@@ -368,13 +370,22 @@
       .tool-icon {
         @include touch-target($mobile-button-min-size);
       }
+
+      // 上面那对选择器（index.scss 的 Embedded mode 一组，含 app-/draw- 两个）
+      // 更具体，min-width:40px 会盖过 44px。窄栏已按 44px 触控目标留宽，这里补回来。
+      .app-toolbar--embedded .tool-button,
+      .app-toolbar--embedded .tool-icon,
+      .draw-toolbar--embedded .tool-button,
+      .draw-toolbar--embedded .tool-icon {
+        min-width: $mobile-button-min-size;
+      }
     }
 
     // 移动端竖屏 (max-width: 640px) - 最小化工具栏
     @include mobile {
       left: $mobile-spacing;
       bottom: calc(#{$safe-area-bottom} + 80px); // 更多空间给 AI 输入栏
-      max-height: calc(100vh - 180px);
+      max-height: calc(100dvh - 180px);
 
       // 更紧凑的布局
       &__scrollable {

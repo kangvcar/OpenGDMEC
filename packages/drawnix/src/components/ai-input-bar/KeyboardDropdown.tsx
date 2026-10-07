@@ -177,6 +177,12 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
         0,
         Math.min(maxMenuHeight, availableHeight)
       );
+      // 菜单锚在触发器左缘并向右展开；小屏上不加横向约束会溢出屏幕右侧。
+      // 用 max-width 压住调用方设置的内联宽度（如模型菜单的 520/620）。
+      const boundedMaxWidth = Math.max(
+        0,
+        window.innerWidth - rect.left - viewportPadding
+      );
       const nextMenuStyle: React.CSSProperties =
         resolvedPlacement === 'down'
           ? {
@@ -184,6 +190,7 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
               left: rect.left,
               top: rect.bottom + offset,
               maxHeight: boundedMaxHeight,
+              maxWidth: boundedMaxWidth,
               overflowY: 'auto',
             }
           : {
@@ -191,6 +198,7 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
               left: rect.left,
               bottom: window.innerHeight - rect.top + offset,
               maxHeight: boundedMaxHeight,
+              maxWidth: boundedMaxWidth,
               overflowY: 'auto',
             };
 
