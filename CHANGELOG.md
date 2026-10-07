@@ -1,3 +1,13 @@
+## 1.1.26 (2026-10-07)
+
+### 🩹 Fixes
+
+- 生成参数与模型下拉收窄，并修正右锚点与输入岛避让 ([0effa7e3](https://github.com/ljquan/opentu/commit/0effa7e3))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.25 (2026-10-07)
 
 ### 🩹 Fixes

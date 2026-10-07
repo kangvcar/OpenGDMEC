@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.26",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "生成参数与模型下拉收窄，并修正右锚点与输入岛避让"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "生成参数与模型下拉收窄，并修正右锚点与输入岛避让"
+    },
+    {
       "version": "1.1.25",
       "date": "2026-10-07",
       "changes": {
@@ -974,19 +987,6 @@
       },
       "type": "patch",
       "highlights": "修复批量导入图片弹窗显示异常"
-    },
-    {
-      "version": "0.9.6",
-      "date": "2026-05-06",
-      "changes": {
-        "features": [
-          "为绘图工具添加键盘快捷键调整大小功能"
-        ],
-        "fixes": [],
-        "improvements": []
-      },
-      "type": "patch",
-      "highlights": "为绘图工具添加键盘快捷键调整大小功能"
     }
   ]
 }
