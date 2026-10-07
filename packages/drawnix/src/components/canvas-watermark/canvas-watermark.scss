@@ -16,7 +16,10 @@
   pointer-events: none; // 让点击穿透到画布
   user-select: none;
 
-  font-size: 24px;
+  // 字号跟视口走：桌面 24px，窄屏按 3.6vw 收缩，下限 13px。
+  // 整串 20 字（含字距）约 20em，13px 时 260px —— 320px 宽的屏也放得下一行，
+  // 所以 white-space: nowrap 不会溢出。改文案变长了要顺手调下限。
+  font-size: clamp(13px, 3.6vw, 24px);
   font-weight: 500;
   letter-spacing: 0.12em;
   white-space: nowrap;

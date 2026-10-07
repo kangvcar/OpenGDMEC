@@ -1,79 +1,94 @@
+// 弹窗正文：二维码是「辅助面板」，左窄右宽。
+// 之前是二维码居中当主角（196px + 大阴影），视觉上就是一张传单；
+// 现在它退到左边当一个贴着说明的小卡，右侧的步骤和输入框才是主体。
 .admin-key-guidance {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 0 2px;
-
-  // 二维码卡片：白底 + 柔光，让扫码区从弹窗背景里浮起来。
-  // 用中性灰阴影而不是品牌色：全局 primary 还是上游的橙色（见遗留项），
-  // 这里的强调色跟着按钮走，避免弹窗内部出现蓝橙两套强调色。
-  &__qr-card {
-    padding: 12px;
-    border-radius: 16px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  }
+  align-items: flex-start;
+  gap: 24px;
+  padding: 2px 0;
 
   &__qr {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    background: #fafbfc;
+  }
+
+  // 579px 的原图，缩到 152px 显示仍有 3.8 倍余量，扫码不会糊
+  &__qr-img {
     display: block;
-    width: 196px;
-    height: 196px;
-    border-radius: 10px;
+    width: 152px;
+    height: 152px;
+    border-radius: 8px;
     object-fit: contain;
   }
 
-  &__text {
-    margin: 18px 0 0;
-    font-size: 16px;
+  &__qr-caption {
+    font-size: 12px;
+    color: #8a94a6;
+    letter-spacing: 0.02em;
+  }
+
+  &__steps {
+    flex: 1;
+    min-width: 0; // 不加的话长 placeholder 会把这一列撑破
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  // 序号底色是弹窗里除主按钮外唯一的品牌色，用来牵引视线；
+  // 正文一律中性灰，避免弹窗内部出现两套强调色。
+  &__step-no {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: rgba(243, 156, 18, 0.14);
+    color: #b45309;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  &__step-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__step-title {
+    margin: 0 0 6px;
+    font-size: 14px;
     font-weight: 600;
     color: #1f2329;
     line-height: 1.5;
-    letter-spacing: 0.2px;
-    text-align: center;
   }
 
-  &__hint {
-    margin: 6px 0 0;
-    font-size: 13px;
+  &__step-desc {
+    margin: 0;
+    font-size: 12px;
     color: #8a94a6;
     line-height: 1.6;
-    text-align: center;
   }
 
-  // 机构署名：比 hint 更弱，紧跟在「免费额度」之后，
-  // 用来交代这份额度是谁支持的
-  &__credit {
+  &__step-note {
     margin: 8px 0 0;
     font-size: 12px;
     color: #a8b0bd;
     line-height: 1.5;
-    text-align: center;
-    letter-spacing: 0.02em;
-  }
-
-  // 分隔线兼小标题：两侧渐隐细线，避免生硬的整条横线
-  &__divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    margin: 22px 0 14px;
-    font-size: 12px;
-    color: #a0aab8;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0),
-        rgba(0, 0, 0, 0.12),
-        rgba(0, 0, 0, 0)
-      );
-    }
   }
 
   &__field {
@@ -85,5 +100,51 @@
     font-size: 12px;
     color: #e34d59;
     line-height: 1.5;
+  }
+}
+
+// 页脚：左署名、右按钮。署名放这儿而不是正文末尾居中，是去传单感的关键一笔。
+// 注意类名不带 .admin-key-guidance 前缀层级 —— 页脚是 Dialog 的兄弟节点，不在正文内。
+.admin-key-guidance__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+
+  .admin-key-guidance__credit {
+    font-size: 12px;
+    color: #a8b0bd;
+    letter-spacing: 0.02em;
+  }
+
+  .admin-key-guidance__actions {
+    display: flex;
+    flex: none;
+    gap: 8px;
+  }
+
+  // ≤640px 时 Dialog 已是整屏（见 tdesign-theme.scss），左右并排会把输入框挤窄，
+  // 正文改上下堆叠，署名挪到按钮下面。
+  @media (max-width: 640px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+
+    .admin-key-guidance__credit {
+      text-align: center;
+    }
+
+    .admin-key-guidance__actions {
+      width: 100%; // 让 theme 里的 .t-button { flex: 1 } 有得可分配
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-key-guidance {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
   }
 }
