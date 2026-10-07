@@ -1,3 +1,17 @@
+## 1.1.32 (2026-10-07)
+
+### 🩹 Fixes
+
+- 生图结果自适应到整张可见、缩放下限放宽到 5%、输入栏补生成中状态行 ([7dcb1675](https://github.com/ljquan/opentu/commit/7dcb1675))
+
+### 🔧 Chores
+
+- bump version to 1.1.31 ([16423247](https://github.com/ljquan/opentu/commit/16423247))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.30 (2026-10-07)
 
 ### 🔧 Chores

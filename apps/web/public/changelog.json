@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.32",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "生图结果自适应到整张可见、缩放下限放宽到 5%、输入栏补生成中状态行"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "生图结果自适应到整张可见、缩放下限放宽到 5%、输入栏补生成中状态行"
+    },
+    {
       "version": "1.1.30",
       "date": "2026-10-07",
       "changes": {
@@ -945,23 +958,6 @@
       },
       "type": "major",
       "highlights": "统一图片尺寸计算机制，修复批量插入叠加问题"
-    },
-    {
-      "version": "0.9.11",
-      "date": "2026-05-23",
-      "changes": {
-        "features": [
-          "新增 omni-flash 视频模型支持"
-        ],
-        "fixes": [
-          "补修 MCP 路径 lockReferenceDimensions=true，更新完整审计文档",
-          "修复图片生成比例错误和 API 参数兼容性问题 | 修复 buildImageRequestBody 中 size 为比例格式时未转换像素尺寸(所有非1:1比例都生成1:1) | 移除 response_format url 参数(rix API 不支持) | 修复 lockReferenceDimensions 导致非正方形图片被压缩",
-          "修复 MJ 运行时模型参数与调度路由"
-        ],
-        "improvements": []
-      },
-      "type": "patch",
-      "highlights": "新增 omni-flash 视频模型支持"
     }
   ]
 }
