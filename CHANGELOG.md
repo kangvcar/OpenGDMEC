@@ -1,3 +1,13 @@
+## 1.1.24 (2026-10-07)
+
+### 🩹 Fixes
+
+- 恢复触屏画笔/形状的连续绘制 ([a900e259](https://github.com/ljquan/opentu/commit/a900e259))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.23 (2026-10-07)
 
 ### 🚀 Features

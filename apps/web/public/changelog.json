@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.24",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "恢复触屏画笔/形状的连续绘制"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "恢复触屏画笔/形状的连续绘制"
+    },
+    {
       "version": "1.1.23",
       "date": "2026-10-07",
       "changes": {
@@ -974,19 +987,6 @@
       },
       "type": "patch",
       "highlights": "修复蒙版画笔导出和预览样式问题"
-    },
-    {
-      "version": "0.9.4",
-      "date": "2026-05-06",
-      "changes": {
-        "features": [],
-        "fixes": [],
-        "improvements": [
-          "Stop idle-prefetch retries from blocking SW updates"
-        ]
-      },
-      "type": "patch",
-      "highlights": "构建修复与稳定性改进"
     }
   ]
 }
