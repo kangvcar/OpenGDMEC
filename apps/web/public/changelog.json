@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.33",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "画布平移范围放到 7 个屏、小地图对齐可见区、生成结果不再只看一半"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "画布平移范围放到 7 个屏、小地图对齐可见区、生成结果不再只看一半"
+    },
+    {
       "version": "1.1.32",
       "date": "2026-10-07",
       "changes": {
@@ -944,20 +957,6 @@
       },
       "type": "patch",
       "highlights": "reply to workflow image results"
-    },
-    {
-      "version": "1.0.0",
-      "date": "2026-05-26",
-      "changes": {
-        "features": [],
-        "fixes": [
-          "统一图片尺寸计算机制，修复批量插入叠加问题",
-          "修复图片尺寸相关问题（真实尺寸更新、批量插入叠加）"
-        ],
-        "improvements": []
-      },
-      "type": "major",
-      "highlights": "统一图片尺寸计算机制，修复批量插入叠加问题"
     }
   ]
 }

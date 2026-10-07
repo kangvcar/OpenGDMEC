@@ -1,3 +1,13 @@
+## 1.1.33 (2026-10-07)
+
+### 🩹 Fixes
+
+- 画布平移范围放到 7 个屏、小地图对齐可见区、生成结果不再只看一半 ([7fa58545](https://github.com/ljquan/opentu/commit/7fa58545))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.32 (2026-10-07)
 
 ### 🩹 Fixes
