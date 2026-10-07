@@ -5,6 +5,7 @@ import {
 } from './common';
 import MenuItemContent from './menu-item-content';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover/popover';
+import { useIsTouchDevice } from '../../hooks/useDeviceType';
 
 const MenuItem = ({
   icon,
@@ -28,7 +29,18 @@ const MenuItem = ({
   const closeTimeoutRef = useRef<number>();
   const { title, ...buttonProps } = rest;
   const ariaLabel = buttonProps['aria-label'] ?? title;
-  const handleClick = useHandleMenuItemClick(buttonProps.onClick, onSelect);
+  const isTouchDevice = useIsTouchDevice();
+  const handleClick = useHandleMenuItemClick(buttonProps.onClick, (event) => {
+    if (submenu && isTouchDevice) {
+      // 触屏没有 hover，click 是打开子菜单的唯一入口。但这一下点击若照常冒泡
+      // 「选中」事件，父菜单会立刻把整棵子树关掉 —— 子菜单一闪即散，
+      // 表现为「点了没反应」（桌面靠 hover 先一步打开，所以看不出来）。
+      event.preventDefault();
+      setIsOpen(true);
+      return;
+    }
+    onSelect(event);
+  });
   
   const menuItemContent = (
     <MenuItemContent icon={icon} shortcut={shortcut}>

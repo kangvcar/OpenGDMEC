@@ -21,6 +21,12 @@
       单指拖拽被判成滚动手势、中途抛 `pointercancel`，画笔"画一笔断一笔"、矩形画不出来。
       不能退回 2.1 的写法（会连 `click` 一起掐掉，见 5.12 第一条），改由 CSS 挡：
       `touch-action` 不继承，`html/body/#root` 上的 none 覆盖不到这个滚动容器，必须它自己声明
+- [x] 2.6 菜单里带子菜单的条目（「语言」「导出图片」）在触屏点不开
+      （`components/menu/menu-item.tsx`）
+      —— `MenuItem` 的子菜单只在 `onMouseEnter` 里开，触屏没有 hover 可依；
+      而这一下 `click` 照样把「选中」事件冒泡给父 `Menu`，父菜单立刻整棵关掉，
+      子菜单一闪即散。桌面靠 hover 先一步打开，所以一直没暴露。修法：触屏下这一下
+      点击只负责开自己的浮层，并 `preventDefault()` 掐掉冒泡给父菜单的选中事件
 
 ## 3. 面板与预览适配
 
@@ -83,6 +89,13 @@
       单指平移改由 2.5 的 `touch-action: none` 拦下（实测两指缩放 scale 保持 1、选择工具拖拽
       不再滚动画布 `dscrollLeft/dscrollTop` 均为 0）；
       `user-scalable=no` 与 `html/body/#root` 的 `touch-action: none` 未改
+- [x] 5.14 菜单子项（375×667 触屏）：展开工具栏 → `tap` 应用菜单 → `tap` 语言 →
+      子菜单出现「中文 / English」且**父菜单仍在**、子菜单 rect `[77, 383, 87, 90]` 在视口内 →
+      `tap` English → 重开菜单已是 `Language`（菜单按钮 aria-label 变 `App Menu`）；
+      `tap` 导出图片 → 子菜单换成「PNG / JPG」且语言子菜单随之收起（不重叠）；
+      `tap` 画布空白 → 全部关闭。桌面（1280×800）同一脚本结果一致，行为无变化
+- [x] 5.15 **反向验证 2.6**：改动前同一脚本（`tap` 语言）→ 子菜单条目 **0** 个、
+      父菜单已关（`langItemStillThere: false`）、语言未切换
 
 ## 6. 遗留（需真机补测）
 
