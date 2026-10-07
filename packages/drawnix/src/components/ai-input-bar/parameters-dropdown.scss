@@ -76,8 +76,11 @@ $text-dark: #1f2937;
     border: 1px solid var(--color-border, #e5e5e5);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    min-width: 200px;
-    max-width: 320px;
+    // 定宽卡片：不写宽度时，尺寸那一行 11 个 nowrap 选项的固有宽度会把菜单顶到
+    // 840px（占 1440 屏的 58%），而分辨率/画质两行只有 250px 内容，右边空一大片。
+    // 定宽后选项按 flex-wrap 折行。KeyboardDropdown 的内联 maxWidth 仍会在窄屏上封顶。
+    width: 460px;
+    max-width: 460px;
     overflow: hidden;
     animation: paramDropdownFadeIn 0.15s ease-out;
 

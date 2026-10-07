@@ -39,9 +39,10 @@ function mockRect(
 
 async function renderDropdown(
   rect: Pick<DOMRect, 'top' | 'left' | 'bottom' | 'width'>,
-  placement: DropdownPlacement = 'auto'
+  placement: DropdownPlacement = 'auto',
+  islandTop?: number
 ) {
-  const view = render(
+  const tree = (
     <KeyboardDropdown
       isOpen
       setIsOpen={vi.fn()}
@@ -61,7 +62,24 @@ async function renderDropdown(
       )}
     </KeyboardDropdown>
   );
+  const view = render(
+    islandTop === undefined ? (
+      tree
+    ) : (
+      <div className="ai-input-bar" data-testid="island">
+        {tree}
+      </div>
+    )
+  );
   mockRect(screen.getByTestId('container'), rect);
+  if (islandTop !== undefined) {
+    mockRect(screen.getByTestId('island'), {
+      top: islandTop,
+      left: 0,
+      bottom: islandTop + 60,
+      width: 720,
+    });
+  }
   await act(async () => {
     window.dispatchEvent(new Event('resize'));
   });
@@ -132,7 +150,10 @@ describe('KeyboardDropdown', () => {
     const menu = screen.getByTestId('menu');
 
     expect(menu.dataset.placement).toBe('down');
-    expect(menu.style.left).toBe('');
+    // left 必须显式写出来（auto）：只给 right 的话，调用方 CSS 里的 left: 0
+    // 会胜出，菜单被钉在屏幕左缘。jsdom 把 auto 归一成 0px，所以这里断言
+    // 「不是空串」—— 空串正好是让 CSS 生效的那种情况。
+    expect(menu.style.getPropertyValue('left')).not.toBe('');
     expect(menu.style.right).toBe('15px'); // 375 - (210 + 150)
     expect(menu.style.maxWidth).toBe('348px'); // (210 + 150) - 12
   });
@@ -146,5 +167,20 @@ describe('KeyboardDropdown', () => {
     expect(menu.style.left).toBe('16px');
     expect(menu.style.right).toBe('');
     expect(menu.style.maxWidth).toBe('347px'); // 375 - 16 - 12
+  });
+
+  it('触发器在输入岛内时按岛的顶边向上展开，不压住输入框', async () => {
+    await renderDropdown(
+      { top: 500, left: 210, bottom: 532, width: 150 },
+      'up',
+      440
+    );
+
+    const menu = screen.getByTestId('menu');
+
+    expect(menu.dataset.placement).toBe('up');
+    // 600 - 440 + 8（岛顶再往上 8）；贴触发器算会是 600 - 500 + 8 = 108
+    expect(menu.style.bottom).toBe('168px');
+    expect(menu.style.maxHeight).toBe('240px'); // 岛顶之上空间充足，取上限
   });
 });

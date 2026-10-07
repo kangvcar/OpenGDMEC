@@ -37,6 +37,10 @@ export interface KeyboardDropdownProps {
 }
 
 const INPUT_TEXTAREA_CLASS = 'ai-input-bar__input';
+// 浮层要盖在整块「输入岛」上方：触发它的只是岛内底部那行小按钮，
+// 贴着按钮向上展开会把上面的输入框压掉一半（岛顶到按钮顶有 ~40px）。
+// 触发器祖先里带这个类时，向上展开按岛的上边缘留间距。
+const INPUT_BAR_ISLAND_CLASS = 'ai-input-bar';
 const DEFAULT_OFFSET = 8;
 const DEFAULT_VIEWPORT_PADDING = 12;
 const DEFAULT_MIN_MENU_HEIGHT = 80;
@@ -160,7 +164,14 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
         width: rect.width,
         bottom: rect.bottom,
       };
-      const spaceAbove = Math.max(0, rect.top - viewportPadding - offset);
+      // 向上展开时的参考上边缘：默认是触发器本身，在输入岛里则抬到岛的顶边
+      const islandEl = containerRef.current.closest(
+        `.${INPUT_BAR_ISLAND_CLASS}`
+      );
+      const upTop = islandEl
+        ? islandEl.getBoundingClientRect().top
+        : rect.top;
+      const spaceAbove = Math.max(0, upTop - viewportPadding - offset);
       const spaceBelow = Math.max(
         0,
         window.innerHeight - rect.bottom - viewportPadding - offset
@@ -190,8 +201,10 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
       // 用 max-width 压住调用方设置的内联宽度（如模型菜单的 520/620）。
       const boundedMaxWidth = anchorRight ? spaceLeft : spaceRight;
       const horizontalAnchor: React.CSSProperties = anchorRight
-        ? // 不写 left（其初始值即 auto），让 right 单独决定水平位置
-          { right: window.innerWidth - rect.right }
+        ? // left 必须显式写 auto：调用方的 CSS（如 model-dropdown 的 --up/--down）
+          // 会给菜单写 left: 0，left 与 right 同时有值时 left 胜出，
+          // 菜单会被钉在屏幕左缘，与触发它的按钮脱节。
+          { right: window.innerWidth - rect.right, left: 'auto' }
         : { left: rect.left };
       const nextMenuStyle: React.CSSProperties =
         resolvedPlacement === 'down'
@@ -206,7 +219,7 @@ export const KeyboardDropdown: React.FC<KeyboardDropdownProps> = ({
           : {
               position: 'fixed',
               ...horizontalAnchor,
-              bottom: window.innerHeight - rect.top + offset,
+              bottom: window.innerHeight - upTop + offset,
               maxHeight: boundedMaxHeight,
               maxWidth: boundedMaxWidth,
               overflowY: 'auto',

@@ -247,7 +247,6 @@ $green-health: #10b981;
   // 下拉菜单
   &__menu {
     position: absolute;
-    min-width: 600px;
     max-height: 450px;
     background: #fff;
     border: 1px solid #e5e7eb;
@@ -267,6 +266,11 @@ $green-health: #10b981;
     &--down {
       top: calc(100% + 4px);
       left: 0;
+    }
+
+    // 表单变体的最小宽度（输入栏里的 minimal 变体改由内联宽度控制，见 ModelDropdown.tsx）
+    &--form {
+      min-width: 600px;
     }
   }
 

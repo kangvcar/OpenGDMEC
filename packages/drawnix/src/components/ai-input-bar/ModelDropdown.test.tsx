@@ -17,16 +17,12 @@ const {
   applySelectionMock,
   setErrorMock,
   getStateMock,
-  isTuziEmbeddedModeMock,
-  requestContextMock,
   saveActiveGroupMock,
 } = vi.hoisted(() => ({
   discoverMock: vi.fn(),
   applySelectionMock: vi.fn(),
   setErrorMock: vi.fn(),
   getStateMock: vi.fn(),
-  isTuziEmbeddedModeMock: vi.fn(),
-  requestContextMock: vi.fn(),
   saveActiveGroupMock: vi.fn(),
 }));
 
@@ -54,15 +50,6 @@ vi.mock('../../hooks/use-provider-profiles', () => ({
       enabled: true,
     },
   ],
-}));
-
-vi.mock('../../services/tuzi-embedded-config', () => ({
-  isTuziEmbeddedMode: isTuziEmbeddedModeMock,
-}));
-
-vi.mock('../../services/tuzi-postmessage-bridge', () => ({
-  TUZI_BRIDGE_EVENT: 'opentu:tuzi-bridge-status',
-  requestTuziParentContext: requestContextMock,
 }));
 
 vi.mock('../../services/tuzi-token-auth', () => ({
@@ -112,8 +99,6 @@ vi.mock('../shared/ModelBenchmarkBadge', () => ({
 
 describe('ModelDropdown', () => {
   beforeEach(() => {
-    isTuziEmbeddedModeMock.mockReturnValue(false);
-    requestContextMock.mockResolvedValue(null);
     discoverMock.mockResolvedValue([]);
     getStateMock.mockReturnValue({
       status: 'idle',
@@ -129,8 +114,6 @@ describe('ModelDropdown', () => {
     applySelectionMock.mockReset();
     setErrorMock.mockReset();
     getStateMock.mockReset();
-    isTuziEmbeddedModeMock.mockReset();
-    requestContextMock.mockReset();
     saveActiveGroupMock.mockReset();
     cleanup();
   });

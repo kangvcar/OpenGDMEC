@@ -74,11 +74,6 @@ import {
   type ProviderProfile,
 } from '../../utils/settings-manager';
 import { runtimeModelDiscovery } from '../../utils/runtime-model-discovery';
-import { isTuziEmbeddedMode } from '../../services/tuzi-embedded-config';
-import {
-  requestTuziParentContext,
-  TUZI_BRIDGE_EVENT,
-} from '../../services/tuzi-postmessage-bridge';
 import { getTuziSystemUserId } from '../../services/tuzi-token-auth';
 import { saveTuziActiveProviderGroup } from '../../services/tuzi-provider-selection';
 
@@ -301,7 +296,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   const [loadingProviderId, setLoadingProviderId] = useState<string | null>(
     null
   );
-  const [tuziMode, setTuziMode] = useState(() => isTuziEmbeddedMode());
   const loadingRequestRef = useRef(0);
   const {
     contextMenu,
@@ -315,29 +309,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   const effectiveProviderProfiles =
     providerProfilesOverride || providerProfiles;
 
-  useEffect(() => {
-    let active = true;
-    const syncTuziMode = (event: Event) => {
-      const mode = (event as CustomEvent<{ mode?: string }>).detail?.mode;
-      setTuziMode(
-        mode === 'tuzi'
-          ? true
-          : mode === 'standalone'
-          ? false
-          : isTuziEmbeddedMode()
-      );
-    };
-    window.addEventListener(TUZI_BRIDGE_EVENT, syncTuziMode);
-    if (window.parent !== window) {
-      void requestTuziParentContext().then((nextContext) => {
-        if (active) setTuziMode(Boolean(nextContext) || isTuziEmbeddedMode());
-      });
-    }
-    return () => {
-      active = false;
-      window.removeEventListener(TUZI_BRIDGE_EVENT, syncTuziMode);
-    };
-  }, []);
   const providerProfileMap = useMemo(
     () =>
       new Map(
@@ -1197,7 +1168,10 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
                             portalPosition.width,
                             providerGroups.length > 1 ? 620 : 520
                           )
-                        : 'auto',
+                        : // minimal（AI 输入栏）此前是 'auto'，按内容撑开：搜索框 +
+                          // 模型行的固有宽度会顶到 ~780px，是触发它的按钮的 7 倍宽。
+                          // 定宽后行内文字按 min-width:0 省略号收尾。
+                          560,
                     visibility:
                       portalPosition.width === 0 ? 'hidden' : 'visible',
                   }
