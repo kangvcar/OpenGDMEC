@@ -1,3 +1,13 @@
+## 1.1.34 (2026-10-07)
+
+### 🩹 Fixes
+
+- 云端同步里的 Opentu 标识改为 OpenGDMEC ([0be5e6d7](https://github.com/ljquan/opentu/commit/0be5e6d7))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.33 (2026-10-07)
 
 ### 🩹 Fixes
