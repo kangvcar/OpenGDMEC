@@ -78,7 +78,7 @@ describe('model-config image size options', () => {
       params
         .find((param) => param.id === 'resolution')
         ?.options?.map((option) => option.value)
-    ).toEqual(['1k']); // 发行档位只开放 1K
+    ).toEqual(['1k', '2k']); // 2026-10-07 起开放 2K
     expect(qualityParams).toHaveLength(1);
     expect(qualityParams[0]?.options?.map((option) => option.value)).toEqual([
       'auto',
@@ -97,12 +97,13 @@ describe('model-config image size options', () => {
         params
           .find((param) => param.id === 'resolution')
           ?.options?.map((option) => option.value)
-      ).toEqual(['auto', '1k']); // 2K/4K 已下架
+      ).toEqual(['auto', '1k', '2k']); // 2026-10-07 起开放 2K
       expect(
         params.find((param) => param.id === 'resolution')?.options
       ).toEqual([
         { value: 'auto', label: '自动' },
         { value: '1k', label: '1K' },
+        { value: '2k', label: '2K' },
       ]);
       expect(
         params
@@ -118,7 +119,7 @@ describe('model-config image size options', () => {
       params
         .find((param) => param.id === 'resolution')
         ?.options?.map((option) => option.value)
-    ).toEqual(['auto', '1k']); // 2K/4K 已下架
+    ).toEqual(['auto', '1k', '2k']); // 2026-10-07 起开放 2K
     expect(
       params
         .find((param) => param.id === 'quality')

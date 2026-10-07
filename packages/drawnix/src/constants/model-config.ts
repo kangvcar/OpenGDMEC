@@ -2886,15 +2886,19 @@ export const IMAGE_PARAMS: ParamConfig[] = [
     modelType: 'image',
   },
   // GPT Image 2 分辨率档位（由 adapter 结合宽高比映射为官方像素 size）
-  // 发行档位只开放 1K：2K/4K 又贵又容易失败（见 openspec add-gdmec-teacher-edition）。
+  // 2026-10-07 起开放 2K（管理员决定）：2K 走 GPT_IMAGE_2K_BILLING_SIZES 的计费封顶尺寸，
+  // 比 1K 贵、也更慢，默认值仍是 1K 不变。
   // 存量偏好不用另做迁移 —— sanitizeSelectedParams 会把不在 options 里的值降回 defaultValue。
   {
     id: 'resolution',
     label: '图片分辨率',
     shortLabel: '分辨率',
-    description: '1K 输出档位',
+    description: '1K / 2K 输出档位',
     valueType: 'enum',
-    options: [{ value: '1k', label: '1K' }],
+    options: [
+      { value: '1k', label: '1K' },
+      { value: '2k', label: '2K' },
+    ],
     defaultValue: '1k',
     compatibleModels: GPT_IMAGE_2_MODEL_IDS.filter(
       (modelId) => !GPT_IMAGE_25_EXTENDED_MODEL_IDS.includes(modelId)
@@ -2909,6 +2913,7 @@ export const IMAGE_PARAMS: ParamConfig[] = [
     options: [
       { value: 'auto', label: '自动' },
       { value: '1k', label: '1K' },
+      { value: '2k', label: '2K' },
     ],
     defaultValue: 'auto',
     compatibleModels: GPT_IMAGE_25_EXTENDED_MODEL_IDS,

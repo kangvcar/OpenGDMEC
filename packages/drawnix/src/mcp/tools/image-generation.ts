@@ -66,8 +66,8 @@ export interface ImageGenerationParams {
   prompt: string;
   /** 图片尺寸，格式如 '1x1', '16x9', '9x16' */
   size?: string;
-  /** 分辨率档位（用于 GPT Image / Gemini 等模型）；发行档位只开放 1K */
-  resolution?: '1k';
+  /** 分辨率档位（用于 GPT Image / Gemini 等模型） */
+  resolution?: '1k' | '2k';
   /** 参考图片 URL 列表 */
   referenceImages?: string[];
   /** 图片生成模式：文生图、图生图或编辑 */
@@ -372,8 +372,8 @@ export const imageGenerationTool: MCPTool = {
       },
       resolution: {
         type: 'string',
-        description: '分辨率档位（1K）',
-        enum: ['1k'],
+        description: '分辨率档位（1K / 2K）',
+        enum: ['1k', '2k'],
         default: '1k',
       },
       quality: {

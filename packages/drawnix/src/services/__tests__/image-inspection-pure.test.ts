@@ -229,7 +229,7 @@ describe('image-inspection-pure', () => {
       cases
         .filter((item) => item.requestedAspectRatio === '1x1')
         .map((item) => item.requestedResolution)
-    ).toEqual(['1k']); // 发行档位只开放 1K
+    ).toEqual(['1k']); // Gemini 的 quality 档位，本轮只开放 GPT 侧的 2K
     expect(cases[0]?.resolutionParamId).toBe('quality');
   });
 
