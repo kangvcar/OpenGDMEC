@@ -870,7 +870,11 @@ export async function executeCanvasInsertion(
               width: inserted.size.width,
               height: inserted.size.height,
             },
-            fallbackPoint: point,
+            // 兜底点是矩形中心，不是左上角：把左上角对到屏幕中心等于只显示右下半张
+            fallbackPoint: [
+              point[0] + inserted.size.width / 2,
+              point[1] + inserted.size.height / 2,
+            ],
           });
         }
       });

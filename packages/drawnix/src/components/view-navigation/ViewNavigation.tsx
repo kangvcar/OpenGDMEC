@@ -14,14 +14,14 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
 } from '@plait/core';
-import { MinusIcon, AddIcon, ChevronDownIcon } from 'tdesign-icons-react';
+import { MinusIcon, AddIcon, ChevronDownIcon, Fullscreen1Icon } from 'tdesign-icons-react';
 import { useBoard } from '@plait-board/react-board';
 import { Minimap } from '../minimap/Minimap';
 import { useChatDrawerControl } from '../../contexts/ChatDrawerContext';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover/popover';
 import { Z_INDEX } from '../../constants/z-index';
 import { useI18n } from '../../i18n';
-import { fitAllPPTFrames, fitFrame } from '../../utils/fit-frame';
+import { fitAllElementsInVisibleArea, fitAllPPTFrames, fitFrame } from '../../utils/fit-frame';
 import { HoverTip } from '../shared/hover';
 import { isFrameElement } from '../../types/frame.types';
 import { requestOpenPPTEditor } from '../../services/ppt/ppt-ui-events';
@@ -103,6 +103,18 @@ export const ViewNavigation: React.FC<ViewNavigationProps> = ({
   const handleZoom100 = useCallback(() => {
     BoardTransforms.updateZoom(board, 1);
     setZoomMenuOpen(false);
+  }, [board]);
+
+  /**
+   * 手机上的「适应」：把画布内容缩到实际可见区（扣掉工具栏/输入栏遮挡）。
+   *
+   * 手机上缩放条只在顶部露出一条，进不了百分比浮层，老师没有别的入口「回到看得全」。
+   * maxZoom 传 max(1, 当前 zoom)：最多只放到 100%，已经在 100% 以上时只缩不放。
+   */
+  const handleFitContent = useCallback(() => {
+    fitAllElementsInVisibleArea(board, {
+      maxZoom: Math.max(1, board.viewport.zoom),
+    });
   }, [board]);
 
   const openPPTEditorIfNoFrame = useCallback((): boolean => {
@@ -332,6 +344,19 @@ export const ViewNavigation: React.FC<ViewNavigationProps> = ({
             data-testid="zoom-in"
           >
             <AddIcon />
+          </button>
+        </HoverTip>
+
+        {/* 手机上才显示的「适应」：桌面在百分比浮层里已有 */}
+        <HoverTip content={t('zoom.fit')} showArrow={false}>
+          <button
+            className="view-navigation__zoom-btn view-navigation__zoom-fit"
+            onClick={handleFitContent}
+            aria-label={t('zoom.fit')}
+            data-track="view_nav_zoom_fit_mobile"
+            data-testid="zoom-fit"
+          >
+            <Fullscreen1Icon />
           </button>
         </HoverTip>
 

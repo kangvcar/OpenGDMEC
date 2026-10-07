@@ -6,10 +6,11 @@ import {
   RectangleClient,
   Point,
   BoardTransforms,
-  getViewportOrigination,
 } from '@plait/core';
 import { MindElement } from '@plait/mind';
 import { PlaitDrawElement } from '@plait/draw';
+import { getCurrentViewportOrigination } from '@plait-board/react-board';
+import { getViewportOcclusion } from './fit-frame';
 import { Node } from 'slate';
 import { Freehand, FreehandShape } from '../plugins/freehand/type';
 import { PenPath } from '../plugins/pen/type';
@@ -1563,6 +1564,12 @@ export const getSmartInsertionPoint = (
 
 /**
  * 检查一个点是否在当前视口内可见
+ *
+ * 「视口」= 老师真正看得见的那块：扣除左侧工具栏、右侧抽屉、顶部导航、底部 AI
+ * 输入栏。原来按整块画布容器判断，图片下半截压在输入栏后面时也判成「可见」，
+ * 于是 scrollToPointIfNeeded 不滚动，老师看到的就是「只显示一半」。
+ * origin 用滚动派生值（getViewportOrigination 在滚动被夹取时会过期）。
+ *
  * @param board - PlaitBoard 实例
  * @param point - 要检查的点坐标
  * @param margin - 边距，点距离视口边缘的最小距离（默认 50px）
@@ -1577,19 +1584,22 @@ export const isPointInViewport = (
     const boardContainer = PlaitBoard.getBoardContainer(board);
     const containerRect = boardContainer.getBoundingClientRect();
     const zoom = board.viewport.zoom;
-    const origination = getViewportOrigination(board);
+    const origination = getCurrentViewportOrigination(board);
+    const occlusion = getViewportOcclusion(containerRect.width);
 
     if (!origination) {
       return false;
     }
 
-    // 计算视口的画布坐标范围
-    const viewportLeft = origination[0] + margin / zoom;
-    const viewportTop = origination[1] + margin / zoom;
+    // 计算「实际可见区」的画布坐标范围
+    const viewportLeft = origination[0] + (occlusion.left + margin) / zoom;
+    const viewportTop = origination[1] + (occlusion.top + margin) / zoom;
     const viewportRight =
-      origination[0] + (containerRect.width - margin) / zoom;
+      origination[0] +
+      (containerRect.width - occlusion.right - margin) / zoom;
     const viewportBottom =
-      origination[1] + (containerRect.height - margin) / zoom;
+      origination[1] +
+      (containerRect.height - occlusion.bottom - margin) / zoom;
 
     // 检查点是否在视口范围内
     return (

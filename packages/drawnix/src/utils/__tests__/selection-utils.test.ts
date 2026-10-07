@@ -1,15 +1,18 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   extractImagesFromElementForAI,
   extractTextFromElement,
   getImageTransformPromptContext,
   isGraphicsElement,
+  isPointInViewport,
   processSelectedContentForAI,
 } from '../selection-utils';
 import { FreehandShape } from '../../plugins/freehand/type';
 
 const mocks = vi.hoisted(() => ({
   cacheMediaFromBlob: vi.fn(async (url: string) => url),
+  origination: [0, 0] as [number, number],
+  container: null as unknown as HTMLElement,
 }));
 
 vi.mock('../../services/unified-cache-service', () => ({
@@ -17,6 +20,22 @@ vi.mock('../../services/unified-cache-service', () => ({
     cacheMediaFromBlob: mocks.cacheMediaFromBlob,
     getImageForAI: vi.fn(),
   },
+}));
+
+// isPointInViewport 的视口范围来自这两处：容器（画布容器是整屏）+ 滚动派生的 origin
+vi.mock('@plait/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@plait/core')>();
+  return {
+    ...actual,
+    PlaitBoard: {
+      ...actual.PlaitBoard,
+      getBoardContainer: () => mocks.container,
+    },
+  };
+});
+
+vi.mock('@plait-board/react-board', () => ({
+  getCurrentViewportOrigination: () => mocks.origination,
 }));
 
 function createMockMaskCanvas() {
@@ -300,6 +319,59 @@ describe('selection-utils', () => {
       } as any);
 
       expect(context).toBeNull();
+    });
+  });
+
+  describe('isPointInViewport', () => {
+    const CONTAINER_WIDTH = 390;
+    const CONTAINER_HEIGHT = 844;
+    const INPUT_BAR_HEIGHT = 160;
+
+    function mockBoard(zoom = 1) {
+      return { viewport: { zoom } } as any;
+    }
+
+    function mountMobileViewport() {
+      const container = document.createElement('div');
+      container.getBoundingClientRect = () =>
+        ({ width: CONTAINER_WIDTH, height: CONTAINER_HEIGHT }) as DOMRect;
+      mocks.container = container;
+
+      const inputBar = document.createElement('div');
+      inputBar.className = 'ai-input-bar';
+      inputBar.getBoundingClientRect = () =>
+        ({ height: INPUT_BAR_HEIGHT }) as DOMRect;
+      document.body.appendChild(inputBar);
+
+      mocks.origination = [0, 0];
+    }
+
+    afterEach(() => {
+      document.body.innerHTML = '';
+      mocks.container = null as unknown as HTMLElement;
+    });
+
+    it('把压在输入栏后面的点判为不可见，好让插入流程去滚动', () => {
+      mountMobileViewport();
+
+      // 600px 的生成结果落在 y∈[500,780]：中心 640 在输入栏（y>634）背后。
+      // 改前按整块容器算（y≤794）判成「可见」→ 不滚动 → 只看到上半张
+      expect(isPointInViewport(mockBoard(), [200, 640])).toBe(false);
+    });
+
+    it('看得见的点仍然判为可见', () => {
+      mountMobileViewport();
+
+      expect(isPointInViewport(mockBoard(), [200, 300])).toBe(true);
+    });
+
+    it('origin 用滚动派生值：视口范围跟着 origin 平移', () => {
+      mountMobileViewport();
+
+      expect(isPointInViewport(mockBoard(), [500, 300])).toBe(false);
+
+      mocks.origination = [300, 0];
+      expect(isPointInViewport(mockBoard(), [500, 300])).toBe(true);
     });
   });
 });

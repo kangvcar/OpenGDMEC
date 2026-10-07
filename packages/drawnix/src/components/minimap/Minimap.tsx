@@ -10,7 +10,8 @@
  */
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { PlaitBoard, RectangleClient, BoardTransforms, getViewportOrigination } from '@plait/core';
+import { PlaitBoard, RectangleClient, BoardTransforms } from '@plait/core';
+import { getCurrentViewportOrigination } from '@plait-board/react-board';
 import {
   MinimapProps,
   MinimapConfig,
@@ -24,6 +25,11 @@ import { ChevronRightIcon } from 'tdesign-icons-react';
 import { Z_INDEX } from '../../constants/z-index';
 import { analytics } from '../../utils/umami-analytics';
 import { HoverTip } from '../shared/hover';
+import {
+  getCanvasPointerPoint,
+  getOriginationForVisibleCenter,
+  getVisibleViewportBox,
+} from './minimap-geometry';
 import './minimap.scss';
 
 type ViewportSnapshot = {
@@ -32,55 +38,8 @@ type ViewportSnapshot = {
   originY: number;
 };
 
-const parseViewBox = (viewBox: string | null) => {
-  if (!viewBox) {
-    return null;
-  }
-
-  const [x, y] = viewBox.trim().split(/[\s,]+/).map((value) => Number(value));
-  if (!Number.isFinite(x) || !Number.isFinite(y)) {
-    return null;
-  }
-
-  return { x, y };
-};
-
-const getViewportOriginFromScroll = (
-  board: PlaitBoard
-): [number, number] | null => {
-  const zoom = board.viewport.zoom;
-  if (!Number.isFinite(zoom) || zoom <= 0) {
-    return null;
-  }
-
-  try {
-    const viewportContainer = PlaitBoard.getViewportContainer(board);
-    const host = PlaitBoard.getHost(board);
-    const viewBox = parseViewBox(host.getAttribute('viewBox'));
-    if (!viewBox) {
-      return null;
-    }
-
-    return [
-      viewportContainer.scrollLeft / zoom + viewBox.x,
-      viewportContainer.scrollTop / zoom + viewBox.y,
-    ];
-  } catch {
-    return null;
-  }
-};
-
-const getViewportOrigin = (board: PlaitBoard): [number, number] => {
-  const originFromScroll = getViewportOriginFromScroll(board);
-  if (originFromScroll) {
-    return originFromScroll;
-  }
-
-  return getViewportOrigination(board) || board.viewport.origination || [0, 0];
-};
-
 const getViewportSnapshot = (board: PlaitBoard): ViewportSnapshot => {
-  const [originX, originY] = getViewportOrigin(board);
+  const [originX, originY] = getCurrentViewportOrigination(board);
   return {
     zoom: board.viewport.zoom,
     originX,
@@ -122,12 +81,8 @@ export const Minimap: React.FC<MinimapProps> = ({
   }));
 
   // 拖拽状态
-  const dragStateRef = useRef<{
-    isDragging: boolean;
-    startPoint: [number, number] | null;
-  }>({
+  const dragStateRef = useRef<{ isDragging: boolean }>({
     isDragging: false,
-    startPoint: null,
   });
 
   // Hover 预览状态
@@ -184,19 +139,12 @@ export const Minimap: React.FC<MinimapProps> = ({
 
   /**
    * 获取当前视口边界（在画布坐标系中）
+   *
+   * 按「实际可见区」算：手机上底部有 AI 输入栏、左侧有工具栏，画布容器是整屏，
+   * 按整屏画出来的框会比老师看到的区域大一截，看着就是「小地图对不上」。
    */
   const getViewportBounds = useCallback((): RectangleClient => {
-    const boardContainer = PlaitBoard.getBoardContainer(board);
-    const containerRect = boardContainer.getBoundingClientRect();
-    const zoom = board.viewport.zoom;
-    const origination = getViewportOrigin(board);
-
-    const x = origination[0];
-    const y = origination[1];
-    const width = containerRect.width / zoom;
-    const height = containerRect.height / zoom;
-
-    return { x, y, width, height };
+    return getVisibleViewportBox(board, getCurrentViewportOrigination(board));
   }, [board]);
 
   // 用 ref 追踪展开状态，避免 useEffect 循环依赖
@@ -503,6 +451,18 @@ export const Minimap: React.FC<MinimapProps> = ({
     drawGrid,
   ]);
 
+  const moveViewportToCenter = useCallback((canvasX: number, canvasY: number) => {
+    // 对准「实际可见区」中心，不是整块容器中心：手机上底部输入栏会盖掉约 160px，
+    // 按容器中心跳过去目标就藏在输入栏背后了
+    BoardTransforms.updateViewport(
+      board,
+      getOriginationForVisibleCenter(board, canvasX, canvasY),
+      board.viewport.zoom
+    );
+
+    requestAnimationFrame(() => render());
+  }, [board, render]);
+
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -510,9 +470,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     const canvas = canvasRef.current;
     if (!canvas || !contentBoundsRef.current) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const minimapX = e.clientX - rect.left;
-    const minimapY = e.clientY - rect.top;
+    const [minimapX, minimapY] = getCanvasPointerPoint(canvas, e.clientX, e.clientY);
 
     // 埋点：小地图导航点击
     analytics.track('minimap_navigate', {
@@ -529,26 +487,12 @@ export const Minimap: React.FC<MinimapProps> = ({
 
     dragStateRef.current = {
       isDragging: true,
-      startPoint: [minimapX, minimapY],
     };
 
     setState((prev) => ({ ...prev, dragging: true }));
 
     moveViewportToCenter(canvasX, canvasY);
-  }, [minimapToCanvasCoords, board]);
-
-  const moveViewportToCenter = useCallback((canvasX: number, canvasY: number) => {
-    const boardContainer = PlaitBoard.getBoardContainer(board);
-    const containerRect = boardContainer.getBoundingClientRect();
-    const zoom = board.viewport.zoom;
-
-    const newOriginationX = canvasX - containerRect.width / (2 * zoom);
-    const newOriginationY = canvasY - containerRect.height / (2 * zoom);
-
-    BoardTransforms.updateViewport(board, [newOriginationX, newOriginationY], zoom);
-
-    requestAnimationFrame(() => render());
-  }, [board, render]);
+  }, [minimapToCanvasCoords, moveViewportToCenter]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!dragStateRef.current.isDragging || !contentBoundsRef.current) return;
@@ -559,9 +503,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const minimapX = e.clientX - rect.left;
-    const minimapY = e.clientY - rect.top;
+    const [minimapX, minimapY] = getCanvasPointerPoint(canvas, e.clientX, e.clientY);
 
     const [canvasX, canvasY] = minimapToCanvasCoords(
       minimapX,
@@ -584,7 +526,6 @@ export const Minimap: React.FC<MinimapProps> = ({
 
     dragStateRef.current = {
       isDragging: false,
-      startPoint: null,
     };
     setState((prev) => ({ ...prev, dragging: false }));
   }, [displayMode]);
@@ -716,9 +657,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const minimapX = e.clientX - rect.left;
-    const minimapY = e.clientY - rect.top;
+    const [minimapX, minimapY] = getCanvasPointerPoint(canvas, e.clientX, e.clientY);
 
     const pos = { x: minimapX, y: minimapY };
     setHoverPosition(pos);
@@ -745,9 +684,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     if (!canvas) return;
 
     const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const minimapX = touch.clientX - rect.left;
-    const minimapY = touch.clientY - rect.top;
+    const [minimapX, minimapY] = getCanvasPointerPoint(canvas, touch.clientX, touch.clientY);
 
     const pos = { x: minimapX, y: minimapY };
     setHoverPosition(pos);
@@ -770,9 +707,7 @@ export const Minimap: React.FC<MinimapProps> = ({
     if (!canvas) return;
 
     const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const minimapX = touch.clientX - rect.left;
-    const minimapY = touch.clientY - rect.top;
+    const [minimapX, minimapY] = getCanvasPointerPoint(canvas, touch.clientX, touch.clientY);
 
     const pos = { x: minimapX, y: minimapY };
     setHoverPosition(pos);

@@ -20,3 +20,12 @@ index e8b6b0fa0d93e3fe9bb9452fea94c91b7364860a..e00c9cca9f20d6b00af35a0b937b1539
  const MAX_ZOOM = 4;
  
  const HOST_CLASS_NAME = 'plait-board-container';
+@@ -2292,7 +2292,7 @@
+     return [x, y];
+ }
+ 
+-const VIEWPORT_PADDING_RATIO = 0.75;
++const VIEWPORT_PADDING_RATIO = 4;
+ const IS_FROM_SCROLLING = new WeakMap();
+ const IS_FROM_VIEWPORT_CHANGE = new WeakMap();
+ function getViewportContainerRect(board) {

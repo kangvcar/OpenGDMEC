@@ -9,6 +9,7 @@ import {
   BoardTransforms,
   RectangleClient,
   MIN_ZOOM,
+  getRectangleByElements,
   getSelectedElements,
 } from '@plait/core';
 import { isFrameElement, type PlaitFrame } from '../types/frame.types';
@@ -86,6 +87,39 @@ function getToolbarOcclusion(totalWidth: number): {
   };
 }
 
+/** 视口四周被浮层挡住的像素（CSS px，相对画布容器左上角） */
+export interface ViewportOcclusion {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+/**
+ * 「实际可见区」相对画布容器被吃掉多少。
+ *
+ * 画布容器是整屏（手机 390×844），但老师真正看得见的只有浮层没盖住的那块：
+ * 左侧工具栏、右侧聊天抽屉、顶部导航、底部 AI 输入栏。自适应、小地图视口框、
+ * 「某点是否可见」的判断都得以这块区域为准，否则内容会被停在浮层后面。
+ */
+export function getViewportOcclusion(totalWidth: number): ViewportOcclusion {
+  const toolbarOcclusion = getToolbarOcclusion(totalWidth);
+  const chatDrawerEl = document.querySelector(
+    '.chat-drawer--open'
+  ) as HTMLElement | null;
+
+  return {
+    left: toolbarOcclusion.left,
+    right: Math.max(
+      toolbarOcclusion.right,
+      chatDrawerEl ? chatDrawerEl.offsetWidth : 0
+    ),
+    // ponytail: 顶部导航高 50 是估值，手机上主因是底部输入栏；出现新的顶部浮层再实测
+    top: TOP_BAR_HEIGHT,
+    bottom: getBottomOcclusion(),
+  };
+}
+
 /**
  * 把视口对准一个世界坐标矩形：缩放到它刚好完整可见，并居中到「实际可见区域」
  * （已扣除工具栏/抽屉/输入栏遮挡）。
@@ -108,25 +142,12 @@ export function fitRectInViewport(
   const totalWidth = container.clientWidth;
   const totalHeight = container.clientHeight;
 
-  // 工具栏/抽屉遮挡：工具栏拖到右侧后，抽屉会改为向左展开
-  const toolbarOcclusion = getToolbarOcclusion(totalWidth);
-  const leftOccluded = toolbarOcclusion.left;
-
-  // 右侧遮挡：ChatDrawer（如果打开）
-  const chatDrawerEl = document.querySelector(
-    '.chat-drawer--open'
-  ) as HTMLElement | null;
-  const rightOccluded = Math.max(
-    toolbarOcclusion.right,
-    chatDrawerEl ? chatDrawerEl.offsetWidth : 0
-  );
-
-  const bottomOccluded = getBottomOcclusion();
+  const occlusion = getViewportOcclusion(totalWidth);
 
   const availableWidth =
-    totalWidth - leftOccluded - rightOccluded - FIT_PADDING * 2;
+    totalWidth - occlusion.left - occlusion.right - FIT_PADDING * 2;
   const availableHeight =
-    totalHeight - TOP_BAR_HEIGHT - bottomOccluded - FIT_PADDING * 2;
+    totalHeight - occlusion.top - occlusion.bottom - FIT_PADDING * 2;
 
   if (availableWidth <= 0 || availableHeight <= 0) return false;
 
@@ -139,8 +160,8 @@ export function fitRectInViewport(
     MIN_ZOOM
   );
 
-  const visibleCenterX = leftOccluded + FIT_PADDING + availableWidth / 2;
-  const visibleCenterY = TOP_BAR_HEIGHT + FIT_PADDING + availableHeight / 2;
+  const visibleCenterX = occlusion.left + FIT_PADDING + availableWidth / 2;
+  const visibleCenterY = occlusion.top + FIT_PADDING + availableHeight / 2;
   const targetCenterX = targetRect.x + targetRect.width / 2;
   const targetCenterY = targetRect.y + targetRect.height / 2;
   const origination: [number, number] = [
@@ -150,6 +171,24 @@ export function fitRectInViewport(
 
   BoardTransforms.updateViewport(board, origination, zoom);
   return true;
+}
+
+/**
+ * 「适应屏幕」：把画布上所有内容缩到实际可见区里。
+ *
+ * 只有内容比可见区大时才缩小（maxZoom 传当前 zoom），不会把一张小图放大到糊 ——
+ * 和 Plait 自带 fitViewport 的手感一致，但会扣掉浮层遮挡。
+ *
+ * @returns 是否成功应用（画布为空时返回 false）
+ */
+export function fitAllElementsInVisibleArea(
+  board: PlaitBoard,
+  options: { maxZoom?: number } = {}
+): boolean {
+  const bounds = getRectangleByElements(board, board.children, true);
+  if (!bounds) return false;
+
+  return fitRectInViewport(board, bounds, options);
 }
 
 function getAllFrameBounds(board: PlaitBoard): RectangleClient | null {

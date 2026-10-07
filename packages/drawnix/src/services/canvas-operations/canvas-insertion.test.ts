@@ -587,7 +587,8 @@ describe('canvas insertion service metadata binding', () => {
       ],
     });
 
-    expect(mocks.scrollToPointIfNeeded).toHaveBeenCalled();
+    // 兜底点必须是矩形中心：把左上角 [0,0] 对到屏幕中心，老师看到的只有右下半张
+    expect(mocks.scrollToPointIfNeeded).toHaveBeenCalledWith(board, [1024, 1024]);
   });
 
   it('does not promote an ordinary video prompt unless generation is explicit', async () => {

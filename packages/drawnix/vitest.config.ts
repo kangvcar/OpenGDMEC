@@ -12,6 +12,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // 与 tsconfig.base.json 的 paths 对齐（应用侧由 nxViteTsPaths 提供）：
+      // 否则单测里任何 import '@plait-board/react-board' 的模块都解析不了
+      '@plait-board/react-board': path.resolve(
+        __dirname,
+        '../react-board/src/index.ts'
+      ),
       react: path.resolve(__dirname, '../../node_modules/react'),
       'react-dom': path.resolve(__dirname, '../../node_modules/react-dom'),
       'react/jsx-runtime': path.resolve(

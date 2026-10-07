@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@plait/core':
-    hash: 0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe
+    hash: d07382e21285f0783c86da0ad4eb2df4aed7c04ff961ba68534364945f6e0620
     path: patches/@plait__core.patch
 
 importers:
@@ -48,7 +48,7 @@ importers:
         version: 0.84.0
       '@plait/core':
         specifier: ^0.84.0
-        version: 0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
+        version: 0.84.0(patch_hash=d07382e21285f0783c86da0ad4eb2df4aed7c04ff961ba68534364945f6e0620)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
       '@plait/draw':
         specifier: ^0.84.0
         version: 0.84.0
@@ -458,7 +458,7 @@ importers:
         version: 0.84.0
       '@plait/core':
         specifier: ^0.84.0
-        version: 0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
+        version: 0.84.0(patch_hash=d07382e21285f0783c86da0ad4eb2df4aed7c04ff961ba68534364945f6e0620)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
       '@plait/draw':
         specifier: ^0.84.0
         version: 0.84.0
@@ -11655,7 +11655,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@plait/core@0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)':
+  '@plait/core@0.84.0(patch_hash=d07382e21285f0783c86da0ad4eb2df4aed7c04ff961ba68534364945f6e0620)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)':
     dependencies:
       immer: 10.2.0
       is-hotkey: 0.2.0
