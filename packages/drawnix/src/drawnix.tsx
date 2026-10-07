@@ -214,6 +214,11 @@ const TOOL_WINDOW_GROUPS: IdlePrefetchGroup[] = [
   'runtime-static-assets',
 ];
 
+// 浮动文本输入框的字号与行高。必须与画布文本（.plait-text-container，14px / 1.4）一致：
+// 差一点，"打字时看到的"就和"提交后画布上的"不是同一个位置、同一套折行。
+const INLINE_TEXT_FONT_SIZE = 14;
+const INLINE_TEXT_LINE_HEIGHT = 1.4;
+
 const DrawnixDeferredFeatures = lazy(() =>
   import('./components/startup/DrawnixDeferredFeatures').then((module) => ({
     default: module.DrawnixDeferredFeatures,
@@ -1143,6 +1148,9 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
     worldPoint: Point;
     zoom: number;
   } | null>(null);
+  // 输入框向上抬起的量：软键盘弹出后可见区变矮，输入框若照直往下长，最后一行会被
+  // 键盘吃掉（手机上「前面的字看得见、最后打的那个字看不见」就是这么来的）。
+  const [inlineTextShiftY, setInlineTextShiftY] = useState(0);
   const inlineTextRef = useRef<HTMLDivElement>(null);
 
   // 媒体预览状态
@@ -1478,14 +1486,50 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
     closePicker: closeAutoCompletePicker,
   } = useAutoCompleteShapePicker(board);
 
+  // 浮动文本输入：把输入框拉回可见区
+  // 软键盘弹出后可见区只剩一半上下，输入框按点击点向下生长，行数一多最后一行就落到
+  // 键盘后面（手机上「前面的字看得见、最后打的字看不见」）。这里按可见高度把整框上抬。
+  const keepInlineTextVisible = useCallback(() => {
+    const el = inlineTextRef.current;
+    const baseTop = inlineTextInput?.screenY;
+    if (!el || baseTop === undefined) {
+      return;
+    }
+    const visibleBottom =
+      (window.visualViewport?.height ?? window.innerHeight) - 8;
+    const overflow = el.getBoundingClientRect().bottom - visibleBottom;
+    if (Math.abs(overflow) < 1) {
+      return;
+    }
+    // 上抬无上限（保证末行可见），下移不超过原位；同时不许顶出屏幕顶部
+    setInlineTextShiftY((prev) =>
+      Math.min(0, Math.max(8 - baseTop, prev - overflow))
+    );
+  }, [inlineTextInput]);
+
   // 浮动文本输入：自动聚焦
   // 用 useLayoutEffect 而非 useEffect：焦点必须落在触发它的那次点击的事件任务内提交，
   // 移动浏览器才认这是用户手势并唤起软键盘；延到 useEffect 已经是下一次任务，iOS 会静默不弹键盘。
   useLayoutEffect(() => {
     if (inlineTextInput && inlineTextRef.current) {
       inlineTextRef.current.focus();
+      keepInlineTextVisible();
     }
-  }, [inlineTextInput]);
+  }, [inlineTextInput, keepInlineTextVisible]);
+
+  // 浮动文本输入：软键盘起落会改可见区高度，跟随调整，别让输入框留在键盘后面
+  useEffect(() => {
+    if (!inlineTextInput) {
+      return;
+    }
+    const viewport = window.visualViewport;
+    if (!viewport) {
+      return;
+    }
+    const handleResize = () => keepInlineTextVisible();
+    viewport.addEventListener('resize', handleResize);
+    return () => viewport.removeEventListener('resize', handleResize);
+  }, [inlineTextInput, keepInlineTextVisible]);
 
   // 浮动文本输入：提交文本到画布
   const commitInlineText = useCallback(() => {
@@ -1495,6 +1539,21 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
     }
     const text = inlineTextRef.current.innerText || '';
     if (text.trim()) {
+      // 输入框与画布文本共用同一套字号/行高/左右内缩（见下方浮动输入框样式），
+      // 所以这个框本身就是要提交的文本矩形 —— 连同屏幕宽度挤出来的折行。
+      // Plait 只会按单行测宽，窄屏上一折行，提交出来就是一条长线，尾巴甩到屏幕外，
+      // 这就是手机上「看不见最后一个字」的直接原因。
+      const inputRect = inlineTextRef.current.getBoundingClientRect();
+      const zoom = inlineTextInput.zoom || 1;
+      // 输入框里真正渲染出的行数（含被屏幕宽度挤出来的折行）。按行盒高度算，
+      // 比数 Range 的 rect 可靠 —— 换行符会多算出一行。
+      const renderedLines = Math.max(
+        1,
+        Math.round(
+          (inputRect.height - 1) /
+            (INLINE_TEXT_FONT_SIZE * INLINE_TEXT_LINE_HEIGHT * zoom)
+        )
+      );
       DrawTransforms.insertText(board, inlineTextInput.worldPoint, text);
       const insertedTextElement = board.children[board.children.length - 1];
       const insertedTextElementId =
@@ -1502,7 +1561,7 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
           ? insertedTextElement.id
           : null;
 
-      // 修正可能的 Infinity 高度问题
+      // 修正可能的 Infinity 高度问题，并把矩形对齐成输入框里的实际排版
       requestAnimationFrame(() => {
         if (!insertedTextElementId) {
           return;
@@ -1516,11 +1575,36 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
         const textElement = board.children[textElementIndex];
         if (PlaitDrawElement.isText(textElement)) {
           const textEl = textElement as any;
+          const rect = RectangleClient.getRectangleByPoints(textEl.points);
+          const nextProperties: Record<string, unknown> = {};
           if (!isFinite(textEl.textHeight)) {
-            const rect = RectangleClient.getRectangleByPoints(textEl.points);
-            Transforms.setNode(board, { textHeight: rect.height }, [
-              textElementIndex,
-            ]);
+            nextProperties.textHeight = rect.height;
+          }
+          // Plait 自己的每行高度（14 → 20、18 → 25、其余 1.5 倍）由它估出来的高度反推，
+          // 不写死字号表；行数取「显式换行数」与「实际渲染行数」的较小者 ——
+          // innerText 在块级换行处偶尔会多带一个换行符，用大了会把框算矮、末行又被剪掉。
+          const plaitLineHeight =
+            rect.height /
+            Math.max(1, Math.min(text.split('\n').length, renderedLines));
+          const targetWidth = inputRect.width / zoom;
+          const targetHeight = renderedLines * plaitLineHeight;
+          // 差异小于 1 就当估算与排版一致，不写回 —— 免得平白多一步 undo
+          if (
+            Math.abs(targetWidth - rect.width) > 1 ||
+            Math.abs(targetHeight - rect.height) > 1
+          ) {
+            nextProperties.points = [
+              [rect.x, rect.y],
+              [rect.x + targetWidth, rect.y + targetHeight],
+            ];
+            nextProperties.textHeight = targetHeight;
+            // 必须关掉 autoSize：它开着时 Plait 会按单行重新测量并把 geometry 覆写回去，
+            // 折行会被 foreignObject 的 overflow: hidden 剪掉（这正是 Plait 给
+            // 手动拖大过的文本框关掉 autoSize 的原因）。
+            nextProperties.autoSize = false;
+          }
+          if (Object.keys(nextProperties).length) {
+            Transforms.setNode(board, nextProperties, [textElementIndex]);
           }
         }
       });
@@ -1683,6 +1767,7 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
           target.closest('foreignObject');
         if (!isInsideInteractive) {
           if (!hitElement) {
+            setInlineTextShiftY(0);
             setInlineTextInput({
               screenX: event.clientX,
               screenY: event.clientY,
@@ -1850,7 +1935,9 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
               style={{
                 position: 'fixed',
                 left: inlineTextInput.screenX,
-                top: inlineTextInput.screenY - (14 * inlineTextInput.zoom) / 2,
+                // 与 insert 出来的文本元素同一个左上角（不再上抬半行），
+                // 提交前后字形才停在原地，不会跳。
+                top: inlineTextInput.screenY + inlineTextShiftY,
                 // 光标宽度（约 1em）而不是 2px：触屏上没有 hover 提示，
                 // 一块看不见的输入区会让"点一下"看起来毫无反应。
                 minWidth: '1em',
@@ -1861,14 +1948,19 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
                 // 不加 placeholder —— 它会混进 innerText 一起被提交到画布。
                 background: 'rgba(243, 156, 18, 0.08)',
                 borderBottom: '1px solid rgba(243, 156, 18, 0.6)',
-                fontSize: `${14 * inlineTextInput.zoom}px`,
-                lineHeight: '1.5',
+                fontSize: `${INLINE_TEXT_FONT_SIZE * inlineTextInput.zoom}px`,
+                // 行高与左右内缩都照抄画布文本：.plait-text-container 的 line-height
+                // 是 1.4，Plait 又在矩形里留了 ShapeDefaultSpace.rectangleAndText=4 的内缩。
+                // 这三项对齐了，"打字时看到的"和"提交后画布上的"才是同一个位置。
+                lineHeight: INLINE_TEXT_LINE_HEIGHT,
+                padding: `0 ${4 * inlineTextInput.zoom}px`,
                 color: '#333',
                 caretColor: '#333',
                 zIndex: 10000,
                 whiteSpace: 'pre-wrap',
                 fontFamily: 'inherit',
               }}
+              onInput={keepInlineTextVisible}
               onBlur={commitInlineText}
               onKeyDown={(e) => {
                 if (e.key === 'Escape') {
