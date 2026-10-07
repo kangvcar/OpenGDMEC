@@ -45,7 +45,10 @@ import {
 } from 'tdesign-react';
 import { useConfirmDialog } from '../dialog/ConfirmDialog';
 import { ImageUploadIcon, MediaLibraryIcon } from '../icons';
-import { useBoard } from '@plait-board/react-board';
+import {
+  getCurrentViewportOrigination,
+  useBoard,
+} from '@plait-board/react-board';
 import { SelectedContentPreview } from '../shared/SelectedContentPreview';
 import { PromptOptimizeButton } from '../shared/PromptOptimizeButton';
 import { KnowledgeNoteContextSelector } from '../shared/KnowledgeNoteContextSelector';
@@ -71,7 +74,10 @@ import {
   extractTextFromElement,
   processSelectedContentForAI,
 } from '../../utils/selection-utils';
-import { fitRectInViewport } from '../../utils/fit-frame';
+import {
+  getVisibleAreaCenter,
+  revealRectInViewport,
+} from '../../utils/fit-frame';
 import { useTextSelection } from '../../hooks/useTextSelection';
 import {
   useChatDrawerControl,
@@ -5605,19 +5611,21 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
             const WORKZONE_HEIGHT = 240;
             const GAP = 50;
 
-            const containerRect = board.host?.getBoundingClientRect();
             const zoom = board.viewport?.zoom || 1;
-            const originX = board.viewport?.origination?.[0] || 0;
-            const originY = board.viewport?.origination?.[1] || 0;
 
             const allElements = board.children.filter(
               (el: { type?: string }) => el.type !== 'workzone'
             );
 
-            const viewportCenterX =
-              originX + (containerRect?.width || 0) / 2 / zoom;
-            const viewportCenterY =
-              originY + (containerRect?.height || 0) / 2 / zoom;
+            // 生成内容落在「实际可见区」的中心（已扣掉工具栏与输入栏）。原来用的是
+            // board.host（Plait 没挂这个字段，运行时 undefined）和 board.viewport
+            // .origination（新建画布上是空的），算出来是视口左上角再往左偏 200px，
+            // 内容直接被放到屏幕外，只靠后面那次自适应捞回来。原点取滚动派生值：
+            // 视口被夹取时 board.viewport.origination 也不等于实际可见位置。
+            const [viewportCenterX, viewportCenterY] = getVisibleAreaCenter(
+              board,
+              getCurrentViewportOrigination(board)
+            );
 
             let expectedInsertLeftX: number = viewportCenterX - 200;
             let expectedInsertY: number = viewportCenterY;
@@ -5866,8 +5874,9 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
                   );
                   // 用「适应」而不是只平移：进度是画在这个锚点上的，只平移的话
                   // 窄屏上它还可能是缩到 10% 的一个小点，老师看不到「在跑」。
-                  // maxZoom 1 —— 只负责看得见，不放大。
-                  fitRectInViewport(board, anchorRect, { maxZoom: 1 });
+                  // maxZoom 1 —— 只负责看得见，不放大。自适应跑不了时会退化成
+                  // 平移居中，不能什么都不做把卡片留在屏幕外。
+                  revealRectInViewport(board, anchorRect, { maxZoom: 1 });
                 }, 100);
               }
             } else {
@@ -5887,7 +5896,7 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
               setTimeout(() => {
                 // 同上：工作区（含整条工作流进度）也要「适应」到可见，
                 // 而不是只把中心点平移过来
-                fitRectInViewport(
+                revealRectInViewport(
                   board,
                   {
                     x: workzoneX,

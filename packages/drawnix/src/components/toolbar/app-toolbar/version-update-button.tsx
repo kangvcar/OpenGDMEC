@@ -17,6 +17,14 @@ const getBuildId = (version: string) => version.split('+')[1] || null;
 
 interface VersionUpdateButtonProps {
   embedded?: boolean;
+  /**
+   * `collapsed` 是移动端收起态工具栏里那排圆按钮的样式。
+   *
+   * 收起态是老师手机上的默认状态（unified-toolbar 里 `useState(true)`），而固定顶部
+   * 那个 section 在收起态是 `display: none` —— 只放在工具栏里的话，手机上没有任何
+   * 可见入口提示「有新版本」，老师就一直跑在旧版本上（已修的问题被反复反馈）。
+   */
+  variant?: 'toolbar' | 'collapsed';
 }
 
 /**
@@ -28,6 +36,7 @@ interface VersionUpdateButtonProps {
  */
 export const VersionUpdateButton: React.FC<VersionUpdateButtonProps> = ({
   embedded,
+  variant = 'toolbar',
 }) => {
   const { t } = useI18n();
   const { activeTasks } = useTaskQueue();
@@ -73,33 +82,45 @@ export const VersionUpdateButton: React.FC<VersionUpdateButtonProps> = ({
 
   const displayVersion = formatVersion(pendingUpdate.version);
   const buildId = getBuildId(pendingUpdate.version);
+  const updateLabel = t('versionUpdate.tooltip').replace(
+    '{version}',
+    displayVersion
+  );
 
   return (
     <>
       {/* TDesign 的 Badge 在无 count 时一律隐藏，dot 模式也必须给 count */}
-      <Badge dot count={1} offset={[6, -6]}>
-        <ToolButton
-          type="icon"
-          icon={<RefreshCw size={18} />}
-          visible={true}
-          selected={dialogVisible}
-          aria-label={t('versionUpdate.tooltip').replace(
-            '{version}',
-            displayVersion
-          )}
-          tooltip={t('versionUpdate.tooltip').replace(
-            '{version}',
-            displayVersion
-          )}
-          tooltipPlacement={embedded ? 'right' : 'bottom'}
-          data-track="toolbar_click_version_update"
-          data-testid="toolbar-version-update"
-          onPointerDown={(e) => {
-            e.event.stopPropagation();
-          }}
+      {variant === 'collapsed' ? (
+        <button
+          className="unified-toolbar__collapsed-btn"
+          aria-label={updateLabel}
+          data-track="toolbar_click_version_update_collapsed"
+          data-testid="toolbar-version-update-collapsed"
           onClick={() => setDialogVisible(true)}
-        />
-      </Badge>
+        >
+          <Badge dot count={1} offset={[4, -4]}>
+            <RefreshCw size={22} />
+          </Badge>
+        </button>
+      ) : (
+        <Badge dot count={1} offset={[6, -6]}>
+          <ToolButton
+            type="icon"
+            icon={<RefreshCw size={18} />}
+            visible={true}
+            selected={dialogVisible}
+            aria-label={updateLabel}
+            tooltip={updateLabel}
+            tooltipPlacement={embedded ? 'right' : 'bottom'}
+            data-track="toolbar_click_version_update"
+            data-testid="toolbar-version-update"
+            onPointerDown={(e) => {
+              e.event.stopPropagation();
+            }}
+            onClick={() => setDialogVisible(true)}
+          />
+        </Badge>
+      )}
 
       {dialogVisible && (
         <Dialog

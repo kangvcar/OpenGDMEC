@@ -11,6 +11,7 @@ import { ATTACHED_ELEMENT_CLASS_NAME } from '@plait/core';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { LogoWecomIcon } from 'tdesign-icons-react';
 import { AppToolbar } from './app-toolbar/app-toolbar';
+import { VersionUpdateButton } from './app-toolbar/version-update-button';
 import { CreationToolbar } from './creation-toolbar';
 import { UnifiedToolbarProps } from './toolbar.types';
 import { Island } from '../island';
@@ -521,6 +522,11 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
               >
                 <LogoWecomIcon />
               </button>
+              {/* 新版本入口。收起态是手机上的默认状态，而常规的
+                  unified-toolbar__section 在收起态是 display:none —— 只放在
+                  工具栏里就等于老师手机上没有任何更新提示，会一直跑旧版本
+                  （已修的问题被反复反馈）。和上面企业微信同理。 */}
+              <VersionUpdateButton variant="collapsed" />
             </div>
           )}
 

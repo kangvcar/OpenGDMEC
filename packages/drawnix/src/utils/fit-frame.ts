@@ -12,6 +12,7 @@ import {
   getRectangleByElements,
   getSelectedElements,
 } from '@plait/core';
+import type { Point } from '@plait/core';
 import { isFrameElement, type PlaitFrame } from '../types/frame.types';
 
 /** 工具栏右边界兜底值：默认贴边 + 58px 工具栏 */
@@ -121,6 +122,33 @@ export function getViewportOcclusion(totalWidth: number): ViewportOcclusion {
 }
 
 /**
+ * 实际可见区（扣掉工具栏/输入栏/抽屉）的世界坐标中心。
+ *
+ * 生成锚点、进度卡片、工作区这些「就放在当前视野里」的内容用它定位。原来
+ * AIInputBar 里算这个中心用的是 `board.host?.getBoundingClientRect()` 和
+ * `board.viewport.origination`：前者 Plait 没挂在 board 上（运行时 undefined，
+ * 容器宽按 0 算），后者新建画布上根本没有（按 0 算），于是中心点退化成视口
+ * 左上角再往左偏 200px —— 卡片和落图都会被放到屏幕外，只靠后面那次自适应
+ * 捞回来。这里改成「调用方给原点 + 扣遮挡」，和 fitRectInViewport 同一套口径。
+ *
+ * @param origin 视口左上角对应的世界坐标（画布层用
+ *               `getCurrentViewportOrigination(board)` 取滚动派生值）
+ */
+export function getVisibleAreaCenter(board: PlaitBoard, origin: Point): Point {
+  const container = PlaitBoard.getBoardContainer(board);
+  const occlusion = getViewportOcclusion(container.clientWidth);
+  const zoom = board.viewport?.zoom || 1;
+  const visibleWidth = container.clientWidth - occlusion.left - occlusion.right;
+  const visibleHeight =
+    container.clientHeight - occlusion.top - occlusion.bottom;
+
+  return [
+    origin[0] + (occlusion.left + visibleWidth / 2) / zoom,
+    origin[1] + (occlusion.top + visibleHeight / 2) / zoom,
+  ];
+}
+
+/**
  * 把视口对准一个世界坐标矩形：缩放到它刚好完整可见，并居中到「实际可见区域」
  * （已扣除工具栏/抽屉/输入栏遮挡）。
  *
@@ -171,6 +199,43 @@ export function fitRectInViewport(
 
   BoardTransforms.updateViewport(board, origination, zoom);
   return true;
+}
+
+/**
+ * 让一个世界坐标矩形「尽力」出现在实际可见区，生成进度卡片/落图这类
+ * 「一定要看到」的内容走这里。
+ *
+ * 自适应成功就结束；失败就退回「平移居中」（保持当前缩放）——自适应在
+ * 容器还没量到尺寸、遮挡把可见区算成 0 时返回 false，调用方要是只看
+ * 返回值什么都不做，内容就停在屏幕外了，手机窄屏上尤其明显。
+ *
+ * @returns 是否用自适应完成的（false 表示走了平移兜底）
+ */
+export function revealRectInViewport(
+  board: PlaitBoard,
+  rect: RectangleClient,
+  options: { maxZoom?: number; fallbackPoint?: Point } = {}
+): boolean {
+  if (fitRectInViewport(board, rect, { maxZoom: options.maxZoom })) {
+    return true;
+  }
+
+  const fallbackPoint: Point = options.fallbackPoint ?? [
+    rect.x + rect.width / 2,
+    rect.y + rect.height / 2,
+  ];
+  const container = PlaitBoard.getBoardContainer(board);
+  const zoom = board.viewport?.zoom || 1;
+
+  BoardTransforms.updateViewport(
+    board,
+    [
+      fallbackPoint[0] - container.clientWidth / 2 / zoom,
+      fallbackPoint[1] - container.clientHeight / 2 / zoom,
+    ],
+    zoom
+  );
+  return false;
 }
 
 /**

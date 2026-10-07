@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PlaitBoard } from '@plait/core';
 import { MIN_ZOOM, MAX_ZOOM } from '@plait/core';
-import { fitRectInViewport } from '../fit-frame';
+import {
+  fitRectInViewport,
+  getVisibleAreaCenter,
+  revealRectInViewport,
+} from '../fit-frame';
 
 const mocks = vi.hoisted(() => ({
   updateViewport: vi.fn(),
@@ -9,6 +13,8 @@ const mocks = vi.hoisted(() => ({
 
 const CONTAINER_WIDTH = 390;
 const CONTAINER_HEIGHT = 844;
+/** 视口左上角对应的世界坐标（画布层用 getCurrentViewportOrigination 取） */
+const VIEWPORT_ORIGIN: [number, number] = [100, 200];
 
 vi.mock('@plait/core', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@plait/core')>();
@@ -118,5 +124,71 @@ describe('fitRectInViewport', () => {
     expect(zoom).toBe(MIN_ZOOM);
     expect(MIN_ZOOM).toBeLessThan(0.1);
     expect(MAX_ZOOM).toBeGreaterThan(1);
+  });
+});
+
+describe('getVisibleAreaCenter', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    document.body.innerHTML = '';
+  });
+
+  it('centers on the area left of the toolbar and above the input bar', () => {
+    mountInputBar(160);
+
+    // 390 宽：左侧让开 58 工具栏；844 高：上面让开 50、下面让开 160 输入栏
+    expect(getVisibleAreaCenter(board, VIEWPORT_ORIGIN)).toEqual([
+      VIEWPORT_ORIGIN[0] + 58 + (390 - 58) / 2,
+      VIEWPORT_ORIGIN[1] + 50 + (844 - 50 - 160) / 2,
+    ]);
+  });
+
+  it('uses the 80px input-bar fallback and zoom 1 when neither is measurable', () => {
+    expect(getVisibleAreaCenter(board, VIEWPORT_ORIGIN)).toEqual([
+      VIEWPORT_ORIGIN[0] + 58 + (390 - 58) / 2,
+      VIEWPORT_ORIGIN[1] + 50 + (844 - 50 - 80) / 2,
+    ]);
+  });
+});
+
+describe('revealRectInViewport', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    document.body.innerHTML = '';
+  });
+
+  it('fits the rect when it can', () => {
+    mountInputBar(160);
+
+    const fitted = revealRectInViewport(
+      board,
+      { x: 0, y: 0, width: 2048, height: 2048 },
+      { maxZoom: 1 }
+    );
+
+    expect(fitted).toBe(true);
+    expect(toScreen(0, 0).zoom).toBeLessThanOrEqual(1);
+  });
+
+  it('pans to the rect center when the fit is impossible', () => {
+    mountInputBar(160);
+    const zoomedBoard = {
+      children: [],
+      viewport: { zoom: 0.5 },
+    } as unknown as PlaitBoard;
+
+    const fitted = revealRectInViewport(
+      zoomedBoard,
+      { x: 1000, y: 2000, width: 0, height: 100 },
+      { maxZoom: 1 }
+    );
+
+    expect(fitted).toBe(false);
+    // 退化矩形（宽 0）自适应不了，退回平移：中心点对到容器中心，缩放不变
+    expect(mocks.updateViewport).toHaveBeenCalledWith(
+      zoomedBoard,
+      [1000 - CONTAINER_WIDTH / 2 / 0.5, 2050 - CONTAINER_HEIGHT / 2 / 0.5],
+      0.5
+    );
   });
 });
