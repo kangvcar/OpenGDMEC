@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.27",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [
+          "浮动文本输入所见即所得，跨平台对齐提交结果"
+        ],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "浮动文本输入所见即所得，跨平台对齐提交结果"
+    },
+    {
       "version": "1.1.26",
       "date": "2026-10-07",
       "changes": {
@@ -972,21 +985,6 @@
       },
       "type": "patch",
       "highlights": "添加批量插入功能"
-    },
-    {
-      "version": "0.9.7",
-      "date": "2026-05-09",
-      "changes": {
-        "features": [],
-        "fixes": [
-          "修复批量导入图片弹窗显示异常"
-        ],
-        "improvements": [
-          "更新版本号至0.9.6并同步构建时间"
-        ]
-      },
-      "type": "patch",
-      "highlights": "修复批量导入图片弹窗显示异常"
     }
   ]
 }

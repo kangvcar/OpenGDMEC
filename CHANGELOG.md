@@ -1,3 +1,13 @@
+## 1.1.27 (2026-10-07)
+
+### 🩹 Fixes
+
+- 浮动文本输入所见即所得，跨平台对齐提交结果 ([8ffa0d94](https://github.com/ljquan/opentu/commit/8ffa0d94))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.26 (2026-10-07)
 
 ### 🩹 Fixes
