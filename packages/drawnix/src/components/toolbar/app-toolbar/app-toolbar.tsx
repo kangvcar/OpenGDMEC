@@ -12,13 +12,13 @@ import {
   OpenFile,
   SaveAsImage,
   SaveToFile,
-  Settings,
   BackupRestore,
   CloudSync,
   QuickCommands,
   CleanInvalidLinks,
 } from './app-menu-items';
 import { LanguageSwitcherMenu } from './language-switcher-menu';
+import { MenuVersionRow } from './menu-version-row';
 import { VersionUpdateButton } from './version-update-button';
 import Menu from '../../menu/menu';
 import MenuSeparator from '../../menu/menu-separator';
@@ -26,6 +26,7 @@ import { useI18n } from '../../../i18n';
 import { Z_INDEX } from '../../../constants/z-index';
 import { ToolbarSectionProps } from '../toolbar.types';
 import { useToolbarConfig } from '../../../hooks/use-toolbar-config';
+import { useDrawnix } from '../../../hooks/use-drawnix';
 import { ToolbarContextMenu } from '../toolbar-context-menu';
 
 export interface AppToolbarProps extends ToolbarSectionProps {
@@ -42,6 +43,7 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
 }) => {
   const board = useBoard();
   const { t } = useI18n();
+  const { setAppState } = useDrawnix();
   const { isButtonVisible, visibleButtons } = useToolbarConfig();
   const container = PlaitBoard.getBoardContainer(board);
   const [appMenuOpen, setAppMenuOpen] = useState(false);
@@ -113,9 +115,15 @@ export const AppToolbar: React.FC<AppToolbarProps> = ({
                 onOpenCloudSync?.();
               }}
             />
-            <Settings />
             <MenuSeparator />
             <QuickCommands />
+            <MenuSeparator />
+            <MenuVersionRow
+              onTrigger={() => {
+                setAppMenuOpen(false);
+                setAppState((prev) => ({ ...prev, openSettings: true }));
+              }}
+            />
           </Menu>
         </PopoverContent>
       </Popover>

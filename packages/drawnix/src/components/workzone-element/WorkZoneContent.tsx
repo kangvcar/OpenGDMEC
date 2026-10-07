@@ -461,7 +461,9 @@ export const WorkZoneContent: React.FC<WorkZoneContentProps> = ({
       <ConfirmDialog
         open={showHideConfirm}
         title="隐藏进度卡片"
-        description="确定不再显示进度卡片？\n\n任务仍会在后台执行，可在设置中恢复显示。"
+        // 教师发行版没有设置面板入口，这句「可在设置中恢复」已经兑现不了，
+        // 不再显示就是不再显示（决定见 update-teacher-settings-exposure）
+        description="确定不再显示进度卡片？\n\n任务仍会在后台执行。"
         confirmText="确定"
         cancelText="取消"
         onOpenChange={setShowHideConfirm}

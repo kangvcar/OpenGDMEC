@@ -19,7 +19,6 @@ import React, {
   useEffect,
   useMemo,
   useSyncExternalStore,
-  useId,
 } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { copyToClipboard } from '../../utils/runtime-helpers';
@@ -47,7 +46,6 @@ import { ATTACHED_ELEMENT_CLASS_NAME } from '@plait/core';
 import { Z_INDEX } from '../../constants/z-index';
 import { useControllableState } from '../../hooks/useControllableState';
 import { useProviderProfiles } from '../../hooks/use-provider-profiles';
-import { useDrawnix } from '../../hooks/use-drawnix';
 import {
   ModelVendorMark,
   getDiscoveryVendorLabel,
@@ -71,16 +69,11 @@ import {
 } from '../../utils/model-grouping';
 import { compareModelsByDisplayPriority } from '../../utils/model-sort';
 import {
-  LEGACY_DEFAULT_PROVIDER_PROFILE_ID,
   createModelRef,
   type ModelRef,
   type ProviderProfile,
 } from '../../utils/settings-manager';
 import { runtimeModelDiscovery } from '../../utils/runtime-model-discovery';
-import {
-  queueProviderSettingsNavigation,
-  TUZI_GROUPS_ADDED_EVENT,
-} from '../settings-dialog/provider-settings-navigation';
 import { isTuziEmbeddedMode } from '../../services/tuzi-embedded-config';
 import {
   requestTuziParentContext,
@@ -268,8 +261,6 @@ export interface ModelDropdownProps {
   onOpenChange?: (open: boolean) => void;
   /** 覆盖默认的供应商列表（用于设置页草稿态） */
   providerProfilesOverride?: ProviderProfile[];
-  /** 是否显示供应商管理入口 */
-  showProviderAction?: boolean;
 }
 
 /**
@@ -292,9 +283,7 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   isOpen: controlledIsOpen,
   onOpenChange,
   providerProfilesOverride,
-  showProviderAction = true,
 }) => {
-  const { setAppState } = useDrawnix();
   useSyncExternalStore(subscribeToModelDiscovery, getModelDiscoveryRevision);
   const { value: isOpen, setValue: setIsOpen } = useControllableState({
     controlledValue: controlledIsOpen,
@@ -303,15 +292,9 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
   });
 
   const [searchQuery, setSearchQuery] = useState('');
-  const navigationId = useId();
-  useEffect(() => {
-    const resume = (event: Event) => {
-      if ((event as CustomEvent).detail?.returnTo === navigationId)
-        setIsOpen(true);
-    };
-    window.addEventListener(TUZI_GROUPS_ADDED_EVENT, resume);
-    return () => window.removeEventListener(TUZI_GROUPS_ADDED_EVENT, resume);
-  }, [navigationId, setIsOpen]);
+  // 这里原本监听 TUZI_GROUPS_ADDED_EVENT，等设置面板加完 Tuzi 令牌后把下拉重新打开。
+  // 触发它的「添加 Tuzi 令牌」按钮已随供应商管理入口一起摘除（教师发行版不再从模型
+  // 下拉进设置），没有任何地方会带 returnTo 派发这个事件，监听器是死的，删除。
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [activeProviderId, setActiveProviderId] = useState<string | null>(null);
   const [activeVendor, setActiveVendor] = useState<string | null>(null);
@@ -699,23 +682,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
     },
     [openContextMenuAt]
   );
-
-  const handleOpenProviderSettings = useCallback(async () => {
-    let openTuziGroups = tuziMode;
-    if (!openTuziGroups && window.parent !== window) {
-      openTuziGroups = Boolean(await requestTuziParentContext());
-    }
-    queueProviderSettingsNavigation(
-      openTuziGroups
-        ? { action: 'tuzi-groups', returnTo: navigationId }
-        : {
-            action: 'select',
-            profileId: LEGACY_DEFAULT_PROVIDER_PROFILE_ID,
-          }
-    );
-    setIsOpen(false);
-    setAppState((prev) => ({ ...prev, openSettings: true }));
-  }, [setAppState, setIsOpen, tuziMode, navigationId]);
 
   // 当过滤结果变化时，高亮选中模型或重置到第一项
   useEffect(() => {
@@ -1291,35 +1257,6 @@ export const ModelDropdown: React.FC<ModelDropdownProps> = ({
               onMiddleTabChange={handleVendorChange}
               searchQuery={searchQuery}
               compact
-              tabsFooter={
-                showProviderAction ? (
-                  <button
-                    type="button"
-                    className="model-dropdown__provider-action"
-                    onClick={handleOpenProviderSettings}
-                    aria-label={
-                      tuziMode
-                        ? language === 'zh'
-                          ? '添加 Tuzi 令牌'
-                          : 'Add group'
-                        : language === 'zh'
-                        ? '新增供应商或打开供应商设置'
-                        : 'Add provider or open provider settings'
-                    }
-                  >
-                    <Plus size={16} />
-                    <span>
-                      {tuziMode
-                        ? language === 'zh'
-                          ? '添加 Tuzi 令牌'
-                          : 'Add group'
-                        : language === 'zh'
-                        ? '新增供应商'
-                        : 'Add provider'}
-                    </span>
-                  </button>
-                ) : null
-              }
             >
               <div className="model-dropdown__list-pane">
                 <div

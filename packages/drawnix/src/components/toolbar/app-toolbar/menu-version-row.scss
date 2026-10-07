@@ -1,0 +1,12 @@
+.menu-version-row {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0.625rem 2px;
+  // 比菜单项（--color-gray-90）弱一档，读起来像页脚元信息而不是可点条目
+  color: var(--color-gray-50, #999);
+  font-size: 0.75rem;
+  // 连点 5 次是隐藏手势，别让它被双击选中变蓝
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}

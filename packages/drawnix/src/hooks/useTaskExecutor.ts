@@ -172,11 +172,11 @@ function getFriendlyErrorMessage(error: any): string {
   }
 
   if (credentialErrorKind === 'invalid') {
-    return 'API Key 无效或已过期，请重新配置';
+    return 'API Key 无效或已过期，请找管理员换一把新的';
   }
 
   if (credentialErrorKind === 'missing') {
-    return '缺少 API Key，请先在设置中配置';
+    return '缺少 API Key，请点工具栏的企业微信图标领取';
   }
 
   // 认证错误

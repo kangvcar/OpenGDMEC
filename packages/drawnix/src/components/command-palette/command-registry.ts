@@ -372,14 +372,9 @@ export function buildDefaultCommands(
     },
   ];
 
+  // 教师发行版没有「打开设置」命令：老师不该碰设置面板，
+  // 面板本身仍在（管理员用菜单版本行的连点手势打开）。
   const settingsCommands: CommandItem[] = [
-    {
-      id: 'settings-open',
-      label: isZh ? '打开设置' : 'Open Settings',
-      keywords: ['settings', 'config', 'preference', '设置', '配置'],
-      category: 'settings',
-      perform: () => updateAppState({ openSettings: true }),
-    },
     {
       id: 'settings-clean',
       label: isZh ? '清除画布' : 'Clear Canvas',

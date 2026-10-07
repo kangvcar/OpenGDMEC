@@ -37,8 +37,7 @@ export const DOC_CATEGORIES: DocCategory[] = [
   { id: 'mindmap', name: '思维导图', order: 4, description: '创建和编辑思维导图' },
   { id: 'media-library', name: '素材库', order: 5, description: '管理和使用素材' },
   { id: 'project', name: '项目管理', order: 6, description: '管理画板和项目' },
-  { id: 'settings', name: '设置', order: 7, description: '配置应用设置' },
-  { id: 'advanced', name: '高级功能', order: 8, description: '高级功能和技巧' },
+  { id: 'advanced', name: '高级功能', order: 7, description: '高级功能和技巧' },
 ];
 
 /**

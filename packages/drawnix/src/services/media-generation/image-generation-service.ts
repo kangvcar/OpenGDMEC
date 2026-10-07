@@ -119,7 +119,7 @@ export async function generateImage(
   if (
     !hasInvocationRouteCredentials('image', options.modelRef || options.model)
   ) {
-    throw new Error('未配置 API Key，请在设置中配置');
+    throw new Error('未配置 API Key，请点工具栏的企业微信图标领取');
   }
 
   // 创建任务记录

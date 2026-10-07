@@ -109,6 +109,7 @@ import {
   ApiAuthErrorDetail,
   classifyApiCredentialError,
 } from './utils/api-auth-error-event';
+import { requestAdminApiKey } from './utils/admin-key-guidance-event';
 import { MessagePlugin } from './utils/message-plugin';
 import { calculateEditedImagePoints } from './utils/image';
 import { isCardElement } from './types/card.types';
@@ -750,7 +751,10 @@ export const Drawnix: React.FC<DrawnixProps> = ({
 
   useTuziAccountOnboarding(setAppState);
 
-  // 监听 API 认证错误事件，自动打开设置对话框
+  // 监听 API 认证错误事件，把老师引到「填写 API Key」引导弹窗
+  //
+  // 教师发行版不再打开设置面板（老师侧没有它的入口了）：这里弹的是同一个
+  // admin-key-guidance 弹窗 —— 提交时把新 Key 写进 gemini 设置，老师换一把就行。
   useEffect(() => {
     const handleApiAuthError = (event: Event) => {
       const customEvent = event as CustomEvent<ApiAuthErrorDetail>;
@@ -761,15 +765,14 @@ export const Drawnix: React.FC<DrawnixProps> = ({
       MessagePlugin.error({
         content:
           credentialReason === 'missing'
-            ? '缺少 API Key，请先在设置中配置'
-            : 'API Key 无效或已过期，请重新配置',
+            ? '缺少 API Key，点工具栏的企业微信图标领取'
+            : 'API Key 无效或已过期，请找管理员换一把新的',
         duration: 5000,
       });
 
       console.error('[Drawnix] API auth error:', message);
 
-      // 打开设置对话框
-      setAppState((prev) => ({ ...prev, openSettings: true }));
+      void requestAdminApiKey();
     };
 
     window.addEventListener(API_AUTH_ERROR_EVENT, handleApiAuthError);

@@ -10,7 +10,10 @@
  * 未配 Key 的状态只由输入栏的一行提示表达，需要时才点开这里。
  *
  * 为什么保留就地粘贴：让不熟悉后台的老师去「设置 → 供应商」里找输入框，
- * 反而比在这里直接粘贴更容易卡住。设置页仍然是正规入口，二者写入同一份配置。
+ * 反而比在这里直接粘贴更容易卡住。这里写的就是同一份配置（geminiSettings）。
+ *
+ * 教师侧这是唯一能写 API Key 的地方 —— 设置面板对老师没有入口了，
+ * 管理员需要时用菜单底部版本行连点 5 次打开（见 toolbar/app-toolbar/menu-version-row.tsx）。
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';

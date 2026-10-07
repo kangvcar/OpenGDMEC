@@ -4493,7 +4493,6 @@ export const SettingsDialog = ({
                 placement="down"
                 placeholder={`搜索${ROUTE_LABELS[routeType]}模型或供应商`}
                 allowCustomValue={false}
-                showProviderAction={false}
                 onSelect={(modelId, modelRef) => {
                   handleRouteModelChange(
                     routeType,

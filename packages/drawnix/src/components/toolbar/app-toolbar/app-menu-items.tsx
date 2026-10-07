@@ -1,6 +1,5 @@
 import {
   ExportImageIcon,
-  SettingsIcon,
   OpenFileIcon,
   SaveFileIcon,
   TrashIcon,
@@ -35,8 +34,6 @@ import { useContext, useState, useCallback } from 'react';
 import { Workflow as WorkflowIcon } from 'lucide-react';
 import { MenuContentPropsContext } from '../../menu/common';
 import { EVENT } from '../../../constants';
-import { queueProviderSettingsNavigation } from '../../settings-dialog/provider-settings-navigation';
-import { LEGACY_DEFAULT_PROVIDER_PROFILE_ID } from '../../../utils/settings-manager';
 
 export const SaveToFile = () => {
   const board = useBoard();
@@ -234,27 +231,10 @@ export const WorkflowModeMenuItem = ({
 };
 WorkflowModeMenuItem.displayName = 'WorkflowModeMenuItem';
 
-export const Settings = () => {
-  const { setAppState } = useDrawnix();
-  const { t } = useI18n();
-  return (
-    <MenuItem
-      icon={<SettingsIcon />}
-      data-track="toolbar_click_menu_settings"
-      onSelect={() => {
-        queueProviderSettingsNavigation({
-          action: 'select',
-          profileId: LEGACY_DEFAULT_PROVIDER_PROFILE_ID,
-        });
-        setAppState((prev) => ({ ...prev, openSettings: true }));
-      }}
-      aria-label={t('menu.settings')}
-    >
-      {t('menu.settings')}
-    </MenuItem>
-  );
-};
-Settings.displayName = 'Settings';
+// 教师发行版：菜单里不再有「设置」入口。
+// 老师侧的 Key 由管理员发放、默认模型写死在前端，设置面板对他们只剩下
+// 改坏配置的可能；面板实现与窗口渲染都保留（drawnix.tsx 两处挂载），
+// 管理员需要时用菜单底部版本行的连点手势打开，见 menu-version-row.tsx。
 
 export const QuickCommands = () => {
   const { appState, setAppState } = useDrawnix();

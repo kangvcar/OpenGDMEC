@@ -7,7 +7,7 @@
  *
  * - React：components/admin-contact/admin-key-guidance.tsx（引导弹窗）
  *          components/feedback-button/feedback-button.tsx（反馈 Popover）
- *          components/toolbar/app-toolbar/app-menu-items.tsx（版本行）
+ *          components/canvas-watermark/CanvasWatermark.tsx（画布水印）
  * - 静态 HTML：apps/web/index.html（启动屏 .app-boot-credit）
  *              apps/web/public/versions.html（页脚）
  */

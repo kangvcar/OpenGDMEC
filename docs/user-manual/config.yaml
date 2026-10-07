@@ -29,9 +29,6 @@ categories:
   project:
     name: 项目管理
     order: 7
-  settings:
-    name: 设置
-    order: 8
 
 # 截图目录配置
 screenshots:
