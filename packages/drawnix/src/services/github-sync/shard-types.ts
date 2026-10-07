@@ -37,10 +37,13 @@ export const SHARD_FILES = {
   SHARD_MANIFEST: 'shard-manifest.json',
 } as const;
 
-/** Gist 描述前缀 */
+/**
+ * Gist 描述前缀（仅用于新建/重命名分片时写描述，分片定位一律按 master-index.json
+ * 里记的 gistId，所以这里改品牌不影响存量分片的查找）
+ */
 export const GIST_DESCRIPTION_PREFIX = {
-  MASTER: 'Opentu - 数据同步',
-  SHARD: 'Opentu - Media Shard',
+  MASTER: 'OpenGDMEC - 数据同步',
+  SHARD: 'OpenGDMEC - Media Shard',
 } as const;
 
 // ====================================

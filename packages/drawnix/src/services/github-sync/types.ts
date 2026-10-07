@@ -883,8 +883,22 @@ export const DEFAULT_SYNC_CONFIG: SyncConfig = {
 /** 同步版本号 */
 export const SYNC_VERSION = 1;
 
-/** Gist 描述 */
-export const GIST_DESCRIPTION = 'Opentu - 数据同步';
+/** Gist 描述（新建同步 Gist 时写入） */
+export const GIST_DESCRIPTION = 'OpenGDMEC - 数据同步';
+
+/**
+ * 能认作同步 Gist 的描述白名单。
+ * 'Opentu - 数据同步' 是改品牌前的旧值：存量老师的云端数据还挂着它，
+ * 只认新值会把这些 Gist 判为「不存在」并另建一份，等于孤立旧数据。
+ */
+const SYNC_GIST_DESCRIPTIONS = [GIST_DESCRIPTION, 'Opentu - 数据同步'];
+
+/** 判断 Gist 描述是否为同步数据（新旧品牌都认） */
+export function isSyncGistDescription(
+  description: string | null | undefined
+): boolean {
+  return !!description && SYNC_GIST_DESCRIPTIONS.includes(description);
+}
 
 /** 文件名常量 */
 export const SYNC_FILES = {

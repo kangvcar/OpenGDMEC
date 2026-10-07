@@ -7,6 +7,7 @@ import { tokenService } from './token-service';
 import {
   GITHUB_API_BASE,
   GIST_DESCRIPTION,
+  isSyncGistDescription,
   GistResponse,
   CreateGistRequest,
   UpdateGistRequest,
@@ -189,8 +190,7 @@ class GitHubApiService {
       // 退化：查找包含 manifest.json 的旧 Gist
       const syncGist = gists.find(gist => {
         const hasManifest = SYNC_FILES.MANIFEST in gist.files;
-        const matchDescription = gist.description === GIST_DESCRIPTION;
-        return hasManifest || matchDescription;
+        return hasManifest || isSyncGistDescription(gist.description);
       });
 
       if (syncGist) {
@@ -218,8 +218,11 @@ class GitHubApiService {
       return gists.filter(gist => {
         const hasMasterIndex = SHARD_FILES.MASTER_INDEX in gist.files;
         const hasManifest = SYNC_FILES.MANIFEST in gist.files;
-        const matchDescription = gist.description === GIST_DESCRIPTION;
-        return hasMasterIndex || hasManifest || matchDescription;
+        return (
+          hasMasterIndex ||
+          hasManifest ||
+          isSyncGistDescription(gist.description)
+        );
       });
     } catch (error) {
       logError('列出同步 Gist 失败', error instanceof Error ? error : new Error(String(error)));
