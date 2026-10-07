@@ -1,3 +1,13 @@
+## 1.1.28 (2026-10-07)
+
+### 🚀 Features
+
+- 图片分辨率开放 2K 档位 ([efd226d3](https://github.com/ljquan/opentu/commit/efd226d3))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.27 (2026-10-07)
 
 ### 🩹 Fixes
