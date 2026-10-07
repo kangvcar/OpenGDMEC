@@ -22,6 +22,14 @@
         // 空画布也有约 2 倍视口的可滚动区（Plait 最小 viewBox）；隐藏原生条，平移靠滚轮/手掌工具。
         scrollbar-width: none;
         -ms-overflow-style: none;
+        // 关掉浏览器对这个滚动容器的单指平移。它是 overflow: auto 的真实滚动容器，
+        // 若放任浏览器接管，单指拖拽会被判成滚动手势并抛出 pointercancel，
+        // 画笔/形状这类"按下-拖拽-抬起"的连续绘制会被腰斩（画一笔断一笔）。
+        // 注意 html/body/#root 上的 touch-action: none 保护不到这里：touch-action
+        // 不继承，且滚动容器自己才是手势的实现者。
+        // 用 CSS 而不是在 touchstart 里 preventDefault：后者会连带抑制兼容 click，
+        // 而画布上的浮动文本输入框正是挂在 click 上。
+        touch-action: none;
         &::-webkit-scrollbar {
             display: none;
             width: 0;

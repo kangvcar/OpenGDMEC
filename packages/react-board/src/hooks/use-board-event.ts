@@ -41,8 +41,13 @@ const useBoardEvent = (
       // 只拦多指手势（双指缩放/平移）。单指也拦会连同兼容鼠标事件一起被抑制，
       // 其中包含 click —— 而画布上的浮动文本输入框与抽屉收起都挂在 click 上，
       // 无差别 preventDefault 会让它们在触屏上彻底失效。
-      // 缩放与滚动的其余防线（viewport meta 的 user-scalable=no、
-      // html/body/#root 的 touch-action: none）不受影响。
+      //
+      // 单指拖拽该由 CSS 而不是这里来挡：`.viewport-container` 自身带上
+      // touch-action: none（见 react-board/src/styles/index.scss）。别再指望
+      // html/body/#root 上的 touch-action —— touch-action 不继承，而
+      // .viewport-container 是 overflow: auto 的真实滚动容器，它自己才是手势的
+      // 实现者，不放任浏览器接管就会被判成滚动手势、抛 pointercancel，
+      // 画笔与形状这类连续绘制会被腰斩。
       if (event.touches.length > 1) {
         event.preventDefault();
       }

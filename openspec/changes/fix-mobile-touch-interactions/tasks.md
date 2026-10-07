@@ -15,6 +15,12 @@
 - [x] 2.4 外层面板忽略 `focus-out` 关闭请求，避免嵌套选择器抢焦点时整棵子树被卸载
       （`more-tools-button.tsx` + `popover.tsx` 的 `onOpenChange` 透出 floating-ui 的 reason）
       —— 这是 2.3 之外的另一半根因，2.3 单独不足以让箭头可用，见 5.12
+- [x] 2.5 修 2.1 的副作用：`.viewport-container` 加 `touch-action: none`
+      （`react-board/src/styles/index.scss`）
+      —— 2.1 拿掉单指 `preventDefault()` 后，`overflow: auto` 的 viewport 容器被浏览器接管，
+      单指拖拽被判成滚动手势、中途抛 `pointercancel`，画笔"画一笔断一笔"、矩形画不出来。
+      不能退回 2.1 的写法（会连 `click` 一起掐掉，见 5.12 第一条），改由 CSS 挡：
+      `touch-action` 不继承，`html/body/#root` 上的 none 覆盖不到这个滚动容器，必须它自己声明
 
 ## 3. 面板与预览适配
 
@@ -64,12 +70,18 @@
       预置 `size: 1x1` 的偏好时仍选中「1:1 方形」（已存偏好优先于新默认值）
 - [x] 5.12 **反向验证**（逐条回退并确认断言失败）：
       - 2.1 回退为无条件 `preventDefault()` → 画布 click **0** 次、输入框不出现、SVG 无增长
+      - 2.5 去掉 `.viewport-container` 的 `touch-action: none` → 画笔触屏拖拽只收到 20 次移动里的
+        **2** 次并抛 `pointercancel: 1`；矩形同样画不出来。加回后 `pointercancel: 0`、
+        20–48 次移动全部送达、画笔合成**单条** path（48 段）、矩形得到
+        `M-36 -82 L90 -82 L90 12 L-36 12`
       - 2.4 去掉 `focus-out` 判断 → 箭头条目 **0** 个、面板关闭、指针停在「选择」
       - 2.3 去掉嵌套 `plait-board-attached` → 条目 0 个（一闪即关），选中态不更新
       - 3.1 回退 `KeyboardDropdown` → 菜单 rect `[264, 464]` 越出 375 视口，子元素右缘到 463
       - 3.3–3.5 回退 `ttd-dialog.scss` → `.ttd-dialog-panels` 越出弹窗底 35px，
         预览容器越出弹窗底 159px 且 `overflow-y: visible`
 - [x] 5.13 单指平移、双指缩放行为与改动前一致：多指分支仍是 `touches.length > 1` 才 `preventDefault()`；
+      单指平移改由 2.5 的 `touch-action: none` 拦下（实测两指缩放 scale 保持 1、选择工具拖拽
+      不再滚动画布 `dscrollLeft/dscrollTop` 均为 0）；
       `user-scalable=no` 与 `html/body/#root` 的 `touch-action: none` 未改
 
 ## 6. 遗留（需真机补测）
