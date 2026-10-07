@@ -1,7 +1,8 @@
 /**
  * 画布空状态水印
  *
- * 只在画布为空时显示机构署名，让老师在没有作品时也能看到是谁在支持这个工具。
+ * 只在画布为空时显示两块东西，共用一个开关：画布中心的平台名（「这是什么平台」），
+ * 顶部的小字机构署名（「谁在支持」，让老师在没有作品时也能看到是谁在支持这个工具）。
  *
  * 为什么是屏幕固定浮层而不是 Plait 插件：CLAUDE.md 那条「新画布功能必须做成插件」
  * 的理由是坐标系不一致与事件冲突，而这个水印不参与 board 坐标系（不随缩放平移），
@@ -37,9 +38,15 @@ export const CanvasWatermark: React.FC<CanvasWatermarkProps> = ({ visible }) => 
   // 纯视觉水印：同样的信息在启动屏与引导弹窗里都已经无障碍可达，
   // 这里再让读屏软件念一遍只会给画布区域添噪。
   return createPortal(
-    <div className="canvas-watermark" aria-hidden="true">
-      {INSTITUTION_CREDIT_TEXT}
-    </div>,
+    <>
+      {/* 平台名用字面量：全仓 40+ 处都这么写，没有共享常量，这里也不新造一个 */}
+      <div className="canvas-watermark canvas-watermark--wordmark" aria-hidden="true">
+        OpenGDMEC
+      </div>
+      <div className="canvas-watermark canvas-watermark--credit" aria-hidden="true">
+        {INSTITUTION_CREDIT_TEXT}
+      </div>
+    </>,
     document.body
   );
 };

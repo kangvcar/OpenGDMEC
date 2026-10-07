@@ -7587,6 +7587,46 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
         }
       };
     }, [hasPositionedBoundImageTarget]);
+
+    // 把输入栏占用的底部高度发布成 CSS 变量，供移动端收起态工具栏上移避让
+    // （packages/drawnix/src/styles/index.scss 的 @include mobile 里消费）。
+    // 沿用 unified-toolbar 那套 --aitu-toolbar-* 约定，写在 documentElement 上。
+    // 高度会随聚焦、多行输入、提示行出现而变，所以用 ResizeObserver 跟着走，
+    // 而不是在样式里写死一个迟早不够用的偏移。
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container || hasPositionedBoundImageTarget) {
+        return;
+      }
+
+      const root = document.documentElement;
+      const publish = () => {
+        const height = container.getBoundingClientRect().height;
+        // 高度为 0 说明输入栏被隐藏（幻灯片模式），保留上一个有效值。
+        if (height > 0) {
+          root.style.setProperty(
+            '--aitu-ai-input-bar-height',
+            `${Math.round(height)}px`
+          );
+        }
+      };
+
+      publish();
+      if (typeof ResizeObserver === 'undefined') {
+        window.addEventListener('resize', publish);
+        return () => {
+          window.removeEventListener('resize', publish);
+          root.style.removeProperty('--aitu-ai-input-bar-height');
+        };
+      }
+
+      const observer = new ResizeObserver(publish);
+      observer.observe(container);
+      return () => {
+        observer.disconnect();
+        root.style.removeProperty('--aitu-ai-input-bar-height');
+      };
+    }, [hasPositionedBoundImageTarget]);
     const boundInputPosition = useMemo(() => {
       if (!positionedBoundImageTarget) return null;
 

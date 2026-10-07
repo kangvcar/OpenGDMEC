@@ -2265,7 +2265,9 @@ $ai-input-small-expanded-max-height: $ai-input-small-line-height * 6 +
     padding: 0 8px;
     padding-left: calc(env(safe-area-inset-left, 0px) + 8px);
     padding-right: calc(env(safe-area-inset-right, 0px) + 8px);
-    // 移动端居中显示，工具栏在左下角不会遮挡
+    // 全宽居中：底部控制行很密（overflow: hidden + 右对齐），横向挤窄会把左侧按钮裁掉。
+    // 左下角工具栏与这里不再重叠，靠的是工具栏竖直避让（见 styles/index.scss 的
+    // @include mobile：工具栏贴着输入栏上方站，高度由 --aitu-ai-input-bar-height 同步）。
     left: 50%;
     transform: translateX(-50%);
     max-width: calc(100% - 16px);

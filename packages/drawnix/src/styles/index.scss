@@ -384,8 +384,19 @@
     // 移动端竖屏 (max-width: 640px) - 最小化工具栏
     @include mobile {
       left: $mobile-spacing;
-      bottom: calc(#{$safe-area-bottom} + 80px); // 更多空间给 AI 输入栏
-      max-height: calc(100dvh - 180px);
+      // 左下角的工具栏会压在中间下方的 AI 输入栏上（工具栏 z-index 4031 > 输入栏 100，
+      // 是工具栏盖住输入卡片左半边）。输入栏在 ≤640px 是全宽的，横向让位挤窄它会把
+      // 底部控制行从左边裁掉，所以这里改成竖直避让：贴着输入栏上方站。
+      // --aitu-ai-input-bar-height 由 AIInputBar 用 ResizeObserver 发布，
+      // 16px = 输入栏自身底距(8px) + 间隙(8px)；未发布时用回退值（略高于最高空态）。
+      bottom: calc(
+        #{$safe-area-bottom} + var(--aitu-ai-input-bar-height, 160px) + 16px
+      );
+      // 跟着同一个变量走：输入框长到 65vh 时收起栏自动缩短，中间段本来就可滚动
+      max-height: calc(
+        100dvh - var(--aitu-ai-input-bar-height, 160px) - #{$safe-area-bottom} -
+          32px
+      );
 
       // 更紧凑的布局
       &__scrollable {

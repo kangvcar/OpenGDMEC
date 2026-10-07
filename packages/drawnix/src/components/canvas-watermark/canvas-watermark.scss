@@ -1,20 +1,23 @@
 @import '../../styles/z-index';
 
+// 两块水印共用的定位底座。组件已 portal 到 body，这里才拿得到视口坐标。
+// 若不 portal：水印挂在 .ai-input-bar 子树里，那个容器带 transform，
+// absolute 与 fixed 都会改以它为包含块，top: 64px 会落到输入栏上方（实测 y=521）。
 .canvas-watermark {
-  // 组件已 portal 到 body，这里才拿得到视口坐标。
-  // 若不 portal：水印挂在 .ai-input-bar 子树里，那个容器带 transform，
-  // absolute 与 fixed 都会改以它为包含块，top: 64px 会落到输入栏上方（实测 y=521）。
   position: fixed;
-  // 低于画笔/钢笔设置条（top: 10px，z-index 2000），且让开缩放控件
-  top: 64px;
-  left: 50%;
-  transform: translateX(-50%);
-
   // 高于画布内容（画布容器 z-index: auto），低于所有工具栏（2000+）
   z-index: $z-canvas-decoration;
 
   pointer-events: none; // 让点击穿透到画布
   user-select: none;
+}
+
+// 顶部的小字机构署名
+.canvas-watermark--credit {
+  // 低于画笔/钢笔设置条（top: 10px，z-index 2000），且让开缩放控件
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
 
   // 字号跟视口走：桌面 24px，窄屏按 3.6vw 收缩，下限 13px。
   // 整串 20 字（含字距）约 20em，13px 时 260px —— 320px 宽的屏也放得下一行，
@@ -25,4 +28,24 @@
   white-space: nowrap;
   color: #1f2329;
   opacity: 0.28;
+}
+
+// 画布中心的平台名。大而淡，是背景标识而不是内容，所以透明度远低于上面那行小字。
+.canvas-watermark--wordmark {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  // 9vw：整串约占视口宽 58%，两侧各留 21%。这个比例是算出来的，不是拍脑袋：
+  // 左侧工具栏固定占 8+52=60px，手机上整串再宽一点就会被工具栏压住头一个字母
+  // （实测 14vw 时 390px 屏上显示成「penGDMEC」）。9vw 在 360-1920px 之间
+  // 都能让开工具栏又保持醒目，所以不需要再加媒体查询。
+  // 与启动屏字标同色（apps/web/index.html 的 .app-boot-wordmark）。
+  // 颜色与 opacity 是唯一需要肉眼微调的两个旋钮。
+  font-size: clamp(32px, 9vw, 160px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: #1d4f9c;
+  opacity: 0.1;
 }

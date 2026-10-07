@@ -9,6 +9,7 @@ import React, {
 import classNames from 'classnames';
 import { ATTACHED_ELEMENT_CLASS_NAME } from '@plait/core';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { LogoWecomIcon } from 'tdesign-icons-react';
 import { AppToolbar } from './app-toolbar/app-toolbar';
 import { CreationToolbar } from './creation-toolbar';
 import { UnifiedToolbarProps } from './toolbar.types';
@@ -17,6 +18,8 @@ import { BottomActionsSection } from './bottom-actions-section';
 import { useViewportScale } from '../../hooks/useViewportScale';
 import { useDeviceType } from '../../hooks/useDeviceType';
 import { AIImageIcon } from '../icons';
+import { ADMIN_CONTACT_TEXT } from '../../constants/admin-contact';
+import { requestAdminApiKey } from '../../utils/admin-key-guidance-event';
 import { DialogType, useDrawnix } from '../../hooks/use-drawnix';
 import { HoverTip } from '../shared/hover';
 
@@ -507,6 +510,16 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
                 aria-label="AI 图片生成"
               >
                 <AIImageIcon />
+              </button>
+              {/* 企业微信 - 联系管理员领额度。与底部工具栏那个反馈按钮是同一个动作；
+                  输入栏在未配 Key 时会提示「点工具栏的企业微信图标领取」，
+                  收起态不给入口的话这句提示就指向一个看不见的按钮。 */}
+              <button
+                className="unified-toolbar__collapsed-btn"
+                onClick={() => void requestAdminApiKey()}
+                aria-label={ADMIN_CONTACT_TEXT}
+              >
+                <LogoWecomIcon />
               </button>
             </div>
           )}
