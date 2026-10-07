@@ -38,7 +38,14 @@ const useBoardEvent = (
   useEventListener(
     'touchstart',
     (event) => {
-      event.preventDefault();
+      // 只拦多指手势（双指缩放/平移）。单指也拦会连同兼容鼠标事件一起被抑制，
+      // 其中包含 click —— 而画布上的浮动文本输入框与抽屉收起都挂在 click 上，
+      // 无差别 preventDefault 会让它们在触屏上彻底失效。
+      // 缩放与滚动的其余防线（viewport meta 的 user-scalable=no、
+      // html/body/#root 的 touch-action: none）不受影响。
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
     },
     { target: viewportContainerRef, passive: false }
   );

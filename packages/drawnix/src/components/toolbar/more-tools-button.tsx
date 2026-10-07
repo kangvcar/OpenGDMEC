@@ -190,7 +190,13 @@ export const MoreToolsButton: React.FC<MoreToolsButtonProps> = ({
   return (
     <Popover
       open={isOpen}
-      onOpenChange={(open) => {
+      onOpenChange={(open, _event, reason) => {
+        // 嵌套选择器（箭头、画笔、形状、主题色）打开时会把焦点搬进自己的浮层，
+        // 外层面板据此收到 reason === 'focus-out' 的关闭请求。
+        // 桌面端 isHovering 为真时这条被下面的条件挡住，触屏上恒为 false，
+        // 于是整个面板被关掉 —— 连同条目的 onPointerUp 一起卸载，表现为「选了没反应」。
+        // 触屏的关闭途径是点外部或再点一次「更多」，focus-out 不参与决策。
+        if (!open && reason === 'focus-out' && isTouchDevice()) return;
         // 触摸设备：允许点击外部关闭
         // 桌面设备：只有在非 hover 状态时才关闭
         if (!open && (isTouchDevice() || !isHovering)) {
@@ -694,6 +700,12 @@ const MoreToolsPanel: React.FC<MoreToolsPanelProps> = ({
             </PopoverTrigger>
             <PopoverContent
               container={container}
+              // 选择器 portal 到 board 容器，落在外层面板的浮动元素之外。
+              // 不声明为 board 附属浮层，共享 Popover 的 outsidePress 会把「点条目」
+              // 判成外部按压并关掉外层：条目一闪即散，用户来不及看清，
+              // 条目的 onPointerUp（更新指针选中态那步）也跑不到，
+              // 只剩 onPointerDown 直接把画板指针改掉 —— 面板显示与实际工具不一致。
+              className="plait-board-attached"
               style={{ zIndex: Z_INDEX.POPOVER + 1 }}
               onMouseEnter={() => handlePopupMouseEnter(popupKey)}
               onMouseLeave={() => handlePopupMouseLeave(popupKey)}

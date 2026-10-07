@@ -23,6 +23,7 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useCallback,
   lazy,
@@ -1475,7 +1476,9 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
   } = useAutoCompleteShapePicker(board);
 
   // 浮动文本输入：自动聚焦
-  useEffect(() => {
+  // 用 useLayoutEffect 而非 useEffect：焦点必须落在触发它的那次点击的事件任务内提交，
+  // 移动浏览器才认这是用户手势并唤起软键盘；延到 useEffect 已经是下一次任务，iOS 会静默不弹键盘。
+  useLayoutEffect(() => {
     if (inlineTextInput && inlineTextRef.current) {
       inlineTextRef.current.focus();
     }
@@ -1845,11 +1848,16 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
                 position: 'fixed',
                 left: inlineTextInput.screenX,
                 top: inlineTextInput.screenY - (14 * inlineTextInput.zoom) / 2,
-                minWidth: '2px',
+                // 光标宽度（约 1em）而不是 2px：触屏上没有 hover 提示，
+                // 一块看不见的输入区会让"点一下"看起来毫无反应。
+                minWidth: '1em',
                 minHeight: '1.5em',
                 outline: 'none',
                 border: 'none',
-                background: 'transparent',
+                // 极淡的底色与下边框，只用于指示"这里有个输入位"，
+                // 不加 placeholder —— 它会混进 innerText 一起被提交到画布。
+                background: 'rgba(243, 156, 18, 0.08)',
+                borderBottom: '1px solid rgba(243, 156, 18, 0.6)',
                 fontSize: `${14 * inlineTextInput.zoom}px`,
                 lineHeight: '1.5',
                 color: '#333',

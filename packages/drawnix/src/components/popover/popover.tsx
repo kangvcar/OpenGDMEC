@@ -13,6 +13,7 @@ import {
   Placement,
   FloatingPortal,
   FloatingFocusManager,
+  OpenChangeReason,
 } from '@floating-ui/react';
 
 interface PopoverOptions {
@@ -22,7 +23,15 @@ interface PopoverOptions {
   open?: boolean;
   sideOffset?: number;
   crossAxisOffset?: number;
-  onOpenChange?: (open: boolean) => void;
+  /**
+   * 关闭原因由 floating-ui 透传，调用方据此区分「点外部」与「嵌套浮层抢走焦点」
+   * 这类并非用户本意的关闭（见 more-tools-button 的 focus-out 处理）。
+   */
+  onOpenChange?: (
+    open: boolean,
+    event?: Event,
+    reason?: OpenChangeReason
+  ) => void;
 }
 
 export function usePopover({

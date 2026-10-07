@@ -39,6 +39,7 @@ import {
 } from './shared';
 import { useLocalFileDrop } from '../shared/local-image-drag-drop';
 import {
+  AUTO_ASPECT_RATIO,
   DEFAULT_ASPECT_RATIO,
   ASPECT_RATIO_OPTIONS,
   convertAspectRatioToSize,
@@ -122,7 +123,9 @@ interface AIImageGenerationProps {
 
 function getAspectRatioFromSizeParam(size?: string): string | undefined {
   if (!size) return undefined;
-  if (size === 'auto') return DEFAULT_ASPECT_RATIO;
+  // 这里问的是「这个 size 参数是不是模型自动决定」，不是「产品默认比例」，
+  // 所以用 AUTO_ASPECT_RATIO 而不是 DEFAULT_ASPECT_RATIO —— 两者已经不同值。
+  if (size === 'auto') return AUTO_ASPECT_RATIO.value;
 
   const aspectRatio = sizeToAspectRatio(size.toLowerCase());
   return ASPECT_RATIO_OPTIONS.some((option) => option.value === aspectRatio)
@@ -151,7 +154,7 @@ function applyAspectRatioToParams(
   }
 
   let nextSize =
-    nextAspectRatio === DEFAULT_ASPECT_RATIO
+    nextAspectRatio === AUTO_ASPECT_RATIO.value
       ? 'auto'
       : convertAspectRatioToSize(nextAspectRatio);
   const sizeOptions = getSizeOptionsForModel(modelId);

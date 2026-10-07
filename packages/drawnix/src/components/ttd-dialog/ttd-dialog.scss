@@ -14,29 +14,6 @@ $verticalBreakpoint: 861px;
     &.Dialog--fullscreen {
       margin-top: 0;
     }
-
-    .Island {
-      padding-inline: 0 !important;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-      box-shadow: none;
-    }
-
-    .Modal__content {
-      height: auto;
-      max-height: 100%;
-
-      @media screen and (min-width: $verticalBreakpoint) {
-        max-height: 750px;
-        height: 100%;
-      }
-    }
-
-    .Dialog__content {
-      flex: 1 1 auto;
-    }
   }
 
   .ttd-dialog-desc {
@@ -118,7 +95,10 @@ $verticalBreakpoint: 861px;
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--dialog-border-color);
 
-    height: 400px;
+    // 手机上 400px 固定高度会把预览顶出可滚动区域，按视口高度收一收，
+    // 桌面仍用 400px（那里是并排双列，高一点才看得出结构）。
+    height: 45vh;
+    max-height: 400px;
     width: auto;
 
     @media screen and (min-width: $verticalBreakpoint) {
@@ -167,7 +147,12 @@ $verticalBreakpoint: 861px;
   }
 
   .ttd-dialog-panels {
-    height: 100%;
+    // 占满描述行之外的剩余高度。原来写 height: 100% 是相对弹窗整高，
+    // 等于把描述行的高度又叠加一次，内容必然溢出弹窗；
+    // flex 子项默认 min-height: auto 不会收缩，必须显式归零才会变成可滚动区域。
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
 
     @media screen and (min-width: $verticalBreakpoint) {
       display: grid;
@@ -180,6 +165,9 @@ $verticalBreakpoint: 861px;
     display: flex;
     flex-direction: column;
     width: 100%;
+    // grid 的 1fr 轨道自动最小尺寸是 min-content，不收窄的话
+    // textarea 的固有宽度会把预览列顶出弹窗右缘。
+    min-width: 0;
 
     &__header {
       display: flex;
@@ -325,10 +313,8 @@ $verticalBreakpoint: 861px;
       padding: 1rem;
       max-height: 85vh;
       margin-top: 60px; // 给顶部工具栏留出空间
-
-      .Island {
-        padding: 0;
-      }
+      // .Dialog 基类左右各有 15px margin，宽度按 100vw 算会在窄屏上溢出视口。
+      max-width: calc(100vw - 30px);
     }
 
     .ttd-dialog-triggers {
@@ -346,11 +332,6 @@ $verticalBreakpoint: 861px;
       padding: 0.75rem;
       max-height: 80vh;
       margin-top: 50px;
-      max-width: 95vw;
-
-      .Modal__content {
-        max-height: 75vh;
-      }
     }
 
     .ttd-dialog-triggers {

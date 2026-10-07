@@ -55,9 +55,20 @@ export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
 ];
 
 /**
- * 默认宽高比（自动）
+ * 默认宽高比
+ *
+ * 图片默认出横版 16:9：教学场景多用于课件/展板配图，横版直接可用，
+ * 而「自动」会让同一句提示词在换模型后产出不同比例，老师难以预期。
  */
-export const DEFAULT_ASPECT_RATIO = 'auto';
+export const DEFAULT_ASPECT_RATIO = '16:9';
+
+/**
+ * 默认图片尺寸参数值
+ *
+ * 与上面同义，但用的是各图片模型 `size` 参数的取值格式（`16x9` 而非 `16:9`）。
+ * 集中一处是为了避免在 model-config 的多个图片模型上重复写同一个字面量。
+ */
+export const DEFAULT_IMAGE_SIZE = '16x9';
 
 /**
  * 根据宽高比值获取配置

@@ -12,6 +12,14 @@ function setViewportHeight(height: number) {
   });
 }
 
+function setViewportWidth(width: number) {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+}
+
 function mockRect(
   element: Element,
   rect: Pick<DOMRect, 'top' | 'left' | 'bottom' | 'width'>
@@ -114,5 +122,29 @@ describe('KeyboardDropdown', () => {
     expect(menu.dataset.placement).toBe('up');
     expect(menu.style.bottom).toBe('488px');
     expect(menu.style.maxHeight).toBe('100px');
+  });
+
+  it('触发器靠右且右侧空间不足时改为锚右缘向左展开', async () => {
+    // 375 宽的屏上，右对齐的触发器左侧空间远多于右侧。
+    setViewportWidth(375);
+    await renderDropdown({ top: 300, left: 210, bottom: 332, width: 150 });
+
+    const menu = screen.getByTestId('menu');
+
+    expect(menu.dataset.placement).toBe('down');
+    expect(menu.style.left).toBe('');
+    expect(menu.style.right).toBe('15px'); // 375 - (210 + 150)
+    expect(menu.style.maxWidth).toBe('348px'); // (210 + 150) - 12
+  });
+
+  it('触发器靠左时保持原来的左缘锚点', async () => {
+    setViewportWidth(375);
+    await renderDropdown({ top: 300, left: 16, bottom: 332, width: 120 });
+
+    const menu = screen.getByTestId('menu');
+
+    expect(menu.style.left).toBe('16px');
+    expect(menu.style.right).toBe('');
+    expect(menu.style.maxWidth).toBe('347px'); // 375 - 16 - 12
   });
 });

@@ -7,6 +7,21 @@ describe('ai-generation-preferences-service', () => {
     localStorage.clear();
   });
 
+  // 产品要求：图片默认出 16:9 横版。这条只覆盖「没存过偏好」的新装场景；
+  // 存过偏好的场景由下面「保留为扩展比例」那组用例守住。
+  it('没有存量偏好时图片工具默认 16:9 横版', async () => {
+    const { loadAIImageToolPreferences, loadAIInputPreferences } =
+      await import('../ai-generation-preferences-service');
+
+    expect(loadAIImageToolPreferences('gpt-image-2.5')).toMatchObject({
+      extraParams: { size: '16x9' },
+      aspectRatio: '16:9',
+    });
+    expect(loadAIInputPreferences().selectedParams).toMatchObject({
+      size: '16x9',
+    });
+  });
+
   // 发行档位只开放「自动 / 1K」：存量 2K/4K 偏好一律降回可选值
   it.each(['gpt-image-2.5', 'gpt-image-2.5-vip', 'gpt-image-2.5-sunburst', 'gpt-image-2.5-flare'])(
     '%s 将已下架的 4K/2K 档降回自动并修正尺寸',

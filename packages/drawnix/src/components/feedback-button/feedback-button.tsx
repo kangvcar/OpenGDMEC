@@ -9,15 +9,17 @@
  */
 
 import React from 'react';
+import { LogoWecomIcon } from 'tdesign-icons-react';
 import { ADMIN_CONTACT_TEXT } from '../../constants/admin-contact';
 import { requestAdminApiKey } from '../../utils/admin-key-guidance-event';
-import { WeComIcon } from '../icons';
 import { ToolButton } from '../tool-button';
 
 export const FeedbackButton: React.FC = () => (
   <ToolButton
     type="icon"
-    icon={<WeComIcon />}
+    // 用图标库自带的企业微信标识，而不是自绘的通用对话气泡：
+    // 老师要认的是品牌图形，气泡换个场景就指代不明了。
+    icon={<LogoWecomIcon />}
     aria-label={ADMIN_CONTACT_TEXT}
     tooltip={ADMIN_CONTACT_TEXT}
     tooltipPlacement="right"

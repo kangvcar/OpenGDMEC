@@ -11,6 +11,7 @@ import {
   isSeedance25ModelId,
   SEEDANCE_25_MODEL_ID,
 } from '../utils/seedance-model';
+import { DEFAULT_IMAGE_SIZE } from './image-aspect-ratios';
 
 /**
  * 模型类型
@@ -2861,7 +2862,7 @@ export const IMAGE_PARAMS: ParamConfig[] = [
       { value: '16x9', label: '16:9 横版' },
       { value: '21x9', label: '21:9 超宽' },
     ],
-    defaultValue: 'auto',
+    defaultValue: DEFAULT_IMAGE_SIZE,
     compatibleModels: GPT_IMAGE_2_MODEL_IDS,
     modelType: 'image',
   },
@@ -2878,7 +2879,9 @@ export const IMAGE_PARAMS: ParamConfig[] = [
       { value: '1024x1536', label: '1024x1536' },
       { value: '1536x1024', label: '1536x1024' },
     ],
-    defaultValue: 'auto',
+    // 该模型只支持官方三种像素尺寸，其中唯一的横版是 1536x1024（3:2），
+    // 表达不了 16:9，所以这里取横版语义而不是 DEFAULT_IMAGE_SIZE。
+    defaultValue: '1536x1024',
     compatibleModels: GPT_IMAGE_25_MODEL_IDS,
     modelType: 'image',
   },
@@ -2977,7 +2980,7 @@ export const IMAGE_PARAMS: ParamConfig[] = [
       { value: '4x5', label: '4:5 竖版' },
       { value: '21x9', label: '21:9 超宽' },
     ],
-    defaultValue: 'auto',
+    defaultValue: DEFAULT_IMAGE_SIZE,
     compatibleModels: GEMINI_IMAGE_MODEL_IDS_EXCLUDING_FLASH31,
     modelType: 'image',
   },
@@ -3005,7 +3008,7 @@ export const IMAGE_PARAMS: ParamConfig[] = [
       { value: '4x5', label: '4:5 竖版' },
       { value: '21x9', label: '21:9 超宽' },
     ],
-    defaultValue: 'auto',
+    defaultValue: DEFAULT_IMAGE_SIZE,
     compatibleModels: GEMINI_31_FLASH_IMAGE_MODEL_IDS,
     modelType: 'image',
   },
@@ -3027,7 +3030,7 @@ export const IMAGE_PARAMS: ParamConfig[] = [
       { value: '3x4', label: '3:4 竖版 (1776×2368)' },
       { value: '21x9', label: '21:9 超宽 (2688×1152)' },
     ],
-    defaultValue: '1x1',
+    defaultValue: DEFAULT_IMAGE_SIZE,
     compatibleModels: SEEDREAM_IMAGE_MODEL_IDS,
     compatibleTags: ['seedream'],
     modelType: 'image',

@@ -10,6 +10,7 @@ import {
 } from '../constants/model-config';
 import {
   ASPECT_RATIO_OPTIONS,
+  AUTO_ASPECT_RATIO,
   DEFAULT_ASPECT_RATIO,
   convertAspectRatioToSize,
 } from '../constants/image-aspect-ratios';
@@ -439,7 +440,8 @@ function sizeParamToAspectRatio(size: unknown): string | undefined {
   }
 
   if (size === 'auto') {
-    return DEFAULT_ASPECT_RATIO;
+    // 「模型自动决定」的 size 对应「自动」比例，不是产品默认比例。
+    return AUTO_ASPECT_RATIO.value;
   }
 
   const aspectRatio = sizeToAspectRatio(size.trim().toLowerCase());
@@ -452,25 +454,30 @@ function getSupportedImageToolSizeFromAspectRatio(
   modelId: string,
   aspectRatio: unknown
 ): string | undefined {
+  const sizeOptions = getSizeOptionsForModel(modelId);
+  // 「自动」要显式落成 size 参数里的 auto，不能返回 undefined 了事：
+  // 下游 sanitizeSelectedParams 会给缺失的 size 补模型默认值，
+  // 默认值改成 16x9 之后，用户显式选的「自动」（或模型表达不了的旧比例）
+  // 会被悄悄改成 16:9。模型没有 auto 档位时才交回 undefined。
+  const autoSize = sizeOptions.some((option) => option.value === 'auto')
+    ? 'auto'
+    : undefined;
   const normalizedAspectRatio =
     typeof aspectRatio === 'string' &&
     ASPECT_RATIO_OPTIONS.some((option) => option.value === aspectRatio)
       ? aspectRatio
       : sanitizeAspectRatio(modelId, aspectRatio);
-  if (normalizedAspectRatio === DEFAULT_ASPECT_RATIO) {
-    return undefined;
+  if (normalizedAspectRatio === AUTO_ASPECT_RATIO.value) {
+    return autoSize;
   }
 
   const size = convertAspectRatioToSize(normalizedAspectRatio);
-  if (
-    size &&
-    getSizeOptionsForModel(modelId).some((option) => option.value === size)
-  ) {
+  if (size && sizeOptions.some((option) => option.value === size)) {
     return size;
   }
 
   const [width, height] = normalizedAspectRatio.split(':').map(Number);
-  return matchFrameSizeForModel(width, height, modelId);
+  return matchFrameSizeForModel(width, height, modelId) ?? autoSize;
 }
 
 function mergeImageToolAspectRatioParams(

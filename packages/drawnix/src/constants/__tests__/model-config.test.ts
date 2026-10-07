@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   clearRuntimeModelConfigs,
   getCompatibleParams,
+  getDefaultSizeForModel,
   getStaticModelsByType,
   getSizeOptionsForModel,
   getStaticModelConfig,
@@ -553,5 +554,41 @@ describe('model-config image size options', () => {
       ])
     );
     expect(paramIds).not.toContain('api_version');
+  });
+});
+
+describe('图片尺寸默认值', () => {
+  it('图片模型默认出 16:9 横版', () => {
+    for (const modelId of [
+      'gpt-image-2',
+      'gpt-image-2.5',
+      'gemini-3-pro-image-preview',
+      'gemini-3.1-flash-image-preview',
+      'doubao-seedream-4-0-250828',
+    ]) {
+      expect(getDefaultSizeForModel(modelId)).toBe('16x9');
+      // 默认值必须真的在可选项里，否则 sanitizeSelectedParams 会把它判成无效值
+      expect(
+        getSizeOptionsForModel(modelId).map((option) => option.value)
+      ).toContain('16x9');
+    }
+  });
+
+  it('只支持官方三种像素尺寸的模型退回横版像素值而非非法比例', () => {
+    expect(getDefaultSizeForModel('gpt-image-2.5-1k')).toBe('1536x1024');
+    expect(
+      getSizeOptionsForModel('gpt-image-2.5-1k').map((option) => option.value)
+    ).toEqual(['auto', '1024x1024', '1024x1536', '1536x1024']);
+  });
+
+  it('视频模型尺寸默认值不受影响', () => {
+    for (const modelId of ['seedance-1.5-pro', 'minimax-h3', 'veo-3']) {
+      const sizeParam = getCompatibleParams(modelId).find(
+        (param) => param.id === 'size'
+      );
+      if (sizeParam) {
+        expect(sizeParam.defaultValue).not.toBe('16x9');
+      }
+    }
   });
 });
