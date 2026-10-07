@@ -1,3 +1,13 @@
+## 1.1.35 (2026-10-07)
+
+### 🩹 Fixes
+
+- 生成进度卡片/落图位置改用可见区中心、自适应失败退回平移、收起栏补新版本入口 ([b9532264](https://github.com/ljquan/opentu/commit/b9532264))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.34 (2026-10-07)
 
 ### 🩹 Fixes
