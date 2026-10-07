@@ -173,6 +173,7 @@ aitu/
 24. **公共接口改签名必须全量收口**：修改 service / hook / util 的函数签名或返回结构后，必须全局搜索所有调用点并一并修正；禁止只改定义或只改单个调用点，留下“对象改 number / 字段名漂移”这类半更新状态
 25. **跨层参数禁止直接透传**：MCP、Service Worker、主线程执行器、UI 层的 `options` / `params` 若类型不一致，必须显式写 adapter / mapper 做转换；即使当前只映射 0-1 个字段，也不要把上一层对象直接传给下一层碰运气
 26. **外部输入入口先校验再执行业务**：Tool/RPC/URL 参数/存储恢复数据进入业务前，先做 type guard 或 schema 校验；禁止用 `as SomeType` 直接断言后调用，避免把编译期问题拖成运行时异常
+27. **推送前必须先升版本号**：每次 `git push` 之前先跑 `pnpm run version:patch`（次版本用 `version:minor`）。它自己会更新 `package.json` / `version.json` / `CHANGELOG.md` 并提交、打 `vX.Y.Z` tag，所以顺序是「版本号 → 推送（带 tag）」，禁止先推功能提交再补版本号 —— 否则老师拿到的新包版本号不变，SW 会认为没更新，浏览器一直用旧缓存。前端改了东西（含只改样式文案）也要升，版本号是 SW 判新的唯一依据
 
 ### Service Worker 规则
 
