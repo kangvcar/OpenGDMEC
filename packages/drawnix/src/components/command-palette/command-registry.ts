@@ -3,6 +3,8 @@ import {
   PlaitBoard,
   PlaitPointerType,
   getSelectedElements,
+  MAX_ZOOM,
+  MIN_ZOOM,
 } from '@plait/core';
 import { BoardCreationMode, setCreationMode } from '@plait/common';
 import { MindPointerType } from '@plait/mind';
@@ -316,7 +318,7 @@ export function buildDefaultCommands(
       shortcut: '⌘+',
       perform: (board) => {
         const currentZoom = board.viewport?.zoom ?? 1;
-        BoardTransforms.updateZoom(board, Math.min(currentZoom + 0.1, 4));
+        BoardTransforms.updateZoom(board, Math.min(currentZoom + 0.1, MAX_ZOOM));
       },
     },
     {
@@ -327,7 +329,7 @@ export function buildDefaultCommands(
       shortcut: '⌘-',
       perform: (board) => {
         const currentZoom = board.viewport?.zoom ?? 1;
-        BoardTransforms.updateZoom(board, Math.max(currentZoom - 0.1, 0.1));
+        BoardTransforms.updateZoom(board, Math.max(currentZoom - 0.1, MIN_ZOOM));
       },
     },
     {

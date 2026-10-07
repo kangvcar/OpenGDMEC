@@ -70,8 +70,8 @@ import {
   AI_SELECTION_CONTENT_REFRESH_EVENT,
   extractTextFromElement,
   processSelectedContentForAI,
-  scrollToPointIfNeeded,
 } from '../../utils/selection-utils';
+import { fitRectInViewport } from '../../utils/fit-frame';
 import { useTextSelection } from '../../hooks/useTextSelection';
 import {
   useChatDrawerControl,
@@ -187,6 +187,7 @@ import { analytics } from '../../utils/umami-analytics';
 import classNames from 'classnames';
 import { CanvasWatermark } from '../canvas-watermark/CanvasWatermark';
 import { AIInputComposerShell } from './AIInputComposerShell';
+import { GenerationProgressNotice } from './GenerationProgressNotice';
 import { GenerationTypeDropdown } from './GenerationTypeDropdown';
 import { CountDropdown } from './CountDropdown';
 import './ai-input-bar.scss';
@@ -5863,14 +5864,10 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
                   const anchorRect = RectangleClient.getRectangleByPoints(
                     firstAnchor.points
                   );
-                  scrollToPointIfNeeded(
-                    board,
-                    [
-                      anchorRect.x + anchorRect.width / 2,
-                      anchorRect.y + anchorRect.height / 2,
-                    ],
-                    100
-                  );
+                  // 用「适应」而不是只平移：进度是画在这个锚点上的，只平移的话
+                  // 窄屏上它还可能是缩到 10% 的一个小点，老师看不到「在跑」。
+                  // maxZoom 1 —— 只负责看得见，不放大。
+                  fitRectInViewport(board, anchorRect, { maxZoom: 1 });
                 }, 100);
               }
             } else {
@@ -5888,12 +5885,17 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
               currentImageAnchorIdsRef.current = [];
               publishedTaskTargetElementId = workzoneElement.id;
               setTimeout(() => {
-                const workzoneCenterX = workzoneX + WORKZONE_WIDTH / 2;
-                const workzoneCenterY = workzoneY + WORKZONE_HEIGHT / 2;
-                scrollToPointIfNeeded(
+                // 同上：工作区（含整条工作流进度）也要「适应」到可见，
+                // 而不是只把中心点平移过来
+                fitRectInViewport(
                   board,
-                  [workzoneCenterX, workzoneCenterY],
-                  100
+                  {
+                    x: workzoneX,
+                    y: workzoneY,
+                    width: WORKZONE_WIDTH,
+                    height: WORKZONE_HEIGHT,
+                  },
+                  { maxZoom: 1 }
                 );
               }, 100);
             }
@@ -7935,7 +7937,10 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
             {...inputFileDropTargetProps}
             notice={
               // 未配 Key 时模型下拉是隐藏的，输入栏右侧空着像坏了；补一句解释。
-              composerHasCredentials ? null : (
+              // 配了 Key 才轮到生成中状态行（手机上进度只在画布锚点上，看不到）。
+              composerHasCredentials ? (
+                <GenerationProgressNotice />
+              ) : (
                 <span className="ai-input-bar__key-hint">
                   尚未配置 API Key，点工具栏的企业微信图标领取
                 </span>

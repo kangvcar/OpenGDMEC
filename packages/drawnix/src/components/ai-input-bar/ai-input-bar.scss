@@ -970,6 +970,32 @@ $ai-input-small-expanded-max-height: $ai-input-small-line-height * 6 +
     text-align: center;
   }
 
+  // 生成中状态行（见 GenerationProgressNotice）
+  &__progress-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #8f959e;
+    text-align: center;
+
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f39c12;
+      animation: ai-input-bar-progress-pulse 1.2s ease-in-out infinite;
+    }
+  }
+
+  &__progress-notice-percent {
+    color: #f39c12;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+
   .ai-input-composer-shell--disabled {
     opacity: 0.72;
   }
@@ -1760,6 +1786,17 @@ $ai-input-small-expanded-max-height: $ai-input-small-line-height * 6 +
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes ai-input-bar-progress-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
   }
 }
 

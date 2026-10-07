@@ -11,6 +11,8 @@ import {
   PlaitBoard,
   BoardTransforms,
   getViewportOrigination,
+  MAX_ZOOM,
+  MIN_ZOOM,
 } from '@plait/core';
 import { MinusIcon, AddIcon, ChevronDownIcon } from 'tdesign-icons-react';
 import { useBoard } from '@plait-board/react-board';
@@ -230,6 +232,12 @@ export const ViewNavigation: React.FC<ViewNavigationProps> = ({
   // 当前缩放百分比
   const zoomPercentage = Math.round((board?.viewport?.zoom || 1) * 100);
 
+  // 已经贴到缩放上下限时置灰，避免「一直在点但没有任何反应」
+  // 用 epsilon 容忍 0.1 步长的浮点误差（0.15 - 0.1 = 0.049999...）
+  const currentZoom = board?.viewport?.zoom || 1;
+  const canZoomOut = currentZoom > MIN_ZOOM + 1e-6;
+  const canZoomIn = currentZoom < MAX_ZOOM - 1e-6;
+
   return (
     <div
       className={`view-navigation ${ATTACHED_ELEMENT_CLASS_NAME}`}
@@ -246,6 +254,7 @@ export const ViewNavigation: React.FC<ViewNavigationProps> = ({
           <button
             className="view-navigation__zoom-btn"
             onClick={handleZoomOut}
+            disabled={!canZoomOut}
             aria-label={t('zoom.out')}
             data-track="view_nav_zoom_out"
             data-testid="zoom-out"
@@ -317,6 +326,7 @@ export const ViewNavigation: React.FC<ViewNavigationProps> = ({
           <button
             className="view-navigation__zoom-btn"
             onClick={handleZoomIn}
+            disabled={!canZoomIn}
             aria-label={t('zoom.in')}
             data-track="view_nav_zoom_in"
             data-testid="zoom-in"

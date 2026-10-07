@@ -8,18 +8,43 @@ import {
   PlaitBoard,
   BoardTransforms,
   RectangleClient,
+  MIN_ZOOM,
   getSelectedElements,
 } from '@plait/core';
 import { isFrameElement, type PlaitFrame } from '../types/frame.types';
 
 /** 工具栏右边界兜底值：默认贴边 + 58px 工具栏 */
 const DEFAULT_TOOLBAR_RIGHT_EDGE = 58;
-/** 底部 AI 输入栏高度 */
-const BOTTOM_BAR_HEIGHT = 80;
+/** 底部 AI 输入栏高度兜底值（量不到真实高度时用） */
+const BOTTOM_BAR_HEIGHT_FALLBACK = 80;
 /** 顶部导航控件高度 */
 const TOP_BAR_HEIGHT = 50;
 /** 四周留白 */
 const FIT_PADDING = 40;
+
+/**
+ * 底部 AI 输入栏的实际占高。
+ *
+ * 这里原来是写死的 80px：手机上输入栏带提示行时实测 130-210px，只留 80px 会让
+ * 「适应」之后的内容仍有下半截压在输入栏下面 —— 也就是老师反馈的「图片看不全」。
+ * 高度优先读 AIInputBar 发布的 CSS 变量（见 AIInputBar 里的 ResizeObserver），
+ * 拿不到再量 DOM，最后回退到兜底值。
+ */
+function getBottomOcclusion(): number {
+  if (typeof document === 'undefined') return BOTTOM_BAR_HEIGHT_FALLBACK;
+
+  const published = getComputedStyle(document.documentElement).getPropertyValue(
+    '--aitu-ai-input-bar-height'
+  );
+  const parsed = parseFloat(published);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  const barEl = document.querySelector('.ai-input-bar') as HTMLElement | null;
+  const measured = barEl?.getBoundingClientRect().height ?? 0;
+  return measured > 0 ? measured : BOTTOM_BAR_HEIGHT_FALLBACK;
+}
 
 function getToolbarOcclusion(totalWidth: number): {
   left: number;
@@ -61,9 +86,21 @@ function getToolbarOcclusion(totalWidth: number): {
   };
 }
 
-function fitRectInViewport(
+/**
+ * 把视口对准一个世界坐标矩形：缩放到它刚好完整可见，并居中到「实际可见区域」
+ * （已扣除工具栏/抽屉/输入栏遮挡）。
+ *
+ * 走的是 BoardTransforms.updateViewport（不夹取），所以能缩到比 updateZoom 更小 ——
+ * 但这里仍然按 MIN_ZOOM 兜底一次，避免内容特别大时算出毫无意义的极小缩放。
+ *
+ * @param options.maxZoom 允许的最大缩放，默认 3。生成结果落图后的自适应传 1：
+ *                        只负责「看得全」，不把一张小图放大到糊。
+ * @returns 是否成功应用
+ */
+export function fitRectInViewport(
   board: PlaitBoard,
-  targetRect: RectangleClient
+  targetRect: RectangleClient,
+  options: { maxZoom?: number } = {}
 ): boolean {
   if (targetRect.width <= 0 || targetRect.height <= 0) return false;
 
@@ -84,17 +121,22 @@ function fitRectInViewport(
     chatDrawerEl ? chatDrawerEl.offsetWidth : 0
   );
 
+  const bottomOccluded = getBottomOcclusion();
+
   const availableWidth =
     totalWidth - leftOccluded - rightOccluded - FIT_PADDING * 2;
   const availableHeight =
-    totalHeight - TOP_BAR_HEIGHT - BOTTOM_BAR_HEIGHT - FIT_PADDING * 2;
+    totalHeight - TOP_BAR_HEIGHT - bottomOccluded - FIT_PADDING * 2;
 
   if (availableWidth <= 0 || availableHeight <= 0) return false;
 
-  const zoom = Math.min(
-    availableWidth / targetRect.width,
-    availableHeight / targetRect.height,
-    3
+  const zoom = Math.max(
+    Math.min(
+      availableWidth / targetRect.width,
+      availableHeight / targetRect.height,
+      options.maxZoom ?? 3
+    ),
+    MIN_ZOOM
   );
 
   const visibleCenterX = leftOccluded + FIT_PADDING + availableWidth / 2;

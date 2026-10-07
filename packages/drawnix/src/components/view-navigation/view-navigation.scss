@@ -51,6 +51,21 @@
       transform: scale(0.92);
     }
 
+    // 已到缩放上下限：置灰 + 去掉悬停/按压反馈
+    &:disabled {
+      color: #ccc;
+      cursor: not-allowed;
+
+      &:hover {
+        color: #ccc;
+        background: transparent;
+      }
+
+      &:active {
+        transform: none;
+      }
+    }
+
     svg {
       width: 16px;
       height: 16px;

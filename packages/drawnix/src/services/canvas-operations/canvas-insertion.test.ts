@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   parseMarkdownToCards: vi.fn(),
   insertText: vi.fn(),
   insertImage: vi.fn(),
+  scrollToPointIfNeeded: vi.fn(),
+  fitRectInViewport: vi.fn(),
   canvasBoard: null as PlaitBoard | null,
 }));
 
@@ -59,7 +61,11 @@ vi.mock('../../utils/markdown-to-cards', () => ({
 }));
 
 vi.mock('../../utils/selection-utils', () => ({
-  scrollToPointIfNeeded: vi.fn(),
+  scrollToPointIfNeeded: mocks.scrollToPointIfNeeded,
+}));
+
+vi.mock('../../utils/fit-frame', () => ({
+  fitRectInViewport: mocks.fitRectInViewport,
 }));
 
 vi.mock('../../utils/canvas-insertion-layout', () => ({
@@ -141,6 +147,7 @@ describe('canvas insertion service metadata binding', () => {
       })
     );
     mocks.parseMarkdownToCards.mockReturnValue(null);
+    mocks.fitRectInViewport.mockReturnValue(true);
     mocks.insertText.mockImplementation((board: any) => {
       board.children.push({
         id: `text-${board.children.length}`,
@@ -512,6 +519,75 @@ describe('canvas insertion service metadata binding', () => {
     expect(
       (result.data as any).items.map((item: any) => item.elementId)
     ).toEqual(['card-alpha-1', 'card-beta-1']);
+  });
+
+  it('fits the viewport to a generated image so the whole result is visible', async () => {
+    const board = createBoard();
+    mocks.insertImageFromUrl.mockImplementation(
+      async (targetBoard: PlaitBoard, url: string) => {
+        const id = `image-${targetBoard.children.length}`;
+        targetBoard.children.push({ id, type: 'image', url } as any);
+        return id;
+      }
+    );
+
+    await executeCanvasInsertion({
+      board,
+      startPoint: [0, 0],
+      items: [
+        {
+          type: 'image',
+          content: 'large.png',
+          dimensions: { width: 2048, height: 2048 },
+        },
+      ],
+    });
+
+    expect(mocks.fitRectInViewport).toHaveBeenCalledWith(
+      board,
+      expect.objectContaining({ width: 2048, height: 2048 }),
+      { maxZoom: 1 }
+    );
+    expect(mocks.scrollToPointIfNeeded).not.toHaveBeenCalled();
+  });
+
+  it('keeps pan-only reveal for text cards', async () => {
+    const board = createBoard();
+
+    await executeCanvasInsertion({
+      board,
+      startPoint: [0, 0],
+      items: [{ type: 'text', content: 'plain text' }],
+    });
+
+    expect(mocks.scrollToPointIfNeeded).toHaveBeenCalled();
+    expect(mocks.fitRectInViewport).not.toHaveBeenCalled();
+  });
+
+  it('falls back to panning when the fit cannot be applied', async () => {
+    const board = createBoard();
+    mocks.fitRectInViewport.mockReturnValue(false);
+    mocks.insertImageFromUrl.mockImplementation(
+      async (targetBoard: PlaitBoard, url: string) => {
+        const id = `image-${targetBoard.children.length}`;
+        targetBoard.children.push({ id, type: 'image', url } as any);
+        return id;
+      }
+    );
+
+    await executeCanvasInsertion({
+      board,
+      startPoint: [0, 0],
+      items: [
+        {
+          type: 'image',
+          content: 'large.png',
+          dimensions: { width: 2048, height: 2048 },
+        },
+      ],
+    });
+
+    expect(mocks.scrollToPointIfNeeded).toHaveBeenCalled();
   });
 
   it('does not promote an ordinary video prompt unless generation is explicit', async () => {

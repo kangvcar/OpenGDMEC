@@ -24,6 +24,7 @@ import {
   type AudioCardMetadata,
 } from '../../data/audio';
 import { scrollToPointIfNeeded } from '../../utils/selection-utils';
+import { fitRectInViewport } from '../../utils/fit-frame';
 import { parseMarkdownToCards } from '../../utils/markdown-to-cards';
 import { insertCardsToCanvas } from '../../utils/insert-cards';
 import type { MCPResult } from '../../mcp/types';
@@ -84,6 +85,33 @@ export interface InsertionItem {
   waitForImageLoad?: boolean;
   /** 额外元数据（音频卡片等） */
   metadata?: Record<string, unknown>;
+}
+
+/**
+ * 插入后的「让它可见」。
+ *
+ * 生成结果（图片/视频/音频）落图后自适应到整张可见：原来的 scrollToPointIfNeeded
+ * 只平移不改 zoom，图片比可见区域大、或者底部被 AI 输入栏压住时，老师缩放半天也看
+ * 不全，所以这里换成 fitRectInViewport（它会扣掉工具栏与输入栏的实际占高）。
+ * maxZoom 传 1：自适应只负责「看得全」，不把一张小图放大到糊。
+ *
+ * 文本/卡片保持原来的「只平移不缩放」—— 插一张卡片就把整个画布缩放跳一下太吵。
+ */
+function revealInsertedContent(
+  board: PlaitBoard,
+  options: {
+    isMedia: boolean;
+    rect: { x: number; y: number; width: number; height: number };
+    fallbackPoint: Point;
+  }
+): void {
+  const { isMedia, rect, fallbackPoint } = options;
+  if (isMedia && rect.width > 0 && rect.height > 0) {
+    if (fitRectInViewport(board, rect, { maxZoom: 1 })) {
+      return;
+    }
+  }
+  scrollToPointIfNeeded(board, fallbackPoint);
 }
 
 /**
@@ -831,7 +859,19 @@ export async function executeCanvasInsertion(
 
       requestAnimationFrame(() => {
         if (!params.boardGuard || params.boardGuard()) {
-          scrollToPointIfNeeded(board, point);
+          revealInsertedContent(board, {
+            isMedia:
+              item.type === 'image' ||
+              item.type === 'video' ||
+              item.type === 'audio',
+            rect: {
+              x: point[0],
+              y: point[1],
+              width: inserted.size.width,
+              height: inserted.size.height,
+            },
+            fallbackPoint: point,
+          });
         }
       });
 
@@ -885,7 +925,21 @@ export async function executeCanvasInsertion(
       });
       requestAnimationFrame(() => {
         if (!params.boardGuard || params.boardGuard()) {
-          scrollToPointIfNeeded(board, centerPoint);
+          revealInsertedContent(board, {
+            isMedia: insertedItems.some(
+              (inserted) =>
+                inserted.type === 'image' ||
+                inserted.type === 'video' ||
+                inserted.type === 'audio'
+            ),
+            rect: flowState.bounds ?? {
+              x: centerPoint[0],
+              y: centerPoint[1],
+              width: 0,
+              height: 0,
+            },
+            fallbackPoint: centerPoint,
+          });
         }
       });
     }

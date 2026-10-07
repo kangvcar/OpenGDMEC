@@ -1,0 +1,22 @@
+diff --git a/constants/zoom.d.ts b/constants/zoom.d.ts
+index f68cb5b54d5a017b7e95aed6c3aa76966b0e90f5..a465b7adf4dd06deb67c436018693ceb7fb80af6 100644
+--- a/constants/zoom.d.ts
++++ b/constants/zoom.d.ts
+@@ -1,3 +1,3 @@
+ export declare const ZOOM_STEP = 0.1;
+-export declare const MIN_ZOOM = 0.1;
++export declare const MIN_ZOOM = 0.05;
+ export declare const MAX_ZOOM = 4;
+diff --git a/fesm2022/plait-core.mjs b/fesm2022/plait-core.mjs
+index e8b6b0fa0d93e3fe9bb9452fea94c91b7364860a..e00c9cca9f20d6b00af35a0b937b153958dedd23 100644
+--- a/fesm2022/plait-core.mjs
++++ b/fesm2022/plait-core.mjs
+@@ -149,7 +149,7 @@ const SELECTION_RECTANGLE_CLASS_NAME = 'selection-rectangle';
+ const SELECTION_RECTANGLE_BOUNDING_CLASS_NAME = 'selection-rectangle-bounding';
+ 
+ const ZOOM_STEP = 0.1;
+-const MIN_ZOOM = 0.1;
++const MIN_ZOOM = 0.05;
+ const MAX_ZOOM = 4;
+ 
+ const HOST_CLASS_NAME = 'plait-board-container';
