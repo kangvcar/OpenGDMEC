@@ -1,0 +1,43 @@
+@import '../../styles/z-index';
+
+.admin-key-canvas-card {
+  // 组件已 portal 到 body，这里才拿得到视口坐标（理由见 tsx 注释）
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  // 与画布水印同层：高于画布内容，低于所有工具栏（2000+）
+  z-index: $z-canvas-decoration;
+
+  // 只有卡片这一小块挡画布，外面的点击照常穿透（与水印相反，这里有按钮）
+  pointer-events: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 32px;
+
+  // 半透明背景：既能看清字，又不至于把空画布糊死
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(243, 156, 18, 0.28);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  text-align: center;
+  white-space: nowrap;
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2329;
+  }
+
+  &__desc {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #646a73;
+  }
+}

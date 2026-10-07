@@ -1,10 +1,14 @@
 /**
  * 获取 / 填写 API Key 的引导弹窗
  *
- * 两条触发路径，共用一个弹窗：
- * 1. 启动时检查 —— 没有可用凭证就弹，老师可以直接在里面粘贴 Key；
- * 2. 提交时被拦下 —— utils/gemini-api/auth.ts 的 requestAdminApiKey 派发事件，
- *    走的是「有回执」模式：老师填完，调用方拿到 Key 才继续发请求。
+ * 只由用户动作打开，三种入口共用一个弹窗：
+ * 1. 提交时被拦下 —— utils/gemini-api/auth.ts 的 requestAdminApiKey 派发事件，
+ *    走的是「有回执」模式：老师填完，调用方拿到 Key 才继续发请求；
+ * 2. 工具栏的企业微信图标；
+ * 3. 空画布上的引导卡片。
+ *
+ * 刻意不做启动自动弹窗：老师还没做任何操作就弹出二维码，实测观感像广告。
+ * 未配 Key 的状态交给输入栏的一行提示和空画布卡片去表达，需要时才点开这里。
  *
  * 为什么保留就地粘贴：让不熟悉后台的老师去「设置 → 供应商」里找输入框，
  * 反而比在这里直接粘贴更容易卡住。设置页仍然是正规入口，二者写入同一份配置。
@@ -12,11 +16,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Input } from 'tdesign-react';
-import {
-  hasInvocationRouteCredentials,
-  geminiSettings,
-  settingsManager,
-} from '../../utils/settings-manager';
+import { geminiSettings } from '../../utils/settings-manager';
 import {
   ADMIN_KEY_GUIDANCE_EVENT,
   type AdminKeyGuidanceRequestDetail,
@@ -34,40 +34,15 @@ export const AdminKeyGuidance: React.FC = () => {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // 只有「提交被拦下」这条路径有回执；启动引导时是 null
+  // 三条入口都走同一个事件通道，所以总有一个调用方在等回执。
+  // 提交被拦下那条会拿 Key 继续发请求；工具栏图标和画布卡片只是打开弹窗，
+  // 拿到什么都无所谓，取消时回 null。
   const pendingResolveRef = useRef<((apiKey: string | null) => void) | null>(null);
 
   const settle = useCallback((value: string | null) => {
     const resolve = pendingResolveRef.current;
     pendingResolveRef.current = null;
     resolve?.(value);
-  }, []);
-
-  // 启动检查。依赖数组为空已经保证只在挂载时跑一次，这里刻意不加 ref 守卫：
-  // StrictMode 下 effect 会跑两遍，ref 守卫会让第二遍（真正存活的那一遍）
-  // 直接返回，而第一遍的结果又被 cancelled 丢掉，导致永远不弹。
-  useEffect(() => {
-    let cancelled = false;
-    settingsManager
-      .waitForInitialization()
-      .then(() => {
-        if (cancelled) {
-          return;
-        }
-        // 必须等初始化完成后再查：provider profile 的 apiKey 是加密存储的，
-        // 初始化前读到的是密文，会把「没配」误判成「已配」。
-        if (!hasInvocationRouteCredentials('image')) {
-          setVisible(true);
-        }
-      })
-      .catch((err) => {
-        // 初始化失败时不打扰老师，交给提交时的拦截路径兜底
-        console.debug('[AdminKeyGuidance] 设置初始化失败，跳过启动引导', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   useEffect(() => {

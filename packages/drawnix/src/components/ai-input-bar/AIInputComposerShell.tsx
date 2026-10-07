@@ -13,6 +13,9 @@ export interface AIInputComposerShellProps {
   textarea: React.ReactNode;
   leftTools?: React.ReactNode;
   controls?: React.ReactNode;
+  /** 输入框上方的一行提示（如「未配置 API Key」）。放在这里而不是 controls 里：
+   *  controls 那一行是右对齐 + overflow: hidden，窄屏会把提示从左侧裁掉。 */
+  notice?: React.ReactNode;
   sendButton: React.ReactNode;
   onDragEnter?: React.DragEventHandler<HTMLDivElement>;
   onDragOver?: React.DragEventHandler<HTMLDivElement>;
@@ -30,6 +33,7 @@ export const AIInputComposerShell: React.FC<AIInputComposerShellProps> = ({
   textarea,
   leftTools,
   controls,
+  notice,
   sendButton,
   onDragEnter,
   onDragOver,
@@ -94,6 +98,11 @@ export const AIInputComposerShell: React.FC<AIInputComposerShellProps> = ({
           {textarea}
         </div>
       </div>
+
+      {/* 容器是 column-reverse（见 scss），DOM 放最后才渲染在输入区之上 */}
+      {notice ? (
+        <div className="ai-input-composer-shell__notice">{notice}</div>
+      ) : null}
     </div>
   );
 };

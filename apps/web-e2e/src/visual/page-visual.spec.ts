@@ -86,26 +86,6 @@ test.describe('@visual 页面级视觉回归', () => {
   });
 
   /**
-   * 测试5：聊天抽屉打开状态
-   */
-  test('页面：聊天抽屉打开', async ({ page }) => {
-    await app.goto();
-    await app.waitForStable(1500);
-    
-    // 打开聊天抽屉
-    const chatTrigger = app.chatDrawer.trigger;
-    if (await chatTrigger.isVisible()) {
-      await chatTrigger.click();
-      await page.waitForTimeout(500);
-    }
-    
-    await expect(page).toHaveScreenshot('page-chat-drawer-open.png', {
-      maxDiffPixelRatio: 0.10,
-      fullPage: true,
-    });
-  });
-
-  /**
    * 测试6：素材库弹窗打开状态
    */
   test('页面：素材库打开', async ({ page }) => {

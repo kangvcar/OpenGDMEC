@@ -112,47 +112,6 @@ test.describe('@visual 抽屉组件视觉回归', () => {
     });
   });
 
-  test.describe('聊天抽屉', () => {
-    test('聊天抽屉 - 空会话', async ({ page }) => {
-      const chatTrigger = app.chatDrawer.trigger;
-      if (await chatTrigger.isVisible()) {
-        await chatTrigger.click();
-        await page.waitForTimeout(500);
-      }
-      
-      const chatDrawer = app.chatDrawer.container;
-      await expect(chatDrawer).toBeVisible();
-      await expect(chatDrawer).toHaveScreenshot('chat-drawer-empty.png', {
-        maxDiffPixelRatio: 0.10,
-      });
-    });
-
-    test('聊天抽屉 - 会话列表展开', async ({ page }) => {
-      const chatTrigger = app.chatDrawer.trigger;
-      if (await chatTrigger.isVisible()) {
-        await chatTrigger.click();
-        await page.waitForTimeout(500);
-      }
-      
-      // 点击会话列表按钮
-      const sessionListBtn = page.locator('.chat-drawer__close-btn').filter({ has: page.locator('svg') });
-      const buttons = await sessionListBtn.all();
-      for (const btn of buttons) {
-        const ariaLabel = await btn.getAttribute('aria-label');
-        if (ariaLabel?.includes('会话')) {
-          await btn.click();
-          await page.waitForTimeout(300);
-          break;
-        }
-      }
-      
-      const chatDrawer = app.chatDrawer.container;
-      await expect(chatDrawer).toHaveScreenshot('chat-drawer-session-list.png', {
-        maxDiffPixelRatio: 0.10,
-      });
-    });
-  });
-
   test.describe('任务队列面板', () => {
     test('任务队列面板 - 空状态', async ({ page }) => {
       // 尝试打开任务队列

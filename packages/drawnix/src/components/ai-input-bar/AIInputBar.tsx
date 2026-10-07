@@ -186,6 +186,7 @@ import type {
 import { analytics } from '../../utils/umami-analytics';
 import classNames from 'classnames';
 import { CanvasWatermark } from '../canvas-watermark/CanvasWatermark';
+import { AdminKeyCanvasCard } from '../admin-contact/admin-key-canvas-card';
 import { AIInputComposerShell } from './AIInputComposerShell';
 import { GenerationTypeDropdown } from './GenerationTypeDropdown';
 import { CountDropdown } from './CountDropdown';
@@ -2623,6 +2624,11 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
         return textCredentials;
       return imageCredentials;
     }, [audioCredentials, generationType, imageCredentials, textCredentials, videoCredentials]);
+
+    // 画布引导卡片的判据是「一个类型都没配」，与 composerHasCredentials（当前类型没配）
+    // 刻意不同：只有文本路由缺 Key 时说「尚未配置 API Key」是错的。
+    const hasAnyCredentials =
+      imageCredentials || videoCredentials || audioCredentials || textCredentials;
 
     useEffect(() => {
       let cancelled = false;
@@ -7883,6 +7889,11 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
           {/* 判空结果未知（null）时不渲染，避免启动瞬间闪一下 */}
           <CanvasWatermark visible={isCanvasEmpty === true} />
 
+          {/* 完全没配凭据 + 画布为空时，在画布正中给一次主动引导 */}
+          <AdminKeyCanvasCard
+            visible={isCanvasEmpty === true && !hasAnyCredentials}
+          />
+
           <AIInputComposerShell
             variant="canvas"
             expanded={shouldKeepExpanded}
@@ -7893,6 +7904,14 @@ export const AIInputBar: React.FC<AIInputBarProps> = React.memo(
                 isDraggingInputFiles,
             })}
             {...inputFileDropTargetProps}
+            notice={
+              // 未配 Key 时模型下拉是隐藏的，输入栏右侧空着像坏了；补一句解释。
+              composerHasCredentials ? null : (
+                <span className="ai-input-bar__key-hint">
+                  尚未配置 API Key，点工具栏的企业微信图标领取
+                </span>
+              )
+            }
             leftTools={
               <>
                 <input

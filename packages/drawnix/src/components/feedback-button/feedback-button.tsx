@@ -1,72 +1,33 @@
 /**
  * FeedbackButton Component
  *
- * A circular feedback button positioned at the bottom-right of the canvas.
- * Shows a QR code image on click for user feedback.
+ * 工具栏上的企业微信图标：点开就是「如何获取 API Key」引导弹窗。
+ *
+ * 这里刻意只是打开 admin-key-guidance 的弹窗，不再自己画一份二维码浮层 ——
+ * 弹窗里二维码、联系人说明、机构署名、Key 输入框都有，是原浮层的严格超集。
+ * 两份 UI 并存只会让同一句文案、同一张图各写一遍。
  */
 
-import React, { useEffect, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '../popover/popover';
-import { useBoard } from '@plait-board/react-board';
-import { PlaitBoard } from '@plait/core';
-import { Z_INDEX } from '../../constants/z-index';
-import {
-  ADMIN_CONTACT_TEXT,
-  ADMIN_QR_URL,
-} from '../../constants/admin-contact';
-import { INSTITUTION_CREDIT_TEXT } from '../../constants/institution-credit';
+import React from 'react';
+import { ADMIN_CONTACT_TEXT } from '../../constants/admin-contact';
+import { requestAdminApiKey } from '../../utils/admin-key-guidance-event';
 import { WeComIcon } from '../icons';
 import { ToolButton } from '../tool-button';
-import './feedback-button.scss';
 
-export const FeedbackButton: React.FC = () => {
-  const board = useBoard();
-  const container = PlaitBoard.getBoardContainer(board);
-  const [open, setOpen] = useState(false);
-
-  // 预加载图片
-  useEffect(() => {
-    const img = new Image();
-    img.src = ADMIN_QR_URL;
-  }, []);
-
-  return (
-    <Popover placement="right-end" sideOffset={12} open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <ToolButton
-          type="icon"
-          icon={<WeComIcon />}
-          aria-label={ADMIN_CONTACT_TEXT}
-          // 浮层展开时关掉 tooltip：tooltip 落在浮层右下角，会整条盖住署名行，
-          // 而且此刻浮层里本来就写着同样的文案，留着纯属重复。
-          tooltip={open ? undefined : ADMIN_CONTACT_TEXT}
-          tooltipPlacement="right"
-          selected={open}
-          visible={true}
-          data-track="toolbar_click_feedback"
-          onPointerDown={(e) => {
-            e.event.stopPropagation();
-          }}
-          onClick={() => setOpen(!open)}
-        />
-      </PopoverTrigger>
-      <PopoverContent container={container} style={{ zIndex: Z_INDEX.POPOVER_FEEDBACK }}>
-        <div className="feedback-qrcode-content">
-          <div className="feedback-qrcode-grid">
-            <div className="feedback-qrcode-item">
-              <img
-                src={ADMIN_QR_URL}
-                alt={`${ADMIN_CONTACT_TEXT}（管理员二维码）`}
-                className="feedback-qrcode-image"
-              />
-              <div className="feedback-qrcode-text">{ADMIN_CONTACT_TEXT}</div>
-              <div className="feedback-qrcode-credit">
-                {INSTITUTION_CREDIT_TEXT}
-              </div>
-            </div>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-};
+export const FeedbackButton: React.FC = () => (
+  <ToolButton
+    type="icon"
+    icon={<WeComIcon />}
+    aria-label={ADMIN_CONTACT_TEXT}
+    tooltip={ADMIN_CONTACT_TEXT}
+    tooltipPlacement="right"
+    visible={true}
+    data-track="toolbar_click_feedback"
+    onPointerDown={(e) => {
+      e.event.stopPropagation();
+    }}
+    // 返回值是「老师填了什么 Key」，只有提交被拦下那条路径需要；
+    // 这里只是打开弹窗，不关心回执。没有监听者时它 resolve null，不会 reject。
+    onClick={() => void requestAdminApiKey()}
+  />
+);

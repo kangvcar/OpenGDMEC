@@ -41,27 +41,6 @@ test.describe('@visual 交互状态视觉回归', () => {
         fullPage: true,
       });
     });
-
-    test('聊天抽屉 - 打开/关闭', async ({ page }) => {
-      // 关闭状态
-      await expect(page).toHaveScreenshot('drawer-chat-closed.png', {
-        maxDiffPixelRatio: 0.10,
-        fullPage: true,
-      });
-      
-      // 打开
-      const chatTrigger = app.chatDrawer.trigger;
-      if (await chatTrigger.isVisible()) {
-        await chatTrigger.click();
-        await page.waitForTimeout(500);
-      }
-      
-      // 打开状态
-      await expect(page).toHaveScreenshot('drawer-chat-open.png', {
-        maxDiffPixelRatio: 0.10,
-        fullPage: true,
-      });
-    });
   });
 
   test.describe('工具选择交互', () => {

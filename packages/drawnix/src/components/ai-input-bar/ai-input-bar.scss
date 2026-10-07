@@ -955,6 +955,21 @@ $ai-input-small-expanded-max-height: $ai-input-small-line-height * 6 +
     width: 100%;
   }
 
+  // 未配 API Key 时输入框上方的一行提示（见 AIInputBar 的 notice prop）
+  .ai-input-composer-shell__notice {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 4px 6px;
+  }
+
+  &__key-hint {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #8f959e;
+    text-align: center;
+  }
+
   .ai-input-composer-shell--disabled {
     opacity: 0.72;
   }

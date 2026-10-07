@@ -78,10 +78,7 @@ import { withTextResize } from './plugins/with-text-resize';
 import { withImageGenerationAnchor } from './plugins/with-image-generation-anchor';
 import { withWorkZone } from './plugins/with-workzone';
 import { MultiSelectionHandles } from './components/multi-selection-handles';
-import {
-  ChatDrawerProvider,
-  useChatDrawer,
-} from './contexts/ChatDrawerContext';
+import { ChatDrawerProvider } from './contexts/ChatDrawerContext';
 import { useWorkspace } from './hooks/useWorkspace';
 import { Board as WorkspaceBoard } from './types/workspace.types';
 import { toolTestHelper } from './utils/tool-test-helper';
@@ -184,13 +181,8 @@ const DeferredAIInputBar = lazy(() =>
     default: module.DeferredAIInputBar,
   }))
 );
-const ChatDrawer = lazy(() =>
-  import('./components/chat-drawer/ChatDrawer').then((module) => ({
-    default: module.ChatDrawer,
-  }))
-);
-// 未配置 API Key 的引导。刻意不放进 DrawnixDeferredFeatures ——
-// 那个子树要等 5s 定时器 + idle 回调才渲染，启动引导不该等那么久，
+// 未配置 API Key 的引导弹窗。刻意不放进 DrawnixDeferredFeatures ——
+// 那个子树要等 5s 定时器 + idle 回调才渲染，而老师点发送被拦下时要立刻弹出来，
 // 也不该和版本提示之类的开关耦合。
 const AdminKeyGuidance = lazy(() =>
   import('./components/admin-contact/admin-key-guidance').then((module) => ({
@@ -1100,7 +1092,6 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
   currentBoardId,
 }) => {
   const { setAppState: updateState } = useDrawnix();
-  const { chatDrawerRef } = useChatDrawer();
   const { language } = useI18n();
   const playbackError = useCanvasAudioPlaybackSelector((state) => state.error);
   const hasCanvasAudioPlayerActivity = useCanvasAudioPlaybackSelector(
@@ -1908,9 +1899,11 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
           {/* ViewNavigation - 视图导航（缩放 + 小地图） */}
           <ViewNavigation />
         </Wrapper>
-        <Suspense fallback={null}>
-          <ChatDrawer ref={chatDrawerRef} />
-        </Suspense>
+        {/* 教师发行版：右侧对话抽屉全局隐藏（以绘图为主，不需要对话面板）。
+            实现与上下文都保留 —— ChatDrawerProvider 仍在上面包着，AIInputBar 等
+            四个消费方依赖它；改回可见只要把这个 Suspense 放回来。
+            注意：未配 Key 时点发送的拦截原先由 ChatDrawer 注册，隐藏后会退化到
+            AIInputBar 的 promptForApiKey()，弹的是同一个引导弹窗。 */}
         <Suspense fallback={null}>
           <AdminKeyGuidance />
         </Suspense>

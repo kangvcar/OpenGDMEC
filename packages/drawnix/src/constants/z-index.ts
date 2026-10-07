@@ -31,7 +31,6 @@ export const Z_INDEX = {
   // Layer 3: Popovers (3000-3999)
   // ==========================================
   POPOVER: 3000,
-  POPOVER_FEEDBACK: 3010,
   POPOVER_ZOOM: 3020,
 
   // ==========================================
