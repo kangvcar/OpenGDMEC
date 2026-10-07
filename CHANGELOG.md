@@ -1,3 +1,13 @@
+## 1.1.30 (2026-10-07)
+
+### 🔧 Chores
+
+- 加站点所属权验证文件 ([77db7db3](https://github.com/ljquan/opentu/commit/77db7db3))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.29 (2026-10-07)
 
 ### 🚀 Features

@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.30",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [],
+        "fixes": [],
+        "improvements": [
+          "加站点所属权验证文件"
+        ]
+      },
+      "type": "patch",
+      "highlights": "构建修复与稳定性改进"
+    },
+    {
       "version": "1.1.29",
       "date": "2026-10-07",
       "changes": {
@@ -949,26 +962,6 @@
       },
       "type": "patch",
       "highlights": "新增 omni-flash 视频模型支持"
-    },
-    {
-      "version": "0.9.10",
-      "date": "2026-05-21",
-      "changes": {
-        "features": [
-          "画布图片选中状态锁定优化",
-          "sync media library batch select functionality across AIInputBar and EnhancedChatInput"
-        ],
-        "fixes": [
-          "修复异步图片接口开关路由",
-          "移除图片接口默认 response_format"
-        ],
-        "improvements": [
-          "文档：补充模型分类优先级经验",
-          "调整运行时模型分类优先级并补充 category 回归测试"
-        ]
-      },
-      "type": "patch",
-      "highlights": "画布图片选中状态锁定优化"
     }
   ]
 }

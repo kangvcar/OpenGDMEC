@@ -1,8 +1,6 @@
 {
-  "version": "1.1.29",
-  "buildTime": "2026-10-07T10:59:35.852Z",
+  "version": "1.1.30",
+  "buildTime": "2026-10-07T11:18:30.664Z",
   "gitCommit": "unknown",
-  "changelog": [
-    "收起栏补企业微信入口、工具栏避让输入栏、画布中心加平台名"
-  ]
+  "changelog": []
 }
