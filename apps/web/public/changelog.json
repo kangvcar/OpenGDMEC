@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "1.1.23",
+      "date": "2026-10-07",
+      "changes": {
+        "features": [
+          "设置面板对老师摘掉入口，管理员改走版本行连点手势"
+        ],
+        "fixes": [],
+        "improvements": []
+      },
+      "type": "patch",
+      "highlights": "设置面板对老师摘掉入口，管理员改走版本行连点手势"
+    },
+    {
       "version": "1.1.22",
       "date": "2026-10-07",
       "changes": {
@@ -974,24 +987,6 @@
       },
       "type": "patch",
       "highlights": "构建修复与稳定性改进"
-    },
-    {
-      "version": "0.9.3",
-      "date": "2026-05-06",
-      "changes": {
-        "features": [
-          "support AI image mask editing"
-        ],
-        "fixes": [
-          "keep send button visible",
-          "resume async image tasks after reload"
-        ],
-        "improvements": [
-          "更新版本号至0.9.2并刷新构建时间"
-        ]
-      },
-      "type": "patch",
-      "highlights": "support AI image mask editing"
     }
   ]
 }

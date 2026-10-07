@@ -1,3 +1,13 @@
+## 1.1.23 (2026-10-07)
+
+### 🚀 Features
+
+- 设置面板对老师摘掉入口，管理员改走版本行连点手势 ([ce9df584](https://github.com/ljquan/opentu/commit/ce9df584))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.22 (2026-10-07)
 
 ### 🚀 Features
