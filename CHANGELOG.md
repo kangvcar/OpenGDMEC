@@ -1,3 +1,13 @@
+## 1.1.29 (2026-10-07)
+
+### 🚀 Features
+
+- 收起栏补企业微信入口、工具栏避让输入栏、画布中心加平台名 ([fd58facd](https://github.com/ljquan/opentu/commit/fd58facd))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.28 (2026-10-07)
 
 ### 🚀 Features
