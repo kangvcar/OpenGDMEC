@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@plait/core':
+    hash: 0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe
+    path: patches/@plait__core.patch
+
 importers:
 
   .:
@@ -43,7 +48,7 @@ importers:
         version: 0.84.0
       '@plait/core':
         specifier: ^0.84.0
-        version: 0.84.0(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
+        version: 0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
       '@plait/draw':
         specifier: ^0.84.0
         version: 0.84.0
@@ -453,7 +458,7 @@ importers:
         version: 0.84.0
       '@plait/core':
         specifier: ^0.84.0
-        version: 0.84.0(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
+        version: 0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)
       '@plait/draw':
         specifier: ^0.84.0
         version: 0.84.0
@@ -510,7 +515,7 @@ importers:
         version: 6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0)
       vite-plugin-dts:
         specifier: ^4.3.0
-        version: 4.5.4(@types/node@22.19.15)(rollup@4.55.1)(typescript@5.4.5)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0))
+        version: 4.5.4(@types/node@22.19.15)(rollup@4.55.1)(typescript@5.8.2)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0))
 
 packages:
 
@@ -11650,7 +11655,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@plait/core@0.84.0(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)':
+  '@plait/core@0.84.0(patch_hash=0612d6361c5c9c8920c76b812beaaf49948225615ab28da29a007ddcc89ffebe)(immer@10.2.0)(is-hotkey@0.2.0)(rxjs@7.8.2)':
     dependencies:
       immer: 10.2.0
       is-hotkey: 0.2.0
@@ -13724,6 +13729,19 @@ snapshots:
       path-browserify: 1.0.1
     optionalDependencies:
       typescript: 5.4.5
+
+  '@vue/language-core@2.2.0(typescript@5.8.2)':
+    dependencies:
+      '@volar/language-core': 2.4.27
+      '@vue/compiler-dom': 3.5.26
+      '@vue/compiler-vue2': 2.7.16
+      '@vue/shared': 3.5.26
+      alien-signals: 0.4.14
+      minimatch: 9.0.5
+      muggle-string: 0.4.1
+      path-browserify: 1.0.1
+    optionalDependencies:
+      typescript: 5.8.2
 
   '@vue/reactivity@3.5.27':
     dependencies:
@@ -19702,18 +19720,18 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-dts@4.5.4(@types/node@22.19.15)(rollup@4.55.1)(typescript@5.4.5)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0)):
+  vite-plugin-dts@4.5.4(@types/node@22.19.15)(rollup@4.55.1)(typescript@5.8.2)(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0)):
     dependencies:
       '@microsoft/api-extractor': 7.55.2(@types/node@22.19.15)
       '@rollup/pluginutils': 5.3.0(rollup@4.55.1)
       '@volar/typescript': 2.4.27
-      '@vue/language-core': 2.2.0(typescript@5.4.5)
+      '@vue/language-core': 2.2.0(typescript@5.8.2)
       compare-versions: 6.1.1
       debug: 4.4.3
       kolorist: 1.8.0
       local-pkg: 1.1.2
       magic-string: 0.30.21
-      typescript: 5.4.5
+      typescript: 5.8.2
     optionalDependencies:
       vite: 6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
