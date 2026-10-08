@@ -1105,6 +1105,27 @@
   }
 }
 
+/* WebKit（Safari / iOS 微信内置浏览器）在 SVG foreignObject 内不绘制"独立合成层"的内容：
+   position 非 static、z-index、animation 等会建层的元素连同其子树整块空白。
+   进度卡片整体靠这些属性做叠层和动效，于是手机上（老师用微信打开）卡片完全不出现。
+   这里在 Safari 下把承载内容的层降级为静态绘制，保证 ring、文案、按钮可见；
+   装饰性绝对定位层（glow/preview 等）本来就是纯装饰，丢失不影响功能。
+   判定 Safari 用 board 容器自带的 .safari 类（@plait/core 的 IS_SAFARI），桌面不受影响。 */
+.safari .image-generation-anchor,
+.safari .image-generation-anchor__surface,
+.safari .image-generation-anchor__surface-core,
+.safari .image-generation-anchor__details,
+.safari .image-generation-anchor__actions,
+.safari .image-generation-anchor__stack-slot,
+.safari .image-generation-anchor .image-generation-progress-display__ring {
+  position: static;
+}
+
+.safari .image-generation-anchor * {
+  z-index: auto;
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .image-generation-anchor,
   .image-generation-anchor__glow,
