@@ -748,7 +748,9 @@ export const Image: React.FC<ImageProps> = (props: ImageProps) => {
               height: '100%',
               display: semanticLayerHidden ? 'none' : undefined,
               overflow: showGenerationPrompt ? 'visible' : undefined,
-              position: showGenerationPrompt ? 'relative' : undefined,
+              // 这里不能加 position（非 static）：本组件渲染在 SVG foreignObject 内，
+              // WebKit（Safari/微信）不绘制 foreignObject 内会建立合成层的子树，
+              // 加了会让 AI 生成的图片（带 generationPrompt）在手机上整块空白。
             }
           : undefined
       }

@@ -111,6 +111,10 @@ export const Board: React.FC<PlaitBoardProps> = ({
         `theme-${board.theme?.themeColorMode}`,
         `pointer-${board.pointer}`,
         {
+          // WebKit（Safari、iOS 微信 WKWebView、Chrome iOS 等）不绘制 foreignObject 内
+          // 会建立合成层的内容，需要 CSS 降级。Plait 的 IS_SAFARI 只认 UA 里的
+          // "Version/x.x ... Safari"，微信用的是 WKWebView 但没有该标记，故按引擎判定。
+          webkit: IS_WEBKIT_ENGINE,
           focused: PlaitBoard.isFocus(board),
           readonly: PlaitBoard.isReadonly(board),
           'disabled-scroll':
@@ -159,3 +163,10 @@ const getBrowserClassName = () => {
   }
   return '';
 };
+
+// WebKit 引擎判定：桌面 Safari、iOS 上所有浏览器（含微信/Chrome/Firefox iOS）都是 WebKit；
+// Chrome/Edge/Opera（Blink）带 "Chrome/"、"Edg/"、"OPR/"，Android 上的 WebView 也是 Blink。
+const IS_WEBKIT_ENGINE =
+  typeof navigator !== 'undefined' &&
+  /AppleWebKit/.test(navigator.userAgent) &&
+  !/Chrome\/|Chromium|Edg\/|OPR\/|Android/.test(navigator.userAgent);
