@@ -1,8 +1,8 @@
 {
-  "version": "1.1.36",
-  "buildTime": "2026-10-08T00:17:21.249Z",
+  "version": "1.1.37",
+  "buildTime": "2026-10-08T01:53:58.883Z",
   "gitCommit": "unknown",
   "changelog": [
-    "Safari/微信进度卡片空白——foreignObject 内合成层不绘制，降级为静态"
+    "画布上 AI 生成的图片空白 + 微信里进度卡片仍不显示"
   ]
 }

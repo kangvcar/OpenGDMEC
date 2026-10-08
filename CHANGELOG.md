@@ -1,3 +1,13 @@
+## 1.1.37 (2026-10-08)
+
+### 🩹 Fixes
+
+- 画布上 AI 生成的图片空白 + 微信里进度卡片仍不显示 ([8dc6e1fb](https://github.com/ljquan/opentu/commit/8dc6e1fb))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.36 (2026-10-08)
 
 ### 🩹 Fixes
