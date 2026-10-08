@@ -1,8 +1,8 @@
 {
-  "version": "1.1.35",
-  "buildTime": "2026-10-07T14:28:45.040Z",
+  "version": "1.1.36",
+  "buildTime": "2026-10-08T00:17:21.249Z",
   "gitCommit": "unknown",
   "changelog": [
-    "生成进度卡片/落图位置改用可见区中心、自适应失败退回平移、收起栏补新版本入口"
+    "Safari/微信进度卡片空白——foreignObject 内合成层不绘制，降级为静态"
   ]
 }

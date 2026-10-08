@@ -1,3 +1,13 @@
+## 1.1.36 (2026-10-08)
+
+### 🩹 Fixes
+
+- Safari/微信进度卡片空白——foreignObject 内合成层不绘制，降级为静态 ([4b8fcbe8](https://github.com/ljquan/opentu/commit/4b8fcbe8))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.35 (2026-10-07)
 
 ### 🩹 Fixes
