@@ -3,6 +3,7 @@ import { buildVisualStructuredPromptSchemaInstruction } from '../utils/visual-st
 import {
   createDirectory,
   createNote,
+  deleteNote,
   getAllDirectories,
   getNoteById,
   getNotesBySourceUrl,
@@ -45,6 +46,18 @@ export interface PromptOptimizationRequestOptions {
 
 const PROMPT_OPTIMIZATION_DIRECTORY_NAME = '提示词优化';
 const SOURCE_URL_PREFIX = 'aitu://prompt-optimization/';
+
+/**
+ * 不进知识库的场景模板：音乐、视频、音频。
+ * 这些场景仍可用于提示词优化（模板内置在代码里），但不再写入/保留知识库
+ * 「提示词优化」目录，避免展示教师端不提供的生成能力。
+ */
+const KNOWLEDGE_BASE_EXCLUDED_SCENARIO_IDS = new Set<PromptOptimizationScenarioId>([
+  'ai-input.video',
+  'ai-input.audio',
+  'tool.video',
+  'music.create-song',
+]);
 
 const SCENARIOS: Record<PromptOptimizationScenarioId, PromptOptimizationScenario> = {
   'ai-input.image': {
@@ -250,9 +263,15 @@ async function ensurePromptOptimizationDirectory(): Promise<string> {
 }
 
 async function getOrRestoreTemplate(scenario: PromptOptimizationScenario): Promise<string> {
+  const defaultTemplate = buildDefaultTemplate(scenario);
+
+  // 音乐/视频/音频场景不进知识库：直接用内置模板，不读写笔记
+  if (KNOWLEDGE_BASE_EXCLUDED_SCENARIO_IDS.has(scenario.id)) {
+    return defaultTemplate;
+  }
+
   const directoryId = await ensurePromptOptimizationDirectory();
   const sourceUrl = getSourceUrl(scenario.id);
-  const defaultTemplate = buildDefaultTemplate(scenario);
   const existingMetas = await getNotesBySourceUrl(sourceUrl);
   const existingMeta = existingMetas[0];
 
@@ -285,8 +304,25 @@ async function getOrRestoreTemplate(scenario: PromptOptimizationScenario): Promi
   return defaultTemplate;
 }
 
+/**
+ * 删除知识库里音乐/视频/音频场景的模板条目（含历史版本已写入的）。
+ */
+async function removeExcludedTemplateNotes(
+  scenario: PromptOptimizationScenario
+): Promise<void> {
+  const metas = await getNotesBySourceUrl(getSourceUrl(scenario.id));
+
+  for (const meta of metas) {
+    await deleteNote(meta.id);
+  }
+}
+
 export async function ensurePromptOptimizationTemplates(): Promise<void> {
   for (const scenario of Object.values(SCENARIOS)) {
+    if (KNOWLEDGE_BASE_EXCLUDED_SCENARIO_IDS.has(scenario.id)) {
+      await removeExcludedTemplateNotes(scenario);
+      continue;
+    }
     await getOrRestoreTemplate(scenario);
   }
 }

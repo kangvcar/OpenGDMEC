@@ -74,6 +74,9 @@ const kb = vi.hoisted(() => {
           : note
       );
     }),
+    deleteNote: vi.fn(async (id: string) => {
+      notes = notes.filter((note) => note.id !== id);
+    }),
   };
 });
 
@@ -84,6 +87,7 @@ vi.mock('./knowledge-base-service', () => ({
   getNoteById: kb.getNoteById,
   createNote: kb.createNote,
   updateNote: kb.updateNote,
+  deleteNote: kb.deleteNote,
 }));
 
 describe('prompt-optimization-service', () => {
@@ -109,44 +113,74 @@ describe('prompt-optimization-service', () => {
 
   it('creates the template directory and scenario note when missing', async () => {
     const content = await buildOptimizationPrompt({
+      scenarioId: 'ai-input.text',
+      originalPrompt: '写一段开学致辞',
+      optimizationRequirements: '更口语化',
+      language: 'zh',
+    });
+
+    expect(kb.getDirs()[0]?.name).toBe('提示词优化');
+    expect(kb.getNotes()[0]).toMatchObject({
+      title: 'AI输入-文本',
+      metadata: {
+        sourceUrl: 'aitu://prompt-optimization/ai-input.text',
+      },
+    });
+    expect(content).toContain('主题、受众、结构');
+    expect(content).toContain('【原始提示词】\n写一段开学致辞');
+    expect(content).toContain('【补充要求】\n更口语化');
+  });
+
+  it('does not write music/video/audio scenario notes into the knowledge base', async () => {
+    const musicContent = await buildOptimizationPrompt({
       scenarioId: 'music.create-song',
       originalPrompt: '夏天海边流行歌',
       optimizationRequirements: '更适合 Suno',
       language: 'zh',
     });
 
-    expect(kb.getDirs()[0]?.name).toBe('提示词优化');
-    expect(kb.getNotes()[0]).toMatchObject({
-      title: '爆款音乐-歌曲创作',
-      metadata: {
-        sourceUrl: 'aitu://prompt-optimization/music.create-song',
-      },
-    });
-    expect(content).toContain('爆款歌曲定位');
-    expect(content).toContain('【原始提示词】\n夏天海边流行歌');
-    expect(content).toContain('【补充要求】\n更适合 Suno');
+    expect(kb.getDirs()).toHaveLength(0);
+    expect(kb.getNotes()).toHaveLength(0);
+    // 模板仍内置可用，只是不落进知识库
+    expect(musicContent).toContain('爆款歌曲定位');
+    expect(musicContent).toContain('【原始提示词】\n夏天海边流行歌');
   });
 
-  it('ensures all default scenario notes for Knowledge Base browsing', async () => {
+  it('ensures only non music/video/audio scenario notes for Knowledge Base browsing', async () => {
     await ensurePromptOptimizationTemplates();
 
     expect(kb.getDirs()).toHaveLength(1);
     expect(kb.getDirs()[0]?.name).toBe('提示词优化');
     expect(kb.getNotes().map((note) => note.title)).toEqual([
       'AI输入-图片',
-      'AI输入-视频',
-      'AI输入-音频',
       'AI输入-文本',
       'AI输入-Agent',
       '工具-图片生成',
-      '工具-视频生成',
       'PPT-公共提示词',
       'PPT-单页提示词',
-      '爆款音乐-歌曲创作',
     ]);
     expect(kb.getNotes().map((note) => note.metadata?.sourceUrl)).toContain(
       'aitu://prompt-optimization/ai-input.agent'
     );
+  });
+
+  it('removes previously seeded music/video/audio notes from the knowledge base', async () => {
+    const dir = await kb.createDirectory('提示词优化');
+    const seeded = await kb.createNote('AI输入-视频', dir.id, '', {
+      sourceUrl: 'aitu://prompt-optimization/ai-input.video',
+    });
+    await kb.createNote('爆款音乐-歌曲创作', dir.id, '我自己改过的模板', {
+      sourceUrl: 'aitu://prompt-optimization/music.create-song',
+    });
+
+    await ensurePromptOptimizationTemplates();
+
+    const titles = kb.getNotes().map((note) => note.title);
+    expect(titles).not.toContain('AI输入-视频');
+    expect(titles).not.toContain('工具-视频生成');
+    expect(titles).not.toContain('AI输入-音频');
+    expect(titles).not.toContain('爆款音乐-歌曲创作');
+    expect(await kb.getNoteById(seeded.id)).toBeNull();
   });
 
   it('uses a non-empty user-edited note without overwriting it', async () => {
@@ -173,13 +207,13 @@ describe('prompt-optimization-service', () => {
 
   it('restores an empty scenario note from the built-in template', async () => {
     const dir = await kb.createDirectory('提示词优化');
-    const note = await kb.createNote('AI输入-音频', dir.id, '', {
-      sourceUrl: 'aitu://prompt-optimization/ai-input.audio',
+    const note = await kb.createNote('AI输入-文本', dir.id, '', {
+      sourceUrl: 'aitu://prompt-optimization/ai-input.text',
     });
 
     const content = await buildOptimizationPrompt({
-      scenarioId: 'ai-input.audio',
-      originalPrompt: '轻快背景音乐',
+      scenarioId: 'ai-input.text',
+      originalPrompt: '写一段开学致辞',
       optimizationRequirements: '',
       language: 'zh',
     });
@@ -190,18 +224,18 @@ describe('prompt-optimization-service', () => {
         content: expect.stringContaining('{{scenarioName}}'),
       })
     );
-    expect(content).toContain('AI 输入框音频生成');
-    expect(content).toContain('音乐风格、节奏、情绪');
+    expect(content).toContain('AI 输入框文本生成');
+    expect(content).toContain('主题、受众、结构');
   });
 
   it('keeps required runtime input block even when custom template omits variables', async () => {
     const dir = await kb.createDirectory('提示词优化');
-    await kb.createNote('工具-视频生成', dir.id, '只写固定优化规则', {
-      sourceUrl: 'aitu://prompt-optimization/tool.video',
+    await kb.createNote('工具-图片生成', dir.id, '只写固定优化规则', {
+      sourceUrl: 'aitu://prompt-optimization/tool.image',
     });
 
     const content = await buildOptimizationPrompt({
-      scenarioId: 'tool.video',
+      scenarioId: 'tool.image',
       originalPrompt: '城市夜景延时摄影',
       optimizationRequirements: '增强镜头运动',
       language: 'zh',
