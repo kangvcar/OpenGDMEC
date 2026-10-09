@@ -1,3 +1,13 @@
+## 1.1.38 (2026-10-09)
+
+### 🩹 Fixes
+
+- 工具元素、工作流面板在微信/Safari 上整块空白 ([4cf23303](https://github.com/ljquan/opentu/commit/4cf23303))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.37 (2026-10-08)
 
 ### 🩹 Fixes
