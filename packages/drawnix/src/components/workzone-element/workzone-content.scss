@@ -407,3 +407,18 @@
     transform: scale(0.97);
   }
 }
+
+/* WebKit（Safari / iOS 微信等 WKWebView）不绘制 SVG foreignObject 内会建立合成层的内容：
+   工作流面板的容器带 transform: scale()（即使等于 scale(1)）、内容层带 position/animation，
+   于是整个面板在手机上整块空白（布局在、没有像素）。
+   这里在 WebKit 下把面板内容降级为静态绘制：丢的是动画/叠层/等比缩放，保留的是内容可见可点。
+   判定按 board 容器的 .webkit 类，Chrome/Edge/Firefox 不受影响。 */
+.webkit .plait-workzone-container,
+.webkit .plait-workzone-container * {
+  position: static !important;
+  transform: none !important;
+  z-index: auto !important;
+  animation: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}

@@ -175,3 +175,11 @@
   }
 }
 
+
+/* 同上：工具面板的容器/内容区用 position: relative 做叠层（iframe 蒙层、loader 居中），
+   WebKit 下会让整个 foreignObject 内容不绘制 → 工具元素在手机上空白。
+   降级为静态后内容仍可见可点，只少了蒙层叠放。 */
+.webkit .plait-tool-container,
+.webkit .plait-tool-content {
+  position: static !important;
+}
