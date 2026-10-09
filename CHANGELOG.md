@@ -1,3 +1,13 @@
+## 1.1.39 (2026-10-09)
+
+### 🩹 Fixes
+
+- 提示词优化目录不再收录音乐/视频/音频条目 ([661f44f9](https://github.com/ljquan/opentu/commit/661f44f9))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.38 (2026-10-09)
 
 ### 🩹 Fixes

@@ -1,8 +1,8 @@
 {
-  "version": "1.1.38",
-  "buildTime": "2026-10-09T02:03:50.221Z",
+  "version": "1.1.39",
+  "buildTime": "2026-10-09T02:32:36.251Z",
   "gitCommit": "unknown",
   "changelog": [
-    "工具元素、工作流面板在微信/Safari 上整块空白"
+    "提示词优化目录不再收录音乐/视频/音频条目"
   ]
 }
