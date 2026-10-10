@@ -1,3 +1,13 @@
+## 1.1.42 (2026-10-10)
+
+### 🩹 Fixes
+
+- 修复卡在 82%、工具点击吞快捷键、语言入口残缺 ([101609fb](https://github.com/ljquan/opentu/commit/101609fb))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.41 (2026-10-10)
 
 ### 🩹 Fixes
