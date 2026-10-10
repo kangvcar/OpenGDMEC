@@ -198,6 +198,18 @@ export const ToolButton = React.forwardRef((props: ToolButtonProps, ref) => {
       }}
       onPointerUp={(event) => {
         props.onPointerUp?.({ pointerType: event.pointerType || null });
+        // 鼠标点完工具后，label 的默认行为会把焦点交给内部 radio。焦点一旦落在
+        // input 上，plait 的 keydown 守卫（hasInputOrTextareaTarget）就以为用户
+        // 在打字，Cmd+Z 这类画布快捷键被静默吞掉，非得再点一下画布才恢复。
+        // 只处理鼠标：触屏本就没有快捷键，键盘（方向键切换 radio）需要保留焦点。
+        if (event.pointerType === 'mouse') {
+          const radio = event.currentTarget.querySelector('input');
+          window.setTimeout(() => {
+            if (radio && document.activeElement === radio) {
+              radio.blur();
+            }
+          }, 0);
+        }
         requestAnimationFrame(() => {
           lastPointerTypeRef.current = null;
         });

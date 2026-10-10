@@ -166,7 +166,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <meta name="app-version" content="1.1.21" />
+    <meta name="app-version" content="1.1.39" />
     <style>
       :root {
         --app-boot-bg: radial-gradient(
@@ -317,6 +317,24 @@
         color: rgba(99, 110, 114, 0.84);
         font-size: 12px;
         line-height: 1.5;
+      }
+
+      .app-boot-retry {
+        margin-top: 16px;
+        padding: 8px 20px;
+        border: 0;
+        border-radius: 8px;
+        background: #f39c12;
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.4;
+        cursor: pointer;
+      }
+
+      .app-boot-retry:disabled {
+        opacity: 0.72;
+        cursor: default;
       }
 
       #seo-content {
@@ -688,9 +706,13 @@
           }
         }, 4000);
         var removeTimer = 0;
+        var mainEntryWatchdogTimer = 0;
         var resolveMainEntryReady = null;
         var BOOT_IMPORT_RETRY_STORAGE_KEY = '__OPENTU_BOOT_IMPORT_RETRY_AT__';
         var BOOT_IMPORT_RETRY_TTL_MS = 2 * 60 * 1000;
+        // 45s 是权衡出来的：调小会在校园网慢速首次加载时误判成卡死并触发重载，
+        // 调大则老师对着 82% 干等。慢网络首包最多就到了 4s 提示那档。
+        var BOOT_ENTRY_WATCHDOG_MS = 45 * 1000;
         window.__OPENTU_START_MAIN_ENTRY__ = new Promise(function (resolve) {
           resolveMainEntryReady = resolve;
         });
@@ -820,6 +842,34 @@
           return true;
         };
 
+        // 入口 bundle 的 import() 在「部署切换」时会既不 resolve 也不 reject：旧
+        // index.html 指向已被新部署删掉的 chunk，请求悬在那里，error /
+        // unhandledrejection 都不触发，模拟进度永远停在 82%。超时后按「可恢复的
+        // 动态导入失败」处理——清 SW 与静态缓存 + 带 _lazy_chunk_retry 自动重载；
+        // 若 2 分钟内已经自动重载过一次（recovery 返回 false），就落到 markError
+        // 给出可点的重新加载按钮，不再无声等待。
+        function startMainEntryWatchdog() {
+          if (mainEntryWatchdogTimer || bootReady || isBootLocalDevelopment()) {
+            return;
+          }
+
+          mainEntryWatchdogTimer = window.setTimeout(function () {
+            mainEntryWatchdogTimer = 0;
+            if (bootReady) {
+              return;
+            }
+
+            var error = new Error(
+              'Failed to fetch dynamically imported module: boot main entry timeout'
+            );
+            if (window.__OPENTU_BOOT_DYNAMIC_IMPORT_RECOVERY__(error)) {
+              return;
+            }
+
+            markError('启动资源加载超时，请点击下方按钮重新加载。');
+          }, BOOT_ENTRY_WATCHDOG_MS);
+        }
+
         function clearBootTimers() {
           if (slowTipTimer) {
             window.clearTimeout(slowTipTimer);
@@ -832,6 +882,10 @@
           if (simulationTimer) {
             window.clearInterval(simulationTimer);
             simulationTimer = 0;
+          }
+          if (mainEntryWatchdogTimer) {
+            window.clearTimeout(mainEntryWatchdogTimer);
+            mainEntryWatchdogTimer = 0;
           }
         }
 
@@ -971,6 +1025,31 @@
           removeTimer = window.setTimeout(removeBootRoot, 360);
         }
 
+        // 错误态只改文案的话，老师看到「请刷新页面后重试」却不知道该怎么刷（尤其
+        // 微信里没有刷新按钮），所以给一个真能点的按钮，走和自动恢复同一条路径。
+        function ensureBootRetryButton() {
+          var card = document.querySelector('#app-boot-loading .app-boot-card');
+          if (!card || card.querySelector('[data-app-boot-retry]')) {
+            return;
+          }
+
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'app-boot-retry';
+          button.setAttribute('data-app-boot-retry', '');
+          button.textContent = '重新加载';
+          button.addEventListener('click', function () {
+            button.disabled = true;
+            button.textContent = '正在重新加载...';
+            var reload = function () {
+              window.location.replace(createBootImportRecoveryUrl());
+            };
+            window.setTimeout(reload, 400);
+            prepareBootImportRecovery().then(reload, reload);
+          });
+          card.appendChild(button);
+        }
+
         function markError(message) {
           if (bootReady) {
             return;
@@ -986,6 +1065,7 @@
           if (tip) {
             tip.textContent = message || '资源加载失败，请刷新页面后重试。';
           }
+          ensureBootRetryButton();
         }
 
         window.__OPENTU_BOOT__ = {
@@ -1104,6 +1184,7 @@
           resolveMainEntryReady();
           resolveMainEntryReady = null;
         }
+        startMainEntryWatchdog();
 
         window.addEventListener(
           'error',

@@ -5,11 +5,18 @@ import Menu from '../../menu/menu';
 import MenuItem from '../../menu/menu-item';
 import { MenuContentPropsContext } from '../../menu/common';
 import { EVENT } from '../../../constants';
+import { isUiLanguageSwitchable } from '../../../constants/distribution';
 
 export const LanguageSwitcherMenu = () => {
   const { language, setLanguage, t } = useI18n();
   const menuContentProps = useContext(MenuContentPropsContext);
-  
+
+  // 教师发行版只留中文：英文只覆盖了一部分组件，切过去是半中半英的界面，
+  // 索性不暴露入口（见 constants/distribution.ts）。
+  if (!isUiLanguageSwitchable()) {
+    return null;
+  }
+
   return (
     <MenuItem
       icon={<MenuIcon />}

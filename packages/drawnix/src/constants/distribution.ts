@@ -23,3 +23,19 @@ export function isExposedGenerationType(
     (EXPOSED_GENERATION_TYPES as readonly string[]).includes(value)
   );
 }
+
+/**
+ * 界面语言：教师发行版只留中文。
+ *
+ * 英文词条只覆盖了上游的一部分组件（AI 输入栏、尺寸/参数下拉、画布提示等仍是
+ * 硬编码中文），切过去得到的是半中半英的界面。与其给老师一个残缺的英文，不如
+ * 不暴露入口。将来补齐英文词条后，把 'en' 加回来这一处即可。
+ */
+export const EXPOSED_UI_LANGUAGES = ['zh'] as const;
+
+export type ExposedUiLanguage = (typeof EXPOSED_UI_LANGUAGES)[number];
+
+/** 只有一种可选语言时，界面上不提供语言切换入口 */
+export function isUiLanguageSwitchable(): boolean {
+  return EXPOSED_UI_LANGUAGES.length > 1;
+}
