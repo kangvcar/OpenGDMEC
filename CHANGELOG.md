@@ -1,3 +1,13 @@
+## 1.1.41 (2026-10-10)
+
+### 🩹 Fixes
+
+- 去掉空箭头函数兜底，消除 ESLint no-empty-function ([89c3e099](https://github.com/ljquan/opentu/commit/89c3e099))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.40 (2026-10-10)
 
 ### 🚀 Features

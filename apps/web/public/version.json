@@ -1,8 +1,8 @@
 {
-  "version": "1.1.40",
-  "buildTime": "2026-10-10T04:29:48.335Z",
+  "version": "1.1.41",
+  "buildTime": "2026-10-10T05:08:59.052Z",
   "gitCommit": "unknown",
   "changelog": [
-    "新增新手导览，回答「Key 在哪填、图在哪生」"
+    "去掉空箭头函数兜底，消除 ESLint no-empty-function"
   ]
 }
