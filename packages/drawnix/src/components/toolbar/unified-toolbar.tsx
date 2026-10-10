@@ -572,7 +572,7 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
           <div className="unified-toolbar__section unified-toolbar__section--fixed-bottom">
             <BottomActionsSection
               projectDrawerOpen={projectDrawerOpen}
-              onProjectDrawerToggle={onProjectDrawerToggle || (() => {})}
+              onProjectDrawerToggle={onProjectDrawerToggle || (() => undefined)}
               toolboxDrawerOpen={toolboxDrawerOpen}
               onToolboxDrawerToggle={onToolboxDrawerToggle}
               taskPanelExpanded={taskPanelExpanded}
