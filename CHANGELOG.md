@@ -1,3 +1,13 @@
+## 1.1.40 (2026-10-10)
+
+### 🚀 Features
+
+- 新增新手导览，回答「Key 在哪填、图在哪生」 ([15118e34](https://github.com/ljquan/opentu/commit/15118e34))
+
+### ❤️  Thank You
+
+- kangvcar <kangvcar@gmail.com>
+
 ## 1.1.39 (2026-10-09)
 
 ### 🩹 Fixes
