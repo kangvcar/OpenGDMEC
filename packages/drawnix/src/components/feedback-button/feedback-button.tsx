@@ -25,6 +25,9 @@ export const FeedbackButton: React.FC = () => (
     tooltipPlacement="right"
     visible={true}
     data-track="toolbar_click_feedback"
+    // 新手导览最后一步指的就是这个按钮。手机收起态那个同名按钮在
+    // unified-toolbar.tsx 里，两处必须一致。
+    data-testid="toolbar-admin-key"
     onPointerDown={(e) => {
       e.event.stopPropagation();
     }}

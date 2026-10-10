@@ -73,6 +73,13 @@ export const LS_KEYS = {
   /** 知识库已被用户删除的默认目录名称列表（JSON 数组） */
   KB_DELETED_DEFAULT_DIRS: 'aitu:kb:deleted-default-dirs',
 
+  // ---- 新手引导 ----
+  /**
+   * 新手导览已播放标记。
+   * 带 v1 前缀：导览内容大改时递增版本号，让老用户也能重看一次新版。
+   */
+  ONBOARDING_TOUR_DONE: 'opentu_onboarding_tour_v1_done',
+
   // ---- 迁移标记 ----
   /** 数据库清理完成标记 */
   DB_CLEANUP_DONE: 'db-cleanup-v1-done',

@@ -1,0 +1,105 @@
+// 新手导览的品牌化覆写
+//
+// 层级说明：遮罩与气泡的 z-index 由 driver.js 自己写在 JS/CSS 里（内联 10000 与 1e9），
+// 走不了项目的 Z_INDEX / $z-* 令牌 —— 那是第三方内部实现，这里不需要也不应该去覆盖它。
+// 需要知道的后果只有一个：导览存活期间遮罩会压住所有弹窗，所以「去填 Key」必须先
+// destroy() 再开弹窗（见 onboarding-tour.tsx 的 onDoneClick）。
+//
+// popoverClass 传的是 'opentu-tour'，它和 .driver-popover 同时在这个元素上，
+// 两个类名叠起来特异性高于 driver.css 里的 .driver-popover，能压住它的 all:unset。
+
+// 气泡是 portal 到 body 的，body 上没有 .drawnix 那层字体栈，所以这里显式写一份
+// （与 .toolbar-context-menu 同样的处理，理由也相同）。
+.opentu-tour {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+    'Noto Sans', 'Noto Sans CJK SC', 'Microsoft Yahei', 'Hiragino Sans GB', Arial,
+    sans-serif;
+
+  // 卡片圆角按项目规范 12px（driver.js 默认 5px），比默认宽一点，
+  // 气泡只有百来字，宽出来的是可读性
+  border-radius: 12px;
+  padding: 16px 18px;
+  min-width: 240px;
+  max-width: 320px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.16);
+
+  .driver-popover-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2329;
+    line-height: 1.5;
+  }
+
+  .driver-popover-description {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #5c6470;
+    line-height: 1.7;
+  }
+
+  .driver-popover-progress-text {
+    font-size: 12px;
+    color: #a8b0bd;
+  }
+
+  .driver-popover-footer {
+    margin-top: 14px;
+    gap: 8px;
+  }
+
+  .driver-popover-navigation-btns {
+    gap: 8px;
+  }
+
+  .driver-popover-footer-btn {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 5px 12px;
+    font-size: 13px;
+    color: #1f2329;
+    background-color: #fff;
+    transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
+
+    &:hover,
+    &:focus {
+      background-color: #f7f8fa;
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // 下一步/完成是主行动点，用品牌橙；「上一步」保持中性，
+  // 气泡里只出现一个强调色，和引导弹窗里的处理一致。
+  // driver.js 给末步的 next 按钮追加 --done-btn 类，两者共用同一套主色样式。
+  .driver-popover-next-btn {
+    background-color: #f39c12;
+    border-color: #f39c12;
+    color: #fff;
+    font-weight: 500;
+
+    &:hover,
+    &:focus {
+      background-color: #e67e22;
+      border-color: #e67e22;
+    }
+  }
+
+  .driver-popover-close-btn {
+    color: #c4cad3;
+
+    &:hover,
+    &:focus {
+      color: #5c6470;
+    }
+  }
+
+  // 箭头本身是边框画的白三角，底色跟着气泡走
+  .driver-popover-arrow {
+    border-width: 6px;
+  }
+
+  // 气泡在手机上不能横向溢出
+  @media (max-width: 640px) {
+    min-width: 0;
+    max-width: calc(100vw - 24px);
+  }
+}

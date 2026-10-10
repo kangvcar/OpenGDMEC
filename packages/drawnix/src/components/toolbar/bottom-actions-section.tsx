@@ -7,10 +7,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Badge } from 'tdesign-react';
+import { HelpCircleIcon } from 'tdesign-icons-react';
 import { ToolButton } from '../tool-button';
 import { useTaskQueue } from '../../hooks/useTaskQueue';
 import type { Task } from '../../types/task.types';
 import { FeedbackButton } from '../feedback-button/feedback-button';
+import { requestOnboardingTour } from '../onboarding-tour/tour-event';
 import { FolderIcon, ToolboxIcon, TaskIcon, TrashIcon } from '../icons';
 import './bottom-actions-section.scss';
 
@@ -115,6 +117,23 @@ export const BottomActionsSection: React.FC<BottomActionsSectionProps> = ({
     <div className="bottom-actions-section">
       {/* 反馈按钮 */}
       <FeedbackButton />
+
+      {/* 新手引导重看入口。放在反馈按钮旁边：两个都是「用不明白时点这里」。
+          导览组件是懒加载的，这里只派事件、不直接引它，driver.js 就不会进主包。 */}
+      <ToolButton
+        type="icon"
+        icon={<HelpCircleIcon />}
+        aria-label="使用引导"
+        tooltip="使用引导"
+        tooltipPlacement="right"
+        visible={true}
+        data-track="toolbar_click_onboarding_tour"
+        data-testid="toolbar-guide"
+        onPointerDown={(e) => {
+          e.event.stopPropagation();
+        }}
+        onClick={requestOnboardingTour}
+      />
 
       {/* 打开项目按钮 - 使用 ToolButton */}
       <ToolButton

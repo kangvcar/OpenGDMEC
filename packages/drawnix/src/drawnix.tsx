@@ -191,6 +191,14 @@ const AdminKeyGuidance = lazy(() =>
     default: module.AdminKeyGuidance,
   }))
 );
+// 新手导览。懒加载的理由同 AdminKeyGuidance，另外还多一条：
+// driver.js 和它的 CSS（约 6KB gzip）对已经会用的老师是纯粹的负担，
+// 不该压在首屏主包里。重看入口只派事件，不引这个模块。
+const OnboardingTour = lazy(() =>
+  import('./components/onboarding-tour/onboarding-tour').then((module) => ({
+    default: module.OnboardingTour,
+  }))
+);
 
 type MediaLibraryOpenConfig = Pick<
   MediaLibraryModalProps,
@@ -2009,6 +2017,11 @@ const DrawnixContent: React.FC<DrawnixContentProps> = ({
             AIInputBar 的 promptForApiKey()，弹的是同一个引导弹窗。 */}
         <Suspense fallback={null}>
           <AdminKeyGuidance />
+        </Suspense>
+        {/* 新手导览。ready 用 isDataReady：启动屏还挂着的时候不该弹导览。
+            是否自动播放由组件内部判定（没看过 && 还没配 Key）。 */}
+        <Suspense fallback={null}>
+          <OnboardingTour ready={isDataReady} />
         </Suspense>
         {deferredRuntimeEnabled && (
           <Suspense fallback={null}>

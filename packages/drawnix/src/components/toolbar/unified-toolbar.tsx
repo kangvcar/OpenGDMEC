@@ -519,6 +519,7 @@ export const UnifiedToolbar: React.FC<UnifiedToolbarProps> = React.memo(
                 className="unified-toolbar__collapsed-btn"
                 onClick={() => void requestAdminApiKey()}
                 aria-label={ADMIN_CONTACT_TEXT}
+                data-testid="toolbar-admin-key"
               >
                 <LogoWecomIcon />
               </button>
